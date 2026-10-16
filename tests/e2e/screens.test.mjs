@@ -36,7 +36,7 @@ try {
 
   await b.go('/spravce');
   check('Správce: přehled', await b.hasText('Co už je vytvořeno'));
-  check('Správce: souhrn', await b.hasText('3 děti · 4 hotové vzkazy · 3 koncepty'));
+  check('Správce: souhrn', await b.hasText('3 děti · 7 hotových vzpomínek · 3 koncepty'));
   await b.shot('32-spravce');
   const radios = await b.page.$$('[role="radio"][aria-label="Koncepty"]');
   await radios[0].click();

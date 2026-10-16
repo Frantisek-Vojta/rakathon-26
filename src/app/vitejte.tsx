@@ -72,7 +72,6 @@ export default function WelcomeScreen() {
         onPress={next}
         loading={busy}
       />
-
     </View>
   );
 

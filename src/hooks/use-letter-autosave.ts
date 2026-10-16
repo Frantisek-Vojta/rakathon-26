@@ -33,7 +33,7 @@ export function useLetterAutosave(childId: string, initialLetterId: string | nul
   const persist = useCallback(
     async (status?: LetterStatus): Promise<Letter | null> => {
       const fields = fieldsRef.current;
-      const hasContent = !!(fields.title.trim() || fields.body.trim());
+      const hasContent = !!(fields.title.trim() || fields.body.trim() || fields.media);
       // Prázdný nový dopis do databáze nezakládáme.
       if (!letterIdRef.current && !hasContent) return null;
 
@@ -45,12 +45,16 @@ export function useLetterAutosave(childId: string, initialLetterId: string | nul
         font: fields.font,
         sticker: fields.sticker,
         occasion: fields.occasion,
+        media_path: fields.media?.path ?? null,
+        media_mime: fields.media?.mime ?? null,
+        media_size: fields.media?.size ?? null,
+        media_duration_ms: fields.media?.durationMs ?? null,
       };
 
       let saved: Letter;
       if (!letterIdRef.current) {
-        saved = await createLetter({ child_id: childId, ...payload, status: status ?? 'koncept' });
-        drafts.clear(draftKey(null, childId));
+        saved = await createLetter({ child_id: childId, kind: fields.kind, ...payload, status: status ?? 'koncept' });
+        drafts.clear(draftKey(null, childId, fields.kind));
         letterIdRef.current = saved.id;
         setLetterId(saved.id);
       } else {
@@ -87,7 +91,7 @@ export function useLetterAutosave(childId: string, initialLetterId: string | nul
   const change = useCallback(
     (fields: LetterFields) => {
       fieldsRef.current = fields;
-      drafts.save(draftKey(letterIdRef.current, childId), fields);
+      drafts.save(draftKey(letterIdRef.current, childId, fields.kind), fields);
       setSaveState('local');
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => {
@@ -102,8 +106,8 @@ export function useLetterAutosave(childId: string, initialLetterId: string | nul
   const discard = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
-    drafts.clear(draftKey(letterIdRef.current, childId));
-    drafts.clear(draftKey(null, childId));
+    drafts.clear(draftKey(letterIdRef.current, childId, fieldsRef.current.kind));
+    drafts.clear(draftKey(null, childId, fieldsRef.current.kind));
   }, [childId]);
 
   // Při odchodu z obrazovky dokončíme rozpracované uložení.

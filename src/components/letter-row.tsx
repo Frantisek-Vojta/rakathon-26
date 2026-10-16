@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -6,6 +7,7 @@ import { PAPERS, STICKERS } from '@/constants/choices';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import type { Letter, Paper, Sticker } from '@/lib/data';
 import { excerpt, formatDate } from '@/lib/format';
+import { formatDuration, KIND_LABELS, useMediaUrl, type MemoryKind } from '@/lib/media';
 
 export function StatusBadge({ status }: { status: string }) {
   const done = status === 'hotovo';
@@ -19,12 +21,36 @@ export function StatusBadge({ status }: { status: string }) {
   );
 }
 
-/** Jeden vzkaz v přehledu: obálka v barvě papíru, název, začátek textu, datum a stav. */
+const KIND_ICONS: Record<Exclude<MemoryKind, 'dopis'>, 'image-outline' | 'mic-outline' | 'videocam-outline'> = {
+  foto: 'image-outline',
+  hlas: 'mic-outline',
+  video: 'videocam-outline',
+};
+
+/** Malý náhled fotky v seznamu (načte se odkaz s omezenou platností). */
+function PhotoThumb({ path }: { path: string }) {
+  const { url } = useMediaUrl(path);
+  if (!url) return <Ionicons name="image-outline" size={22} color={Colors.primaryText} />;
+  return (
+    <View aria-hidden>
+      <Image source={{ uri: url }} alt="" contentFit="cover" style={styles.thumb} />
+    </View>
+  );
+}
+
+/** Jedna vzpomínka v přehledu: obálka nebo náhled, název, začátek textu, typ, datum a stav. */
 export function LetterRow({ letter, childName }: { letter: Letter; childName?: string }) {
+  const kind = (letter.kind as MemoryKind) ?? 'dopis';
   const paper = PAPERS[letter.paper as Paper] ?? PAPERS.bezova;
   const sticker = letter.sticker ? STICKERS[letter.sticker as Sticker]?.emoji : null;
-  const title = letter.title.trim() || excerpt(letter.body, 40) || 'Vzkaz bez názvu';
+  const title = letter.title.trim() || excerpt(letter.body, 40) || KIND_LABELS[kind];
   const preview = letter.title.trim() ? excerpt(letter.body) : '';
+  const kindInfo =
+    kind === 'dopis'
+      ? ''
+      : kind === 'foto'
+        ? `${KIND_LABELS[kind]} · `
+        : `${KIND_LABELS[kind]} ${formatDuration(letter.media_duration_ms)} · `;
 
   return (
     <Pressable
@@ -32,7 +58,11 @@ export function LetterRow({ letter, childName }: { letter: Letter; childName?: s
       onPress={() => router.push({ pathname: '/dopis/[id]', params: { id: letter.id } })}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
       <View style={[styles.envelope, { backgroundColor: paper.color, borderColor: paper.edge }]}>
-        {sticker ? (
+        {kind === 'foto' && letter.media_path ? (
+          <PhotoThumb path={letter.media_path} />
+        ) : kind !== 'dopis' ? (
+          <Ionicons name={KIND_ICONS[kind]} size={24} color={Colors.primaryText} />
+        ) : sticker ? (
           <Text style={styles.sticker} accessibilityElementsHidden importantForAccessibility="no">
             {sticker}
           </Text>
@@ -52,6 +82,7 @@ export function LetterRow({ letter, childName }: { letter: Letter; childName?: s
         <View style={styles.meta}>
           <StatusBadge status={letter.status} />
           <Text style={styles.date}>
+            {kindInfo}
             {childName ? `${childName} · ` : ''}
             {formatDate(letter.updated_at)}
           </Text>
@@ -83,9 +114,15 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   sticker: {
     fontSize: 24,
+  },
+  thumb: {
+    width: 52,
+    height: 52,
+    borderRadius: 13,
   },
   texts: {
     flex: 1,

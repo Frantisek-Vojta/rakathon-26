@@ -69,6 +69,10 @@ ids.child = b.page.url().split('/dite/')[1].split(/[/?]/)[0];
 await b.click('K tvým 7. narozeninám');
 await b.hasText('Upravit dopis');
 ids.letter = b.page.url().split('/dopis/')[1].split(/[/?]/)[0];
+await b.go(`/dite/${ids.child}`);
+await b.click('Ukolébavka na dobrou noc');
+await b.hasText('Upravit vzpomínku');
+ids.voice = b.page.url().split('/dopis/')[1].split(/[/?]/)[0];
 
 const SCREENS = [
   { name: 'domu', path: '/' },
@@ -80,6 +84,10 @@ const SCREENS = [
   { name: 'inspirace', path: '/inspirace' },
   { name: 'spravce', path: '/spravce' },
   { name: 'smysl', path: '/smysl' },
+  { name: 'hlas-cteni', path: `/dopis/${ids.voice}` },
+  { name: 'hlas-novy', path: `/dopis/novy?dite=${ids.child}&druh=hlas` },
+  { name: 'foto-novy', path: `/dopis/novy?dite=${ids.child}&druh=foto` },
+  { name: 'video-novy', path: `/dopis/novy?dite=${ids.child}&druh=video` },
 ];
 
 /** Kontroly, které běží uvnitř stránky. */

@@ -9,7 +9,7 @@ try {
   // 1) Otevřít profil fiktivního dítěte (Eliška)
   await b.go('/deti');
   await b.click('Eliška');
-  check('1. Profil Elišky otevřen', await b.hasText('Napsat nový vzkaz'));
+  check('1. Profil Elišky otevřen', await b.hasText('Vytvořit novou vzpomínku'));
 
   // 2) Napsat dopis a uložit jako koncept
   await b.click('Napsat dopis');
@@ -40,7 +40,7 @@ try {
   await b.sleep(600);
   await b.shot('22-hotovo-dialog');
   await b.click('Pokračovat');
-  check('Zpět v profilu', await b.hasText('Napsat nový vzkaz'));
+  check('Zpět v profilu', await b.hasText('Vytvořit novou vzpomínku'));
 
   // 4) Najít hotový dopis v přehledu a otevřít ho
   check('4. Hotový dopis je v přehledu', await b.hasText('Testovací dopis'));
@@ -77,7 +77,7 @@ try {
   check('Potvrzení smazání vzkazu', await b.hasText('Smazat tento vzkaz?'));
   await b.click('Ano, smazat');
   await b.sleep(2500);
-  check('Po smazání zpět v profilu', await b.hasText('Napsat nový vzkaz'));
+  check('Po smazání zpět v profilu', await b.hasText('Vytvořit novou vzpomínku'));
   check('Smazaný vzkaz zmizel', !(await b.hasText('Testovací dopis', 2000)));
 
   // Psaní z inspirace: výběr dítěte

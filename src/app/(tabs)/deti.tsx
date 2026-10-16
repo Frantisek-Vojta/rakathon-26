@@ -74,8 +74,14 @@ function ChildCard({ child }: { child: ChildWithCounts }) {
           <Heading style={styles.name}>{child.name}</Heading>
           {!!age && <Muted>{age}</Muted>}
           <View style={styles.counts}>
-            <Count icon="mail-outline" text={plural(child.finished, 'hotový', 'hotové', 'hotových')} />
-            <Count icon="create-outline" text={plural(child.drafts, 'koncept', 'koncepty', 'konceptů')} />
+            {countsOf(child).length === 0 ? (
+              <Text style={styles.countText}>Zatím bez vzpomínek</Text>
+            ) : (
+              countsOf(child).map((c) => <Count key={c.icon} icon={c.icon} text={c.text} />)
+            )}
+            {child.drafts > 0 && (
+              <Text style={styles.draftsText}>{plural(child.drafts, 'rozepsaná', 'rozepsané', 'rozepsaných')}</Text>
+            )}
           </View>
         </View>
         <Ionicons name="chevron-forward" size={22} color={Colors.textFaint} />
@@ -90,7 +96,21 @@ function ChildCard({ child }: { child: ChildWithCounts }) {
   );
 }
 
-function Count({ icon, text }: { icon: 'mail-outline' | 'create-outline'; text: string }) {
+type CountIcon = 'mail-outline' | 'mic-outline' | 'videocam-outline' | 'image-outline';
+
+function countsOf(child: ChildWithCounts): { icon: CountIcon; text: string }[] {
+  const { dopis, hlas, video, foto } = child.byKind;
+  return [
+    { icon: 'mail-outline' as const, n: dopis, text: plural(dopis, 'dopis', 'dopisy', 'dopisů') },
+    { icon: 'mic-outline' as const, n: hlas, text: plural(hlas, 'nahrávka', 'nahrávky', 'nahrávek') },
+    { icon: 'videocam-outline' as const, n: video, text: plural(video, 'video', 'videa', 'videí') },
+    { icon: 'image-outline' as const, n: foto, text: plural(foto, 'fotka', 'fotky', 'fotek') },
+  ]
+    .filter((c) => c.n > 0)
+    .map(({ icon, text }) => ({ icon, text }));
+}
+
+function Count({ icon, text }: { icon: CountIcon; text: string }) {
   return (
     <View style={styles.count}>
       <Ionicons name={icon} size={16} color={Colors.primaryText} />
@@ -159,5 +179,10 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bodySemiBold,
     fontSize: 14,
     color: Colors.text,
+  },
+  draftsText: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 14,
+    color: Colors.draft,
   },
 });

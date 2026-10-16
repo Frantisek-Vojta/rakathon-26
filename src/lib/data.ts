@@ -3,6 +3,7 @@
 
 import type { Tables, TablesInsert, TablesUpdate } from './database.types';
 import { toMessage } from './errors';
+import { deleteMedia, type MemoryKind } from './media';
 import { supabase } from './supabase';
 
 export type Child = Tables<'children'>;
@@ -14,17 +15,18 @@ export type Paper = 'bezova' | 'ruzova' | 'salvejova' | 'merunkova' | 'piskova';
 export type LetterFont = 'lora' | 'nunito' | 'caveat';
 export type Sticker = 'srdce' | 'kvetina' | 'hvezda' | 'medvidek' | 'slunce' | 'duha' | 'obalka';
 
-export type ChildWithCounts = Child & { drafts: number; finished: number };
+export type ChildWithCounts = Child & { drafts: number; finished: number; byKind: Record<MemoryKind, number> };
 export type LetterWithChild = Letter & { child: Pick<Child, 'id' | 'name' | 'color'> | null };
 
 export type ChildInput = Pick<TablesInsert<'children'>, 'name' | 'birth_date' | 'description' | 'color'>;
+type MediaColumns = 'media_path' | 'media_mime' | 'media_size' | 'media_duration_ms';
 export type LetterInput = Pick<
   TablesInsert<'letters'>,
-  'child_id' | 'title' | 'body' | 'status' | 'occasion' | 'paper' | 'font' | 'sticker'
+  'child_id' | 'kind' | 'title' | 'body' | 'status' | 'occasion' | 'paper' | 'font' | 'sticker' | MediaColumns
 >;
 export type LetterPatch = Pick<
   TablesUpdate<'letters'>,
-  'title' | 'body' | 'status' | 'occasion' | 'paper' | 'font' | 'sticker'
+  'title' | 'body' | 'status' | 'occasion' | 'paper' | 'font' | 'sticker' | MediaColumns
 >;
 
 function fail(error: { message?: string; code?: string } | null): never {
@@ -36,14 +38,19 @@ function fail(error: { message?: string; code?: string } | null): never {
 export async function listChildren(): Promise<ChildWithCounts[]> {
   const { data, error } = await supabase
     .from('children')
-    .select('*, letters(status)')
+    .select('*, letters(status, kind)')
     .order('created_at', { ascending: true });
   if (error) fail(error);
-  return data.map(({ letters, ...child }) => ({
-    ...child,
-    drafts: letters.filter((l) => l.status === 'koncept').length,
-    finished: letters.filter((l) => l.status === 'hotovo').length,
-  }));
+  return data.map(({ letters, ...child }) => {
+    const byKind: Record<MemoryKind, number> = { dopis: 0, foto: 0, hlas: 0, video: 0 };
+    for (const l of letters) byKind[(l.kind as MemoryKind) ?? 'dopis'] += 1;
+    return {
+      ...child,
+      drafts: letters.filter((l) => l.status === 'koncept').length,
+      finished: letters.filter((l) => l.status === 'hotovo').length,
+      byKind,
+    };
+  });
 }
 
 export async function getChild(id: string): Promise<Child> {
@@ -64,9 +71,16 @@ export async function updateChild(id: string, input: ChildInput): Promise<Child>
   return data;
 }
 
+/** Smaže dítě, jeho vzpomínky (databáze) i jejich soubory (úložiště). */
 export async function deleteChild(id: string): Promise<void> {
+  const { data: withMedia } = await supabase
+    .from('letters')
+    .select('media_path')
+    .eq('child_id', id)
+    .not('media_path', 'is', null);
   const { error } = await supabase.from('children').delete().eq('id', id);
   if (error) fail(error);
+  await Promise.all((withMedia ?? []).map((l) => deleteMedia(l.media_path).catch(() => undefined)));
 }
 
 // ---------------------------------------------------------------- vzkazy
@@ -112,7 +126,9 @@ export async function updateLetter(id: string, patch: LetterPatch): Promise<Lett
   return data;
 }
 
-export async function deleteLetter(id: string): Promise<void> {
+/** Smaže vzpomínku i s jejím souborem (fotka, nahrávka, video). */
+export async function deleteLetter(id: string, mediaPath?: string | null): Promise<void> {
   const { error } = await supabase.from('letters').delete().eq('id', id);
   if (error) fail(error);
+  await deleteMedia(mediaPath).catch(() => undefined);
 }

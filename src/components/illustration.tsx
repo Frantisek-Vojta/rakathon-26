@@ -16,7 +16,13 @@ export function Illustration({
   const { source, ratio } = ILLUSTRATIONS[name];
   return (
     <View aria-hidden style={[{ width: '100%', maxWidth, alignSelf: 'center' }, style]}>
-      <Image source={source} alt="" contentFit="contain" transition={250} style={{ width: '100%', aspectRatio: ratio }} />
+      <Image
+        source={source}
+        alt=""
+        contentFit="contain"
+        transition={250}
+        style={{ width: '100%', aspectRatio: ratio }}
+      />
     </View>
   );
 }

@@ -1,7 +1,7 @@
 # UI/UX audit
 
 Adresa: http://localhost:8765  
-Datum: 2026-10-16 19:58
+Datum: 2026-10-16 23:01
 
 ## Souhrn
 
@@ -14,7 +14,7 @@ Datum: 2026-10-16 19:58
 | Porušení WCAG (axe-core) | 0 |
 | Chyby v konzoli | 0 |
 
-Obrazovek × velikostí: 66
+Obrazovek × velikostí: 90
 
 ## Podrobnosti
 
@@ -48,6 +48,14 @@ Obrazovek × velikostí: 66
 
 ### smysl · telefon-maly (320×640) ✅
 
+### hlas-cteni · telefon-maly (320×640) ✅
+
+### hlas-novy · telefon-maly (320×640) ✅
+
+### foto-novy · telefon-maly (320×640) ✅
+
+### video-novy · telefon-maly (320×640) ✅
+
 ### domu · telefon (390×844) ✅
 
 ### deti · telefon (390×844) ✅
@@ -65,6 +73,14 @@ Obrazovek × velikostí: 66
 ### spravce · telefon (390×844) ✅
 
 ### smysl · telefon (390×844) ✅
+
+### hlas-cteni · telefon (390×844) ✅
+
+### hlas-novy · telefon (390×844) ✅
+
+### foto-novy · telefon (390×844) ✅
+
+### video-novy · telefon (390×844) ✅
 
 ### domu · telefon-nasirku (844×390) ✅
 
@@ -84,6 +100,14 @@ Obrazovek × velikostí: 66
 
 ### smysl · telefon-nasirku (844×390) ✅
 
+### hlas-cteni · telefon-nasirku (844×390) ✅
+
+### hlas-novy · telefon-nasirku (844×390) ✅
+
+### foto-novy · telefon-nasirku (844×390) ✅
+
+### video-novy · telefon-nasirku (844×390) ✅
+
 ### domu · tablet (768×1024) ✅
 
 ### deti · tablet (768×1024) ✅
@@ -101,6 +125,14 @@ Obrazovek × velikostí: 66
 ### spravce · tablet (768×1024) ✅
 
 ### smysl · tablet (768×1024) ✅
+
+### hlas-cteni · tablet (768×1024) ✅
+
+### hlas-novy · tablet (768×1024) ✅
+
+### foto-novy · tablet (768×1024) ✅
+
+### video-novy · tablet (768×1024) ✅
 
 ### domu · notebook (1280×800) ✅
 
@@ -120,6 +152,14 @@ Obrazovek × velikostí: 66
 
 ### smysl · notebook (1280×800) ✅
 
+### hlas-cteni · notebook (1280×800) ✅
+
+### hlas-novy · notebook (1280×800) ✅
+
+### foto-novy · notebook (1280×800) ✅
+
+### video-novy · notebook (1280×800) ✅
+
 ### domu · monitor (1600×1000) ✅
 
 ### deti · monitor (1600×1000) ✅
@@ -137,6 +177,14 @@ Obrazovek × velikostí: 66
 ### spravce · monitor (1600×1000) ✅
 
 ### smysl · monitor (1600×1000) ✅
+
+### hlas-cteni · monitor (1600×1000) ✅
+
+### hlas-novy · monitor (1600×1000) ✅
+
+### foto-novy · monitor (1600×1000) ✅
+
+### video-novy · monitor (1600×1000) ✅
 
 ### prihlaseni · telefon-maly (320×640) ✅
 

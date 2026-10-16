@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 import { drafts } from './drafts';
 import { toMessage } from './errors';
+import { deleteAllMyMedia } from './media';
 import { storage } from './storage';
 import { supabase } from './supabase';
 
@@ -81,6 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async signOut() {
         // Demo účet po odhlášení nemá smysl uchovávat, smažeme ho i s ukázkovými daty.
         if (user?.is_anonymous) {
+          // Nejdřív soubory (fotky, nahrávky, videa), databáze je smazat neumí.
+          await deleteAllMyMedia().catch(() => undefined);
           await supabase.rpc('delete_my_account');
         }
         // "local" smaže přihlášení ze zařízení i když už účet na serveru neexistuje.
@@ -89,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
 
       async deleteAccount() {
+        await deleteAllMyMedia().catch(() => undefined);
         const { error } = await supabase.rpc('delete_my_account');
         if (error) return { error: toMessage(error) };
         await supabase.auth.signOut({ scope: 'local' });

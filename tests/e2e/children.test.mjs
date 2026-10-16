@@ -7,10 +7,10 @@ try {
   await b.go('/deti');
   check('Seznam ukazuje Elišku', await b.hasText('Eliška'));
   check('Seznam ukazuje Matěje a Anetu', (await b.hasText('Matěj')) && (await b.hasText('Aneta')));
-  check('Počty vzkazů u dítěte', await b.hasText('2 hotové'));
+  check('Počty vzpomínek podle typu', (await b.hasText('3 dopisy')) && (await b.hasText('1 nahrávka')));
   await b.shot('10-deti');
   await b.click('Eliška');
-  check('Profil Elišky se otevřel', await b.hasText('Napsat nový vzkaz'));
+  check('Profil Elišky se otevřel', await b.hasText('Vytvořit novou vzpomínku'));
   check('Profil ukazuje věk', await b.hasText('6 let'));
   check('Profil ukazuje rozepsané vzkazy', await b.hasText('Rozepsané'));
   check('Profil ukazuje hotové vzkazy', await b.hasText('K tvým 7. narozeninám'));

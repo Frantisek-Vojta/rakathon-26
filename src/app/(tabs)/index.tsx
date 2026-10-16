@@ -4,6 +4,7 @@ import { useCallback, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { CreateMemory } from '@/components/create-memory';
 import { Illustration } from '@/components/illustration';
 import { LetterRow } from '@/components/letter-row';
 import { Screen } from '@/components/screen';
@@ -135,6 +136,14 @@ export default function HomeScreen() {
             </Pressable>
           ))}
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <View style={styles.sectionHead}>
+          <Heading>Nemusíte psát</Heading>
+          <Muted>Vzpomínku můžete namluvit, natočit nebo přidat fotku. Jak je vám to nejbližší.</Muted>
+        </View>
+        <CreateMemory />
       </View>
 
       <View style={[styles.columns, isDesktop && styles.columnsWide]}>

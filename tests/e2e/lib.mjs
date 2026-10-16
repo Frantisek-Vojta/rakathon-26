@@ -23,11 +23,23 @@ export async function open(base, { w = 390, h = 844 } = {}) {
     executablePath: firefoxPath(),
     headless: true,
     userDataDir: mkdtempSync(join(tmpdir(), 'schranka-e2e-')),
+    // Testovací mikrofon a kamera místo skutečných (pro nahrávání hlasu), bez dotazu na povolení.
+    extraPrefsFirefox: {
+      'media.navigator.streams.fake': true,
+      'media.navigator.permission.disabled': true,
+      'media.autoplay.default': 0,
+    },
   });
   const page = await browser.newPage();
   const logs = [];
-  page.on('console', (m) => { if (['error', 'warn'].includes(m.type())) logs.push(`[${m.type()}] ${m.text()}`); });
-  page.on('pageerror', (e) => logs.push(`[pageerror] ${e.message}`));
+  // Hláška Firefoxu o cookie „__cf_bm“ pochází z Cloudflare před úložištěm Supabase, ne z aplikace.
+  const ignored = (text) => /__cf_bm/.test(text);
+  page.on('console', (m) => {
+    if (['error', 'warn'].includes(m.type()) && !ignored(m.text())) logs.push(`[${m.type()}] ${m.text()}`);
+  });
+  page.on('pageerror', (e) => {
+    if (!ignored(e.message)) logs.push(`[pageerror] ${e.message}`);
+  });
   await page.setViewport({ width: w, height: h });
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const api = {
@@ -66,6 +78,28 @@ export async function open(base, { w = 390, h = 844 } = {}) {
       await page.keyboard.down('Control'); await page.keyboard.press('a'); await page.keyboard.up('Control');
       await page.keyboard.press('Backspace');
       if (text) await page.keyboard.type(text);
+    },
+    /** Další výběr souboru (fotka, video) dostane tento soubor místo dialogu. */
+    async prepareFile(base64, type, name) {
+      await page.evaluate(
+        (b64, mime, fileName) => {
+          const observer = new MutationObserver(() => {
+            const input = document.querySelector('input[type="file"]:not([data-test-filled])');
+            if (!input) return;
+            input.setAttribute('data-test-filled', '1');
+            const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+            const transfer = new DataTransfer();
+            transfer.items.add(new File([bytes], fileName, { type: mime }));
+            input.files = transfer.files;
+            setTimeout(() => input.dispatchEvent(new Event('change')), 50);
+            observer.disconnect();
+          });
+          observer.observe(document.body, { childList: true });
+        },
+        base64,
+        type,
+        name,
+      );
     },
     async local(key) { return page.evaluate((k) => localStorage.getItem(k), key); },
     async close() { await browser.close(); },

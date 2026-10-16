@@ -3,24 +3,28 @@
 // Když vypadne internet nebo se appka zavře, text se při dalším otevření obnoví.
 
 import type { LetterFont, Paper, Sticker } from './data';
+import type { MediaInfo, MemoryKind } from './media';
 import { storage } from './storage';
 
 export type LetterFields = {
+  kind: MemoryKind;
   title: string;
   body: string;
   paper: Paper;
   font: LetterFont;
   sticker: Sticker | null;
   occasion: string | null;
+  /** Soubor v úložišti (fotka, nahrávka, video), u dopisu prázdné. */
+  media: MediaInfo | null;
 };
 
 type LocalDraft = { fields: LetterFields; savedAt: number };
 
 const PREFIX = 'rozepsano:';
 
-/** Klíč: existující dopis podle ID, nový dopis podle dítěte. */
-export function draftKey(letterId: string | null, childId: string) {
-  return PREFIX + (letterId ?? `novy-${childId}`);
+/** Klíč: existující vzpomínka podle ID, nová podle dítěte a typu (dopis, fotka, hlas, video). */
+export function draftKey(letterId: string | null, childId: string, kind: MemoryKind = 'dopis') {
+  return PREFIX + (letterId ?? `novy-${childId}${kind === 'dopis' ? '' : `-${kind}`}`);
 }
 
 export const drafts = {

@@ -10,6 +10,7 @@ import { ConfirmDialog, Dialog } from '@/components/dialog';
 import { LetterAppearance } from '@/components/letter/appearance';
 import { ChildPicker } from '@/components/letter/child-picker';
 import { LetterPaper } from '@/components/letter/paper';
+import { MediaField } from '@/components/media/media-field';
 import { StatusBadge } from '@/components/letter-row';
 import { Screen } from '@/components/screen';
 import { ErrorState, Loading } from '@/components/states';
@@ -31,14 +32,48 @@ import {
 } from '@/lib/data';
 import { draftKey, drafts, type LetterFields } from '@/lib/drafts';
 import { formatDate, plural } from '@/lib/format';
+import { deleteMedia, KIND_LABELS, type MemoryKind } from '@/lib/media';
 import { usePreferences } from '@/lib/preferences';
 
 type ChildInfo = Pick<Child, 'id' | 'name' | 'color'>;
 
-const EMPTY: LetterFields = { title: '', body: '', paper: 'bezova', font: 'lora', sticker: null, occasion: null };
+const EMPTY: LetterFields = {
+  kind: 'dopis',
+  title: '',
+  body: '',
+  paper: 'bezova',
+  font: 'lora',
+  sticker: null,
+  occasion: null,
+  media: null,
+};
+
+const KINDS: MemoryKind[] = ['dopis', 'foto', 'hlas', 'video'];
+
+const MISSING_MEDIA: Record<Exclude<MemoryKind, 'dopis'>, string> = {
+  foto: 'Nejdřív prosím přidejte fotku.',
+  hlas: 'Nejdřív prosím nahrajte hlasový vzkaz.',
+  video: 'Nejdřív prosím přidejte video.',
+};
+
+const BODY_PLACEHOLDER: Record<MemoryKind, string> = {
+  dopis: 'Sem napište, co máte na srdci.\nStačí jedna věta…',
+  foto: 'Napište k fotce pár slov (nepovinné)…',
+  hlas: 'Můžete připsat pár slov k nahrávce (nepovinné)…',
+  video: 'Můžete připsat pár slov k videu (nepovinné)…',
+};
 
 function fieldsOf(letter: Letter): LetterFields {
   return {
+    kind: (letter.kind as MemoryKind) ?? 'dopis',
+    media: letter.media_path
+      ? {
+          path: letter.media_path,
+          mime: letter.media_mime ?? '',
+          size: letter.media_size ?? 0,
+          durationMs: letter.media_duration_ms,
+        }
+      : null,
     title: letter.title,
     body: letter.body,
     paper: letter.paper as Paper,
@@ -52,10 +87,17 @@ function fieldsOf(letter: Letter): LetterFields {
  * /dopis/novy?dite=ID      nový dopis pro dítě
  * /dopis/novy?otazka=…     nový dopis z inspirace (nejdřív výběr dítěte)
  * /dopis/novy?dite=ID&prilezitost=…   nový dopis k milníku z časové osy
+ * /dopis/novy?dite=ID&druh=foto|hlas|video   fotka, hlasový nebo video vzkaz místo psaní
  * /dopis/ID                existující dopis (hotový se otevře ke čtení)
  */
 export default function LetterRoute() {
-  const params = useLocalSearchParams<{ id: string; dite?: string; otazka?: string; prilezitost?: string }>();
+  const params = useLocalSearchParams<{
+    id: string;
+    dite?: string;
+    otazka?: string;
+    prilezitost?: string;
+    druh?: string;
+  }>();
   // Parametry si zapamatujeme při otevření. Po prvním uložení se v adrese
   // „novy“ změní na skutečné ID a obrazovka se kvůli tomu nesmí znovu načítat.
   // Otázka přichází z adresy, kterou může kdokoli upravit: zkrátíme ji na rozumnou délku.
@@ -65,6 +107,7 @@ export default function LetterRoute() {
     otazka: params.otazka?.slice(0, 200),
     // Jen příležitosti z nabídky (adresa jde ručně upravit).
     prilezitost: OCCASIONS.find((o) => o !== 'Kdykoli' && o === params.prilezitost) ?? null,
+    druh: KINDS.find((k) => k === params.druh) ?? 'dopis',
   }));
   const [childId, setChildId] = useState(start.dite);
   const isNew = start.id === 'novy';
@@ -89,6 +132,7 @@ export default function LetterRoute() {
       childId={childId ?? null}
       prompt={start.otazka}
       occasion={start.prilezitost}
+      kind={start.druh}
     />
   );
 }
@@ -100,11 +144,13 @@ function LetterLoader({
   childId,
   prompt,
   occasion,
+  kind,
 }: {
   letterId: string | null;
   childId: string | null;
   prompt?: string;
   occasion: string | null;
+  kind: MemoryKind;
 }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -121,13 +167,26 @@ function LetterLoader({
           const local = drafts.load(draftKey(letterId, letter.child.id));
           const restored = !!local && local.savedAt > Date.parse(letter.updated_at);
           if (active) {
-            setLoaded({ child: letter.child, letter, fields: restored ? local.fields : fieldsOf(letter), restored });
+            setLoaded({
+              child: letter.child,
+              letter,
+              // Starší zálohy nemusí znát nová pole (typ, soubor), proto je doplníme.
+              fields: restored
+                ? { ...fieldsOf(letter), ...local.fields, kind: fieldsOf(letter).kind }
+                : fieldsOf(letter),
+              restored,
+            });
           }
         } else if (childId) {
           const child = await getChild(childId);
-          const local = drafts.load(draftKey(null, childId));
+          const local = drafts.load(draftKey(null, childId, kind));
           if (active)
-            setLoaded({ child, letter: null, fields: local?.fields ?? { ...EMPTY, occasion }, restored: !!local });
+            setLoaded({
+              child,
+              letter: null,
+              fields: local ? { ...EMPTY, ...local.fields, kind } : { ...EMPTY, kind, occasion },
+              restored: !!local,
+            });
         }
       } catch (e) {
         if (active) setError((e as Error).message);
@@ -136,7 +195,7 @@ function LetterLoader({
     return () => {
       active = false;
     };
-  }, [letterId, childId, occasion, attempt]);
+  }, [letterId, childId, occasion, kind, attempt]);
 
   if (error || !loaded) {
     return (
@@ -202,12 +261,16 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
   }
 
   async function save(nextStatus: LetterStatus) {
-    if (nextStatus === 'hotovo' && !fields.body.trim()) {
+    if (nextStatus === 'hotovo' && fields.kind === 'dopis' && !fields.body.trim()) {
       setError('Napište prosím aspoň jednu větu. Pak můžete vzkaz uložit jako hotový.');
       return;
     }
-    if (!fields.title.trim() && !fields.body.trim()) {
-      setError('Zatím tu nic není. Napište aspoň pár slov.');
+    if (nextStatus === 'hotovo' && fields.kind !== 'dopis' && !fields.media) {
+      setError(MISSING_MEDIA[fields.kind]);
+      return;
+    }
+    if (!fields.title.trim() && !fields.body.trim() && !fields.media) {
+      setError(fields.kind === 'dopis' ? 'Zatím tu nic není. Napište aspoň pár slov.' : MISSING_MEDIA[fields.kind]);
       return;
     }
     const wasDone = status === 'hotovo';
@@ -234,7 +297,8 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
   async function remove() {
     setBusy('delete');
     try {
-      if (letterId) await deleteLetter(letterId);
+      if (letterId) await deleteLetter(letterId, fields.media?.path);
+      else await deleteMedia(fields.media?.path).catch(() => undefined);
       autosave.discard();
       setDialog(null);
       backToProfile();
@@ -261,7 +325,11 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
 
   const footer =
     mode === 'read' ? (
-      <Button label="Upravit dopis" icon="create-outline" onPress={() => setMode('edit')} />
+      <Button
+        label={fields.kind === 'dopis' ? 'Upravit dopis' : 'Upravit vzpomínku'}
+        icon="create-outline"
+        onPress={() => setMode('edit')}
+      />
     ) : (
       <View style={styles.footerStack}>
         {draftSaved && (
@@ -315,6 +383,11 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
         <Text style={styles.forText}>
           Pro: <Text style={styles.forName}>{child.name}</Text>
         </Text>
+        {fields.kind !== 'dopis' && (
+          <View style={styles.kindChip}>
+            <Text style={styles.kindChipText}>{KIND_LABELS[fields.kind]}</Text>
+          </View>
+        )}
         {(letterId || letter) && <StatusBadge status={status} />}
       </View>
 
@@ -360,7 +433,33 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
         </>
       )}
 
-      <LetterPaper fields={fields} onChange={mode === 'edit' ? update : undefined} footnote={footnote} />
+      {fields.kind !== 'dopis' && (
+        <MediaField
+          kind={fields.kind}
+          media={fields.media}
+          onChange={mode === 'edit' ? (media) => update({ media }) : undefined}
+        />
+      )}
+
+      {(mode === 'edit' || fields.kind === 'dopis' || !!fields.title.trim() || !!fields.body.trim()) && (
+        <LetterPaper
+          fields={fields}
+          onChange={mode === 'edit' ? update : undefined}
+          footnote={footnote}
+          placeholder={BODY_PLACEHOLDER[fields.kind]}
+          minHeight={fields.kind === 'dopis' ? 320 : 140}
+        />
+      )}
+
+      {mode === 'edit' && fields.kind === 'dopis' && (
+        <View style={styles.tip}>
+          <Ionicons name="mic-outline" size={20} color={Colors.textMuted} />
+          <Text style={styles.tipText}>
+            Nechce se vám psát? Na klávesnici telefonu klepněte na mikrofon a text se napíše sám. Nebo vytvořte hlasový
+            vzkaz.
+          </Text>
+        </View>
+      )}
 
       {error && (
         <View style={styles.errorBox} accessibilityLiveRegion="polite">
@@ -542,6 +641,29 @@ const styles = StyleSheet.create({
   },
   footerStack: {
     gap: Spacing.sm,
+  },
+  kindChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.lavender,
+  },
+  kindChipText: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 13,
+    color: Colors.lavenderDark,
+  },
+  tip: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    alignItems: 'flex-start',
+  },
+  tipText: {
+    flex: 1,
+    fontFamily: Fonts.body,
+    fontSize: 14,
+    lineHeight: 20,
+    color: Colors.textMuted,
   },
   footerRow: {
     flexDirection: 'row',

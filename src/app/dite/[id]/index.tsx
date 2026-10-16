@@ -4,8 +4,8 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BackHeader } from '@/components/back-header';
-import { Button } from '@/components/button';
 import { ChildAvatar } from '@/components/child-avatar';
+import { CreateMemory } from '@/components/create-memory';
 import { LetterRow } from '@/components/letter-row';
 import { Screen } from '@/components/screen';
 import { ChildTimeline } from '@/components/timeline';
@@ -65,7 +65,6 @@ export default function ChildProfileScreen() {
   const finished = letters.filter((l) => l.status === 'hotovo');
   const palette = CHILD_COLORS[child.color as ChildColor] ?? CHILD_COLORS.rose;
   const age = formatAge(child.birth_date);
-  const newLetter = () => router.push({ pathname: '/dopis/[id]', params: { id: 'novy', dite: child.id } });
 
   return (
     <Screen showLogo={false} header={header}>
@@ -79,9 +78,9 @@ export default function ChildProfileScreen() {
       {!!child.description && <Body style={styles.description}>{child.description}</Body>}
 
       <View style={styles.create}>
-        <Heading>Napsat nový vzkaz</Heading>
-        <Muted>Zachyťte myšlenky, slova a okamžiky, které budou mít jednou velkou hodnotu.</Muted>
-        <Button label="Napsat dopis" icon="create-outline" onPress={newLetter} />
+        <Heading>Vytvořit novou vzpomínku</Heading>
+        <Muted>Napište, namluvte, natočte nebo přidejte fotku. Jak je vám to nejbližší.</Muted>
+        <CreateMemory childId={child.id} />
       </View>
 
       <View style={styles.tabs} accessibilityRole="tablist">

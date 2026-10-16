@@ -18,11 +18,19 @@ import { useLayout } from '@/hooks/use-layout';
 import { useAuth } from '@/lib/auth';
 import { listChildren, listLetters, type LetterStatus } from '@/lib/data';
 import { lettersToText, shareExport } from '@/lib/export';
+import type { MemoryKind } from '@/lib/media';
 import { plural } from '@/lib/format';
 import { usePreferences, type Interest, type Reminders } from '@/lib/preferences';
 import { applyReminders, remindersSupported } from '@/lib/reminders';
 
 type StatusFilter = 'vse' | LetterStatus;
+
+const KIND_FILTERS: { kind: MemoryKind; label: string }[] = [
+  { kind: 'dopis', label: 'Dopisy' },
+  { kind: 'foto', label: 'Fotky' },
+  { kind: 'hlas', label: 'Hlas' },
+  { kind: 'video', label: 'Video' },
+];
 
 export default function ManagerScreen() {
   const { isDesktop } = useLayout();
@@ -33,6 +41,7 @@ export default function ManagerScreen() {
   const { data, error, reload } = useFocusData(load);
   const [status, setStatus] = useState<StatusFilter>('vse');
   const [childId, setChildId] = useState<string | null>(null);
+  const [kind, setKind] = useState<MemoryKind | null>(null);
   const [query, setQuery] = useState('');
 
   const visible = useMemo(() => {
@@ -42,9 +51,10 @@ export default function ManagerScreen() {
       (l) =>
         (status === 'vse' || l.status === status) &&
         (!childId || l.child_id === childId) &&
+        (!kind || l.kind === kind) &&
         (!q || `${l.title} ${l.body} ${l.occasion ?? ''}`.toLocaleLowerCase('cs').includes(q)),
     );
-  }, [data, status, childId, query]);
+  }, [data, status, childId, kind, query]);
 
   const finished = data?.letters.filter((l) => l.status === 'hotovo').length ?? 0;
   const drafts = (data?.letters.length ?? 0) - finished;
@@ -55,7 +65,7 @@ export default function ManagerScreen() {
       {data && (
         <Text style={styles.summary}>
           {plural(data.children.length, 'dítě', 'děti', 'dětí')} ·{' '}
-          {plural(finished, 'hotový vzkaz', 'hotové vzkazy', 'hotových vzkazů')} ·{' '}
+          {plural(finished, 'hotová vzpomínka', 'hotové vzpomínky', 'hotových vzpomínek')} ·{' '}
           {plural(drafts, 'koncept', 'koncepty', 'konceptů')}
         </Text>
       )}
@@ -71,6 +81,12 @@ export default function ManagerScreen() {
         <Chip label="Vše" selected={status === 'vse'} onPress={() => setStatus('vse')} />
         <Chip label="Hotové" selected={status === 'hotovo'} onPress={() => setStatus('hotovo')} />
         <Chip label="Koncepty" selected={status === 'koncept'} onPress={() => setStatus('koncept')} />
+      </View>
+      <View style={styles.chips} accessibilityRole="radiogroup" accessibilityLabel="Typ vzpomínky">
+        <Chip label="Všechny typy" selected={!kind} onPress={() => setKind(null)} />
+        {KIND_FILTERS.map((k) => (
+          <Chip key={k.kind} label={k.label} selected={kind === k.kind} onPress={() => setKind(k.kind)} />
+        ))}
       </View>
       {data && data.children.length > 1 && (
         <View style={styles.chips} accessibilityRole="radiogroup" accessibilityLabel="Dítě">
