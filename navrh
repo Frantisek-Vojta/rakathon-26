@@ -1,0 +1,33 @@
+vybrat dite -> napsat dopis -> ulozit -> upravit -> znovu najit
+
+co to ma mit:
+- profil ditete
+- textovy dopis
+- koncept / hotove
+- prehled
+
+rozsirit:
+- fotografie
+- hlas a video
+- milniky
+- inspirace
+- export
+
+koncept:
+- vybrat dite -> otevre se profil ditete -> napsat dopis / ulozit koncept
+
+co musi reseni respektovat
+- soukromi profil
+- zadne tlak, zadne povinny ukoly, dopisy
+- fiktivni data
+- zadna socialni sit
+
+musi:
+- spustitelne demo
+- fiktivni profil ditete
+- napsani a uprava textoveho dopisu
+- zachovani dat po restartu
+- ulozeni konceptu i hotoveho vzkazu
+
+co chceem videt:
+funkci pruchod webem -> dite
