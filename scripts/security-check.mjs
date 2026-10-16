@@ -97,12 +97,38 @@ try {
   const { error: emptyName } = await a.from('children').insert({ name: '   ' });
   check('Prázdné jméno odmítnuto', !!emptyName, emptyName?.code);
 
-  // 8) Stav koncept → hotovo nastaví čas dokončení
+  // 8) Soubory (fotky, hlas, video): každý jen ve své složce
+  const png = Uint8Array.from(
+    atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='),
+    (c) => c.charCodeAt(0),
+  );
+  const pathA = `${sa.user.id}/test.png`;
+  const { error: upA } = await a.storage.from('vzpominky').upload(pathA, png, { contentType: 'image/png' });
+  check('A nahraje fotku do své složky', !upA, upA?.message);
+  const { data: dlB } = await b.storage.from('vzpominky').download(pathA);
+  check('B nestáhne fotku A', !dlB);
+  const { data: signB } = await b.storage.from('vzpominky').createSignedUrl(pathA, 60);
+  check('B nezíská odkaz na fotku A', !signB?.signedUrl);
+  const { error: upB } = await b.storage.from('vzpominky').upload(`${sa.user.id}/podvrh.png`, png, { contentType: 'image/png' });
+  check('B nenahraje nic do složky A', !!upB, upB?.message);
+  const childB = (await b.from('children').select('id').limit(1)).data[0];
+  const { error: stealErr } = await b.from('letters').insert({ child_id: childB.id, kind: 'foto', media_path: pathA });
+  check('B nepodstrčí fotku A do svého vzkazu', !!stealErr, stealErr?.code);
+  const { error: badType } = await a.storage.from('vzpominky').upload(`${sa.user.id}/skript.html`, png, { contentType: 'text/html' });
+  check('Úložiště odmítne jiný typ souboru než obrázek, zvuk, video', !!badType, badType?.message);
+  const { data: demoSign } = await b.storage.from('vzpominky').createSignedUrl('demo/ukolebavka.m4a', 60);
+  check('Přihlášený přehraje ukázkovou ukolébavku', !!demoSign?.signedUrl);
+  const { data: anonDl } = await anonymous.storage.from('vzpominky').download('demo/ukolebavka.m4a');
+  check('Nepřihlášený nestáhne nic', !anonDl);
+  const { error: rmA } = await a.storage.from('vzpominky').remove([pathA]);
+  check('A smaže svou fotku', !rmA, rmA?.message);
+
+  // 9) Stav koncept → hotovo nastaví čas dokončení
   const draft = (await a.from('letters').select('id').eq('status', 'koncept').limit(1)).data[0];
   const { data: done } = await a.from('letters').update({ status: 'hotovo' }).eq('id', draft.id).select('finished_at').single();
   check('Dokončení vzkazu nastaví čas dokončení', !!done?.finished_at);
 } finally {
-  // 9) Smazání účtů (právo na výmaz) smaže i data
+  // 10) Smazání účtů (právo na výmaz) smaže i data
   const { error: delA } = await a.rpc('delete_my_account');
   const { error: delB } = await b.rpc('delete_my_account');
   check('Účet A smazán i s daty', !delA, delA?.message);

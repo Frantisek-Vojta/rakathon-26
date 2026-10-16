@@ -49,6 +49,11 @@ export type Database = {
           finished_at: string | null;
           font: string;
           id: string;
+          kind: string;
+          media_duration_ms: number | null;
+          media_mime: string | null;
+          media_path: string | null;
+          media_size: number | null;
           occasion: string | null;
           owner_id: string;
           paper: string;
@@ -64,6 +69,11 @@ export type Database = {
           finished_at?: string | null;
           font?: string;
           id?: string;
+          kind?: string;
+          media_duration_ms?: number | null;
+          media_mime?: string | null;
+          media_path?: string | null;
+          media_size?: number | null;
           occasion?: string | null;
           owner_id?: string;
           paper?: string;
@@ -79,6 +89,11 @@ export type Database = {
           finished_at?: string | null;
           font?: string;
           id?: string;
+          kind?: string;
+          media_duration_ms?: number | null;
+          media_mime?: string | null;
+          media_path?: string | null;
+          media_size?: number | null;
           occasion?: string | null;
           owner_id?: string;
           paper?: string;

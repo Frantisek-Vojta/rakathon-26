@@ -38,7 +38,22 @@
           "imageWidth": 140
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Aplikace potřebuje mikrofon, abyste mohli nahrát hlasový vzkaz."
+        }
+      ],
+      "expo-video",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aplikace potřebuje přístup k fotkám, abyste mohli k vzpomínce přidat fotografii nebo video.",
+          "cameraPermission": "Aplikace potřebuje fotoaparát, abyste mohli vyfotit fotku nebo natočit video vzkaz.",
+          "microphonePermission": "Aplikace potřebuje mikrofon pro natáčení video vzkazu."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
