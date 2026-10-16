@@ -9,7 +9,7 @@ Prototyp z **Rakathonu 2026 (Brno)** pro výzvu **„Vzkazy pro budoucnost“**,
 
 | | |
 |---|---|
-| 🌐 **Webová verze** | https://rakathon-26.vercel.app |
+| 🌐 **Webová verze** | https://rakathon-vzpominky.vercel.app |
 | 📱 **Telefon** | Expo Go (návod níže) |
 | 🧪 **Vyzkoušení bez registrace** | tlačítko **„Vyzkoušet demo“** (fiktivní rodina Eliška, Matěj, Aneta) |
 
@@ -28,8 +28,9 @@ Prototyp z **Rakathonu 2026 (Brno)** pro výzvu **„Vzkazy pro budoucnost“**,
 9. [Co se ukládá v zařízení (localStorage)](#9-co-se-ukládá-v-zařízení-localstorage)
 10. [Spuštění pro vývojáře](#10-spuštění-pro-vývojáře)
 11. [Testy](#11-testy)
-12. [Nasazení](#12-nasazení)
-13. [Co dál](#13-co-dál)
+12. [UI/UX: přístupnost a responzivita](#12-uiux-přístupnost-a-responzivita)
+13. [Nasazení](#13-nasazení)
+14. [Co dál](#14-co-dál)
 
 ---
 
@@ -40,15 +41,29 @@ Prototyp z **Rakathonu 2026 (Brno)** pro výzvu **„Vzkazy pro budoucnost“**,
 | Obrazovka | Co na ní rodič najde |
 |---|---|
 | **Přihlášení** | Přihlášení e-mailem, registrace, nebo **„Vyzkoušet demo“** jedním klepnutím |
-| **Místo pro slova** (domů) | Rozepsané vzkazy k dopsání, **Dnešní malý krok** (jedna otázka denně), rozcestník |
+| **Uvítací průvodce** (jen poprvé) | **Vítejte** → **Co je pro vás důležité?** → **Jakou podporu si přejete?** (jemné vedení / klidný režim) → **Připomenutí** (jen když o ně stojíte). Dá se přeskočit, vše jde později změnit |
+| **Místo pro slova** (domů) | **Vítejte zpět**, **Kolik máte dnes sil?** (*Mám sílu tvořit* / *Zvládnu jen jednu větu* / *Dnes potřebuji odpočívat*), pokračování v konceptu, jen si vše projít, citát dne |
 | **Moje děti** | Karty dětí s věkem a počtem hotových vzkazů a konceptů, přidání dítěte |
-| **Profil dítěte** | Jméno, věk, popis, „Napsat dopis“, rozepsané a hotové vzkazy, úprava a smazání profilu |
-| **Dopis** | Psaní na dopisní papír. Volba papíru, písma (i ručně psaného), nálepky a příležitosti. Průběžné ukládání, **Uložit koncept / Uložit vzkaz**, režim čtení |
-| **Inspirace a tipy** | 22 otázek v 5 tématech (klepnutím začne nový dopis), nápady na **dary mimo telefon** |
-| **Správce schránky** | Přehled všech vzkazů, hledání, filtr podle stavu a dítěte, **export do souboru**, informace o ochraně dat, účet, smazání účtu |
+| **Profil dítěte** | Jméno, věk, popis, „Napsat dopis“, přepínač **Vzkazy / Časová osa**. Časová osa ukazuje milníky (škola, 18. narozeniny, maturita, svatba…) a u každého, jestli je vzkaz hotový, rozepsaný, nebo ho jde napsat |
+| **Dopis** | Psaní na dopisní papír. Volba papíru, písma (i ručně psaného), nálepky a příležitosti. Průběžné ukládání, **Uložit koncept** (jemné potvrzení bez přerušení), **Uložit vzkaz** (poděkování s ilustrací), režim čtení |
+| **Inspirace a tipy** | **Proč to má smysl**, **Moje životní příběhy** (5 témat), 22 otázek v 5 tématech (klepnutím začne nový dopis), **Nemusí to být jen v aplikaci** (9 nápadů na vzpomínkové dary) |
+| **Správce schránky** | Přehled všech vzkazů, hledání, filtr podle stavu a dítěte, **export do souboru**, **nastavení podpory a připomínek**, informace o ochraně dat, účet, smazání účtu |
 
-**Nad rámec povinného MVP:** inspirační otázky, příležitosti (narozeniny, škola, svatba…),
-vzhled dopisu, export, místní záloha při výpadku internetu, demo účet, smazání účtu.
+**Nad rámec povinného MVP:** uvítací průvodce, jemné vedení / klidný režim, připomínky v telefonu,
+průvodce energií, časová osa dítěte, životní příběhy, inspirace, export, místní záloha při
+výpadku internetu, demo účet, smazání účtu, plně responzivní rozvržení a přístupnost podle WCAG.
+
+### Podle nových podkladů FN Olomouc
+
+| Podklad | Jak ho appka naplňuje |
+|---|---|
+| **Přívětivý začátek i návrat** | Uvítací průvodce a domovská obrazovka „Vítejte zpět“: pokračovat v konceptu, malý podnět, nebo jen prohlížet. Bez výčitek |
+| **Vlastní tempo** | Průvodce energií: delší tvorba, jediná věta, nebo odpočinek a inspirace. Rozpracovaný text se nikdy neztratí |
+| **Bezpečí a kontrola** | Rodič sám volí míru podpory a připomínky a může je kdykoli vypnout. Ve Správci je srozumitelně popsané, kdo k obsahu má přístup |
+| **Jemná gamifikace** | Jen laskavé poděkování po uložení a orientační počet („Už 5 vzpomínek!“). Žádné série, žebříčky ani odpočty. V klidném režimu vypnuto |
+| **Připomínky podle přání** | Zapínají se až po volbě uživatele (1× nebo 3× týdně, nebo vůbec). Text na zamčené obrazovce neprozradí obsah: „Možná je dnes hezký okamžik na malou vzpomínku.“ |
+| **Časová osa dítěte, Moje životní příběhy, Mimo aplikaci, Proč to má smysl** | Samostatné části aplikace, obsahově podle podkladů |
+| **Mapa vzpomínek** | Zatím ne, viz [Co dál](#14-co-dál). Běžný seznam je ve Správci schránky |
 
 ---
 
@@ -74,14 +89,14 @@ vzhled dopisu, export, místní záloha při výpadku internetu, demo účet, sm
 | Přehled: zobrazit a znovu otevřít uložené vzkazy | ✅ profil dítěte + Správce schránky |
 | Zachování dat po restartu | ✅ databáze Supabase + přihlášení uložené v zařízení |
 | Spustitelné demo na telefonu | ✅ Expo Go (Android i iPhone) + web |
-| Funkční průchod webem | ✅ https://rakathon-26.vercel.app |
+| Funkční průchod webem | ✅ https://rakathon-vzpominky.vercel.app |
 | Návrh bezpečného ukládání dat | ✅ [kapitola 8](#8-bezpečnost-a-ochrana-dat) |
 
 ### Principy návrhu (slide 5) a etika (slide 13)
 
 | Princip | Jak ho naplňujeme |
 |---|---|
-| **Laskavá**: bez nátlaku a hodnocení | Žádné odpočty, připomínky, série ani „splněno na X %“. Texty typu „Nic nespěchá“, „Stačí jedna věta“ |
+| **Laskavá**: bez nátlaku a hodnocení | Žádné odpočty, série ani „splněno na X %“. Připomínky jen na přání. Texty typu „Není potřeba spěchat“, „Stačí jedna věta“ |
 | **Jednoduchá**: i při únavě | Velká písmena a tlačítka (min. 44–52 px), málo voleb, vzhled dopisu schovaný pod jedním tlačítkem |
 | **Po malých krocích** | Každé písmeno se hned uloží, rozepsaný text se obnoví, „Dnešní malý krok“ = jedna věta |
 | **Soukromá** | Žádný veřejný profil ani sdílení. Data vidí jen přihlášený rodič, hlídá to databáze |
@@ -96,8 +111,9 @@ vzhled dopisu, export, místní záloha při výpadku internetu, demo účet, sm
 ## 3. Vyzkoušení
 
 ### Na webu (nejrychlejší)
-1. Otevřete **https://rakathon-26.vercel.app** (funguje na počítači i v mobilu).
-2. Klepněte na **„Vyzkoušet demo“**. Vytvoří se vám vlastní oddělený demo účet s fiktivní rodinou.
+1. Otevřete **https://rakathon-vzpominky.vercel.app** (funguje na počítači, tabletu i v mobilu).
+2. Klepněte na **„Vyzkoušet demo“**. Vytvoří se vám vlastní oddělený demo účet s fiktivní rodinou
+   a ukáže se uvítací průvodce (můžete ho přeskočit).
 3. Demo ukončíte ve **Správci schránky → Ukončit demo**. Ukázková data se tím smažou.
 
 ### Na telefonu přes Expo Go
@@ -144,7 +160,9 @@ vzhled dopisu, export, místní záloha při výpadku internetu, demo účet, sm
 | Úložiště v zařízení | **localStorage** (web) / **expo-sqlite localStorage** (telefon) | Přihlášení a záloha rozepsaných textů |
 | Hosting webu | **Vercel** (statické soubory + bezpečnostní hlavičky) | Veřejný odkaz, HTTPS |
 | Písma | Lora (nadpisy), Nunito (text), Caveat (ručně psané) | Teplý vzhled podle návrhů, české znaky |
-| Testy | puppeteer-core + Firefox (E2E), supabase-js (bezpečnost) | Automatické ověření průchodů i ochrany dat |
+| Připomínky | **expo-notifications** (plánované přímo v telefonu, bez serveru) | Jen na přání uživatele, nic se neposílá ven |
+| Ilustrace | Akvarely z podkladů FN Olomouc, oříznuté a prolnuté (ImageMagick → WebP) | Vizuální konzistence s návrhy, malá velikost (24–68 kB) |
+| Testy | puppeteer-core + Firefox (E2E), axe-core (přístupnost), supabase-js (bezpečnost) | Automatické ověření průchodů, UI/UX i ochrany dat |
 
 ---
 
@@ -154,10 +172,12 @@ vzhled dopisu, export, místní záloha při výpadku internetu, demo účet, sm
 rakathon/
 ├── src/
 │   ├── app/                         ← OBRAZOVKY (každý soubor = jedna obrazovka / adresa)
-│   │   ├── _layout.tsx              hlavní rám: písma, přihlášení, chráněné obrazovky
+│   │   ├── _layout.tsx              hlavní rám: písma, přihlášení, průvodce, chráněné obrazovky
 │   │   ├── prihlaseni.tsx           přihlášení, registrace, „Vyzkoušet demo“
-│   │   ├── (tabs)/                  4 obrazovky ze spodního menu
-│   │   │   ├── _layout.tsx          spodní menu
+│   │   ├── vitejte.tsx              uvítací průvodce (podpora, zájmy, připomenutí)
+│   │   ├── smysl.tsx                Proč to má smysl
+│   │   ├── (tabs)/                  4 hlavní obrazovky
+│   │   │   ├── _layout.tsx          menu: dole na telefonu, vlevo na počítači
 │   │   │   ├── index.tsx            Místo pro slova (domů)
 │   │   │   ├── deti.tsx             Moje děti
 │   │   │   ├── inspirace.tsx        Inspirace a tipy
@@ -171,9 +191,13 @@ rakathon/
 │   │   ├── screen.tsx               rám obrazovky (pozadí, posouvání, klávesnice)
 │   │   ├── button.tsx, text-field.tsx, chip.tsx, dialog.tsx, states.tsx
 │   │   ├── child-avatar.tsx, child-form.tsx, letter-row.tsx, back-header.tsx
+│   │   ├── option-card.tsx          volba s ikonou (průvodce, nastavení)
+│   │   ├── timeline.tsx             časová osa dítěte
+│   │   ├── illustration.tsx         akvarelová ilustrace
 │   │   └── letter/                  papír, volba vzhledu, výběr dítěte
 │   ├── hooks/
 │   │   ├── use-focus-data.ts        načtení dat při každém zobrazení obrazovky
+│   │   ├── use-layout.ts            telefon / tablet / počítač podle šířky okna
 │   │   └── use-letter-autosave.ts   průběžné ukládání dopisu (zařízení → databáze)
 │   ├── lib/                         ← LOGIKA BEZ VZHLEDU
 │   │   ├── supabase.ts              připojení k databázi
@@ -181,6 +205,8 @@ rakathon/
 │   │   ├── data.ts                  všechny dotazy na děti a dopisy
 │   │   ├── storage.ts               localStorage pro web i telefon
 │   │   ├── drafts.ts                místní záloha rozepsaných dopisů
+│   │   ├── preferences.tsx          jemné vedení / klidný režim, zájmy, připomínky
+│   │   ├── reminders(.native).ts    připomínky v telefonu (na webu se jen uloží volba)
 │   │   ├── export.ts                export vzkazů do souboru
 │   │   ├── format.ts                české datum, věk, skloňování
 │   │   ├── errors.ts                srozumitelné české chybové hlášky
@@ -188,12 +214,15 @@ rakathon/
 │   └── constants/
 │       ├── theme.ts                 barvy, písma, rozestupy (podle návrhů FN Olomouc)
 │       ├── choices.ts               papíry, písma, nálepky, příležitosti, barvy profilu
-│       └── inspiration.ts           inspirační otázky a dary mimo telefon
+│       ├── support.ts               volby podpory, připomínek a citáty dne
+│       ├── illustrations.ts         seznam ilustrací
+│       └── inspiration.ts           otázky, životní příběhy, dary mimo aplikaci
 ├── supabase/migrations/             ← DATABÁZE (tabulky, pravidla, ukázková data)
 ├── scripts/security-check.mjs       bezpečnostní test databáze
-├── tests/e2e/                       testy v prohlížeči
-├── public/index.html                šablona webové stránky (čeština, popis)
-├── assets/images/                   ikona aplikace
+├── tests/e2e/                       testy v prohlížeči (80 kontrol)
+├── tests/ui/                        UI/UX audit (velikosti obrazovek, přístupnost) + report.md
+├── public/index.html                šablona webové stránky (čeština, styly prohlížeče)
+├── assets/images/                   ikona aplikace a ilustrace
 ├── app.json                         nastavení aplikace (název, ikona, barvy)
 ├── vercel.json                      nasazení webu + bezpečnostní hlavičky
 └── navrh                            původní zadání týmu
@@ -301,6 +330,7 @@ klíče začínají `schranka:`.
 | `schranka:prihlaseni` | přihlašovací token Supabase | zůstanete přihlášení i po restartu | odhlášení |
 | `schranka:posledni-email` | poslední použitý e-mail | předvyplnění přihlášení | smazání účtu |
 | `schranka:rozepsano:<id>` | rozepsaný text dopisu | ochrana proti ztrátě při výpadku internetu | po uložení do databáze, při odhlášení |
+| `schranka:nastaveni:<uživatel>` | zvolená podpora, zájmy a připomínky | appka se chová podle přání i bez internetu (zároveň se ukládá k účtu) | smazání účtu |
 
 ---
 
@@ -331,21 +361,54 @@ V nastavení Auth zapněte *Anonymous sign-ins* (demo) a *Confirm email* nechte 
 | Příkaz | Co ověřuje |
 |---|---|
 | `npm run test:security` | 18 kontrol zabezpečení databáze: dva účty, „útoky“ jednoho na druhý (čtení, změna, mazání cizích dat, podvržení vlastníka, cizí dítě), nepřihlášený přístup, kontroly hodnot, smazání účtu. Test po sobě uklidí |
-| `npm run test:e2e` | 64 kontrol v prohlížeči: přihlášení a localStorage, chráněné stránky, děti, **všech 5 akceptačních kroků**, obnova textu po zavření, Správce, filtry, hledání, export |
+| `npm run test:e2e` | 80 kontrol v prohlížeči: přihlášení a localStorage, chráněné stránky, uvítací průvodce, děti, **všech 5 akceptačních kroků**, obnova textu po zavření, časová osa, klidný režim, inspirace, Správce, filtry, hledání, export |
+| `npm run test:ui` | UI/UX audit: všechny obrazovky v 6 velikostech (viz [kapitola 12](#12-uiux-přístupnost-a-responzivita)) |
 
 ```bash
 npm run build:web && npm run serve:web            # v jednom terminálu
 npm run test:e2e                                  # ve druhém
-BASE_URL=https://rakathon-26.vercel.app npm run test:e2e   # nebo proti produkci
+npm run test:ui                                   # audit, výsledek v tests/ui/report.md
+BASE_URL=https://rakathon-vzpominky.vercel.app npm run test:e2e   # nebo proti produkci
 ```
 
 Testy v prohlížeči používají nainstalovaný Firefox (případně `FIREFOX=/cesta/k/firefox`).
 
 ---
 
-## 12. Nasazení
+## 12. UI/UX: přístupnost a responzivita
 
-- **Web:** Vercel, projekt `rakathon-26`. `vercel.json` určuje sestavení (`expo export -p web`),
+Aplikace je pro lidi, kteří mohou být unavení nebo mít horší zrak, a pro porotu, která ji otevře
+na čemkoli. Proto ji automaticky kontrolujeme ve **6 velikostech**: malý telefon 320 px, telefon
+390 px, telefon na šířku, tablet 768 px, notebook 1280 px a monitor 1600 px. Kontrolujeme všech
+**11 obrazovek**, celkem 66 kombinací.
+
+| Kontrola | Pravidlo | Výsledek |
+|---|---|---|
+| Přetékání do stran | nic nesmí být mimo obrazovku ani vodorovně posouvat | **0** |
+| Klikací plochy | aspoň 44 × 44 px (doporučení Apple a WCAG 2.5.5) | **0** menších |
+| Popisky pro čtečku obrazovky | každé tlačítko a pole má název | **0** bez popisku |
+| Velikost písma | nic pod 12 px, běžný text 15–19 px | **0** menších |
+| WCAG 2.2 A/AA (axe-core) | kontrast, role, stavy přepínačů, alternativní texty… | **0** porušení |
+| Chyby v konzoli prohlížeče | žádné | **0** |
+
+Podrobný výsledek je v [`tests/ui/report.md`](tests/ui/report.md).
+
+**Co jsme kvůli tomu upravili:**
+- **Kontrast:** všechny dvojice text/pozadí mají aspoň 4,5 : 1. Terakotová tlačítka jsme mírně
+  ztmavili (bílé písmo 5,3 : 1), šedý text taky.
+- **Rozvržení:** na telefonu je menu dole, na počítači vlevo s logem. Od tabletu jsou karty ve
+  dvou sloupcích a domovská obrazovka má volby vedle sebe. Text dopisu má příjemnou šířku řádku.
+- **Ovládání:** přepínače hlásí čtečce, jestli jsou zapnuté. Ovládání klávesnicí má viditelné
+  zvýraznění. Dlouhé podržení tlačítka nevybírá text a při klepnutí nic nebliká.
+- **Prvky prohlížeče** jsou v barvách aplikace: výběr textu, kurzor, posuvníky, zástupný text.
+- **Ilustrace** mají rezervované místo (stránka neposkakuje) a čtečka je přeskakuje jako dekoraci.
+
+---
+
+## 13. Nasazení
+
+- **Web:** Vercel, projekt `rakathon-26`, adresa **https://rakathon-vzpominky.vercel.app** (stará
+  adresa `rakathon-26.vercel.app` na ni přesměrovává). `vercel.json` určuje sestavení (`expo export -p web`),
   přesměrování pro jednostránkovou aplikaci a bezpečnostní hlavičky.
   Proměnné `EXPO_PUBLIC_SUPABASE_URL` a `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` jsou v nastavení Vercelu.
   Nasazení: `npx vercel deploy --prod`.
@@ -353,16 +416,19 @@ Testy v prohlížeči používají nainstalovaný Firefox (případně `FIREFOX=
 
 ---
 
-## 13. Co dál
+## 14. Co dál
 
 1. **Hlas a video:** nahrát známý hlas, pohádku na dobrou noc.
 2. **Fotografie** k dopisům.
-3. **Milníky a předání:** strážce vzkazů, časované a bezpečné předání dítěti.
-4. **Šifrování end-to-end** (viz 8.6).
-5. **Export do PDF** a tisk na papír.
-6. Spolupráce s psychology FN Olomouc na dalších inspiračních otázkách.
+3. **Předání dítěti** (další fáze podle zadání): strážce vzkazů potvrdí milník, dítě dostane
+   bezpečný jednorázový odkaz.
+4. **Mapa vzpomínek** v pastelové krajině jako vizuální přehled (běžný seznam zůstane).
+5. **Šifrování end-to-end** (viz 8.6).
+6. **Export do PDF** a tisk na papír, převod řeči na text.
+7. Spolupráce s psychology FN Olomouc na dalších inspiračních otázkách a ověření s pacienty.
 
 ---
 
 *Kód vznikl během 24 hodin s pomocí AI (Claude Code) pod vedením týmu. Tým dělal produktová
-rozhodnutí, rešerši zadání a testování. Všechna data v demu jsou smyšlená.*
+rozhodnutí, rešerši zadání a testování. Ilustrace pocházejí z podkladů FN Olomouc k výzvě.
+Všechna data v demu jsou smyšlená.*
