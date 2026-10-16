@@ -8,7 +8,6 @@
     "scheme": "schrankavzpominek",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/images/icon.png",
       "supportsTablet": true
     },
     "android": {
