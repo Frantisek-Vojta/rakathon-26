@@ -45,7 +45,7 @@ export function LetterAppearance({ fields, onChange }: Props) {
                   key={key}
                   accessibilityRole="radio"
                   accessibilityLabel={`${PAPERS[key].label} papír`}
-                  accessibilityState={{ selected }}
+                  aria-checked={selected}
                   onPress={() => onChange({ paper: key })}
                   style={[
                     styles.swatch,
@@ -59,7 +59,12 @@ export function LetterAppearance({ fields, onChange }: Props) {
 
           <Group label="Písmo">
             {(Object.keys(FONTS) as LetterFont[]).map((key) => (
-              <Chip key={key} label={FONTS[key].label} selected={fields.font === key} onPress={() => onChange({ font: key })} />
+              <Chip
+                key={key}
+                label={FONTS[key].label}
+                selected={fields.font === key}
+                onPress={() => onChange({ font: key })}
+              />
             ))}
           </Group>
 
@@ -72,7 +77,7 @@ export function LetterAppearance({ fields, onChange }: Props) {
                   key={key}
                   accessibilityRole="radio"
                   accessibilityLabel={STICKERS[key].label}
-                  accessibilityState={{ selected }}
+                  aria-checked={selected}
                   onPress={() => onChange({ sticker: key })}
                   style={[styles.sticker, selected && styles.stickerSelected]}>
                   <Text style={styles.stickerEmoji}>{STICKERS[key].emoji}</Text>
@@ -157,17 +162,17 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   swatch: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   sticker: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 1.5,
     borderColor: Colors.border,
     alignItems: 'center',

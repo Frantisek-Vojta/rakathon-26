@@ -6,3 +6,5 @@ dist/
 node_modules/
 .expo/
 .claude/
+assets/inspirace/
+tests/

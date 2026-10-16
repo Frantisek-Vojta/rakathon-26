@@ -3,12 +3,17 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Colors, Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Colors, ContentWidth, Fonts, Spacing } from '@/constants/theme';
+import { useLayout } from '@/hooks/use-layout';
 
 type Props = {
   children: ReactNode;
   /** Logo nahoře. Vnořené obrazovky (profil dítěte, dopis) ho nahrazují tlačítkem zpět. */
   showLogo?: boolean;
+  /** Obrazovka ze spodního menu: na počítači je logo v bočním menu, ne nad obsahem. */
+  inTabs?: boolean;
+  /** Maximální šířka obsahu: formulář, běžný obsah, nebo široká mřížka. */
+  width?: keyof typeof ContentWidth;
   /** Obsah nad posouvanou částí, např. hlavička s tlačítkem zpět. */
   header?: ReactNode;
   /** Obsah přilepený dole, např. tlačítka pro uložení dopisu. */
@@ -16,34 +21,43 @@ type Props = {
 };
 
 // Společný rám každé obrazovky: krémové pozadí, posouvání obsahu, klávesnice nepřekryje pole.
-export function Screen({ children, showLogo = true, header, footer }: Props) {
+export function Screen({ children, showLogo = true, inTabs, width = 'content', header, footer }: Props) {
+  const { isDesktop, isTablet } = useLayout();
+  const maxWidth = ContentWidth[width];
+  const gutter = isTablet ? Spacing.xl : Spacing.md;
+  const logo = showLogo && !(inTabs && isDesktop);
+
   return (
     <SafeAreaView edges={footer ? ['top', 'bottom'] : ['top']} style={styles.safe}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        {header && <View style={styles.headerBar}>{header}</View>}
+        {header && <View style={[styles.bar, { maxWidth, paddingHorizontal: gutter }]}>{header}</View>}
         <ScrollView
           style={styles.flex}
-          contentContainerStyle={styles.scroll}
+          contentContainerStyle={[styles.scroll, { paddingHorizontal: gutter, paddingTop: isDesktop ? Spacing.xl : 0 }]}
           keyboardShouldPersistTaps="handled">
-          <View style={styles.inner}>
-            {showLogo && <Logo />}
+          <View style={[styles.inner, { maxWidth }]}>
+            {logo && <Logo />}
             {children}
           </View>
         </ScrollView>
-        {footer && <View style={styles.footer}>{footer}</View>}
+        {footer && (
+          <View style={styles.footerWrap}>
+            <View style={[styles.footer, { maxWidth, paddingHorizontal: gutter }]}>{footer}</View>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-export function Logo() {
+export function Logo({ large }: { large?: boolean }) {
   return (
     <View style={styles.logo} accessibilityRole="header" accessibilityLabel="Schránka vzpomínek">
-      <View style={styles.logoIcon}>
-        <Ionicons name="mail-open-outline" size={22} color={Colors.primary} />
+      <View style={[styles.logoIcon, large && styles.logoIconLarge]}>
+        <Ionicons name="mail-open-outline" size={large ? 26 : 22} color={Colors.primaryText} />
       </View>
       <View>
-        <Text style={styles.logoTop}>Schránka</Text>
+        <Text style={[styles.logoTop, large && styles.logoTopLarge]}>Schránka</Text>
         <Text style={styles.logoBottom}>vzpomínek</Text>
       </View>
     </View>
@@ -58,34 +72,30 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  headerBar: {
+  bar: {
     width: '100%',
-    maxWidth: MaxContentWidth,
     alignSelf: 'center',
-    paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
   },
   scroll: {
     flexGrow: 1,
-    paddingHorizontal: Spacing.md,
-    paddingBottom: Spacing.xl,
+    paddingBottom: Spacing.xxl,
   },
   inner: {
     width: '100%',
-    maxWidth: MaxContentWidth,
     alignSelf: 'center',
     gap: Spacing.lg,
   },
-  footer: {
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.sm,
-    paddingBottom: Spacing.md,
+  footerWrap: {
     backgroundColor: Colors.background,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
+  },
+  footer: {
+    width: '100%',
+    alignSelf: 'center',
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.md,
   },
   logo: {
     flexDirection: 'row',
@@ -101,16 +111,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  logoIconLarge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
   logoTop: {
     fontFamily: Fonts.headingBold,
     fontSize: 20,
     lineHeight: 22,
     color: Colors.heading,
   },
+  logoTopLarge: {
+    fontSize: 22,
+    lineHeight: 25,
+  },
   logoBottom: {
     fontFamily: Fonts.body,
     fontSize: 14,
-    lineHeight: 16,
+    lineHeight: 17,
     color: Colors.textMuted,
   },
 });

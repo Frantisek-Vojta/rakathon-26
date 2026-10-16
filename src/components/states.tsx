@@ -8,8 +8,8 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 
 export function Loading() {
   return (
-    <View style={styles.loading} accessibilityLabel="Načítám">
-      <ActivityIndicator size="large" color={Colors.primary} />
+    <View style={styles.loading}>
+      <ActivityIndicator size="large" color={Colors.primary} accessibilityLabel="Načítám" />
     </View>
   );
 }

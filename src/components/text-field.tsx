@@ -33,6 +33,7 @@ export const TextField = forwardRef<TextInputInstance, Props>(function TextField
       <View
         style={[
           styles.box,
+          secret && styles.boxSecret,
           multiline && styles.boxMultiline,
           focused && styles.boxFocused,
           !!error && styles.boxError,
@@ -41,6 +42,7 @@ export const TextField = forwardRef<TextInputInstance, Props>(function TextField
           ref={ref}
           accessibilityLabel={label}
           placeholderTextColor={Colors.textFaint}
+          selectionColor={Colors.primary}
           secureTextEntry={secret && hidden}
           multiline={multiline}
           {...props}
@@ -95,6 +97,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.md,
   },
+  boxSecret: {
+    paddingRight: Spacing.xs,
+  },
   boxMultiline: {
     alignItems: 'flex-start',
     paddingVertical: Spacing.sm,
@@ -107,6 +112,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    minWidth: 0,
     // Zvýraznění při psaní řeší rámeček pole (boxFocused), ne prohlížeč.
     outlineWidth: 0,
     fontFamily: Fonts.body,
@@ -119,7 +125,10 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   eye: {
-    paddingLeft: Spacing.sm,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   hint: {
     fontFamily: Fonts.body,

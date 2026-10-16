@@ -11,11 +11,7 @@ export function StatusBadge({ status }: { status: string }) {
   const done = status === 'hotovo';
   return (
     <View style={[styles.badge, { backgroundColor: done ? Colors.successSoft : Colors.draftSoft }]}>
-      <Ionicons
-        name={done ? 'checkmark' : 'create-outline'}
-        size={14}
-        color={done ? Colors.success : Colors.draft}
-      />
+      <Ionicons name={done ? 'checkmark' : 'create-outline'} size={14} color={done ? Colors.success : Colors.draft} />
       <Text style={[styles.badgeText, { color: done ? Colors.success : Colors.draft }]}>
         {done ? 'Hotové' : 'Koncept'}
       </Text>
@@ -33,11 +29,16 @@ export function LetterRow({ letter, childName }: { letter: Letter; childName?: s
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${title}, ${letter.status === 'hotovo' ? 'hotové' : 'koncept'}${childName ? `, pro ${childName}` : ''}`}
       onPress={() => router.push({ pathname: '/dopis/[id]', params: { id: letter.id } })}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
       <View style={[styles.envelope, { backgroundColor: paper.color, borderColor: paper.edge }]}>
-        {sticker ? <Text style={styles.sticker}>{sticker}</Text> : <Ionicons name="mail-outline" size={22} color={Colors.primary} />}
+        {sticker ? (
+          <Text style={styles.sticker} accessibilityElementsHidden importantForAccessibility="no">
+            {sticker}
+          </Text>
+        ) : (
+          <Ionicons name="mail-outline" size={22} color={Colors.primaryText} />
+        )}
       </View>
       <View style={styles.texts}>
         <Text style={styles.title} numberOfLines={1}>
@@ -122,6 +123,6 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontFamily: Fonts.bodyBold,
-    fontSize: 12,
+    fontSize: 13,
   },
 });

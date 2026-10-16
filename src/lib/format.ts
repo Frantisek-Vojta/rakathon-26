@@ -57,7 +57,10 @@ export function formatAge(isoDate: string | null | undefined, today = new Date()
 
 /** Začátek textu pro náhled. Přeskočí krátké oslovení typu „Milá Eliško,“. */
 export function excerpt(text: string, max = 90) {
-  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
   const isGreeting = (l: string) => l.endsWith(',') && l.length <= 30;
   const line = (lines.length > 1 && isGreeting(lines[0]) ? lines[1] : lines[0]) ?? '';
   return line.length > max ? `${line.slice(0, max).trimEnd()}…` : line;

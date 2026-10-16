@@ -89,11 +89,14 @@ export function ChildForm({ initial, submitLabel, onSubmit }: Props) {
                 key={key}
                 accessibilityRole="radio"
                 accessibilityLabel={CHILD_COLORS[key].label}
-                accessibilityState={{ selected }}
+                aria-checked={selected}
                 onPress={() => setColor(key)}
                 style={[
                   styles.swatch,
-                  { backgroundColor: CHILD_COLORS[key].bg, borderColor: selected ? CHILD_COLORS[key].fg : 'transparent' },
+                  {
+                    backgroundColor: CHILD_COLORS[key].bg,
+                    borderColor: selected ? CHILD_COLORS[key].fg : 'transparent',
+                  },
                 ]}>
                 {selected && <Ionicons name="checkmark" size={22} color={CHILD_COLORS[key].fg} />}
               </Pressable>

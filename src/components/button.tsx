@@ -21,10 +21,19 @@ const palette: Record<Variant, { bg: string; bgPressed: string; fg: string; bord
   primary: { bg: Colors.primary, bgPressed: Colors.primaryPressed, fg: Colors.onPrimary, border: Colors.primary },
   secondary: { bg: Colors.surface, bgPressed: Colors.surfaceSoft, fg: Colors.heading, border: Colors.primarySoft },
   ghost: { bg: 'transparent', bgPressed: Colors.surfaceSoft, fg: Colors.heading, border: 'transparent' },
-  danger: { bg: Colors.surface, bgPressed: '#FBE9E7', fg: Colors.danger, border: '#F3C9C4' },
+  danger: { bg: Colors.surface, bgPressed: Colors.dangerSoft, fg: Colors.danger, border: '#F3C9C4' },
 };
 
-export function Button({ label, onPress, variant = 'primary', icon, loading, disabled, style, accessibilityHint }: Props) {
+export function Button({
+  label,
+  onPress,
+  variant = 'primary',
+  icon,
+  loading,
+  disabled,
+  style,
+  accessibilityHint,
+}: Props) {
   const colors = palette[variant];
   const inactive = disabled || loading;
   return (

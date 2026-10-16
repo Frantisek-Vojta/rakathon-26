@@ -10,15 +10,17 @@ import { EmptyState, ErrorState, Loading } from '@/components/states';
 import { Heading, Muted, Title } from '@/components/typography';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useFocusData } from '@/hooks/use-focus-data';
+import { useLayout } from '@/hooks/use-layout';
 import { listChildren, type ChildWithCounts } from '@/lib/data';
 import { formatAge, plural } from '@/lib/format';
 
 export default function ChildrenScreen() {
   const load = useCallback(() => listChildren(), []);
   const { data: children, error, loading, reload } = useFocusData(load);
+  const { isTablet } = useLayout();
 
   return (
-    <Screen>
+    <Screen inTabs width="wide">
       <View style={styles.intro}>
         <Title>Moje děti</Title>
         <Muted>Každé dítě má svůj vlastní prostor. Vyberte, pro koho chcete psát.</Muted>
@@ -37,8 +39,20 @@ export default function ChildrenScreen() {
         </EmptyState>
       ) : (
         <>
-          {children?.map((child) => <ChildCard key={child.id} child={child} />)}
-          <Button label="Přidat dítě" variant="secondary" icon="add" onPress={() => router.push('/dite/novy')} />
+          <View style={[styles.grid, isTablet && styles.gridWide]}>
+            {children?.map((child) => (
+              <View key={child.id} style={isTablet ? styles.cell : undefined}>
+                <ChildCard child={child} />
+              </View>
+            ))}
+          </View>
+          <Button
+            label="Přidat dítě"
+            variant="secondary"
+            icon="add"
+            onPress={() => router.push('/dite/novy')}
+            style={isTablet ? styles.addWide : undefined}
+          />
         </>
       )}
     </Screen>
@@ -53,7 +67,6 @@ function ChildCard({ child }: { child: ChildWithCounts }) {
     <View style={styles.card}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Otevřít profil: ${child.name}`}
         onPress={openProfile}
         style={({ pressed }) => [styles.cardTop, pressed && styles.pressed]}>
         <ChildAvatar name={child.name} color={child.color} size={72} />
@@ -80,7 +93,7 @@ function ChildCard({ child }: { child: ChildWithCounts }) {
 function Count({ icon, text }: { icon: 'mail-outline' | 'create-outline'; text: string }) {
   return (
     <View style={styles.count}>
-      <Ionicons name={icon} size={16} color={Colors.primary} />
+      <Ionicons name={icon} size={16} color={Colors.primaryText} />
       <Text style={styles.countText}>{text}</Text>
     </View>
   );
@@ -90,7 +103,24 @@ const styles = StyleSheet.create({
   intro: {
     gap: Spacing.xs,
   },
+  grid: {
+    gap: Spacing.md,
+  },
+  gridWide: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  cell: {
+    flexBasis: '45%',
+    flexGrow: 1,
+    // Lichá poslední karta zůstane poloviční, neroztáhne se přes celou šířku.
+    maxWidth: '49%',
+  },
+  addWide: {
+    alignSelf: 'flex-start',
+  },
   card: {
+    flex: 1,
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
     borderWidth: 1,

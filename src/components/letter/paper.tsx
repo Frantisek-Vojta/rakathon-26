@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { FONTS, PAPERS, STICKERS } from '@/constants/choices';
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { Colors, Fonts, Radius, Shadows, Spacing } from '@/constants/theme';
 import type { LetterFields } from '@/lib/drafts';
 
 type Props = {
@@ -35,7 +35,7 @@ export function LetterPaper({ fields, onChange, footnote }: Props) {
             accessibilityLabel="Název vzkazu"
             value={fields.title}
             onChangeText={(title) => onChange({ title })}
-            placeholder="Název (nepovinný), např. K tvým narozeninám"
+            placeholder="Název (nepovinný)"
             placeholderTextColor={Colors.textFaint}
             maxLength={120}
             style={[styles.title, styles.titleInput, sticker && styles.titleWithSticker]}
@@ -83,11 +83,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     padding: Spacing.lg,
     gap: Spacing.sm,
-    shadowColor: '#7A2E2E',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
+    boxShadow: Shadows.paper,
   },
   sticker: {
     position: 'absolute',
@@ -97,10 +93,10 @@ const styles = StyleSheet.create({
   },
   occasion: {
     fontFamily: Fonts.bodyBold,
-    fontSize: 12,
-    letterSpacing: 1,
+    fontSize: 13,
+    letterSpacing: 0.8,
     textTransform: 'uppercase',
-    color: Colors.primary,
+    color: Colors.primaryText,
   },
   title: {
     fontFamily: Fonts.headingBold,
@@ -110,6 +106,8 @@ const styles = StyleSheet.create({
   },
   titleInput: {
     outlineWidth: 0,
+    minWidth: 0,
+    minHeight: 48,
     paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(122, 46, 46, 0.15)',

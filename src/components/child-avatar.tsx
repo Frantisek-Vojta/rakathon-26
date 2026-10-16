@@ -19,7 +19,10 @@ export function ChildAvatar({ name, color, size = 64, onTint }: Props) {
     <View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      style={[styles.circle, { width: size, height: size, borderRadius: size / 2, backgroundColor: onTint ? Colors.surface : palette.bg }]}>
+      style={[
+        styles.circle,
+        { width: size, height: size, borderRadius: size / 2, backgroundColor: onTint ? Colors.surface : palette.bg },
+      ]}>
       <Text style={[styles.initial, { color: palette.fg, fontSize: size * 0.42, lineHeight: size * 0.55 }]}>
         {initial}
       </Text>

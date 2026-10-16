@@ -52,3 +52,10 @@ docs/
 
 # Snímky z testů
 tests/e2e/screenshots/
+
+# UI audit
+tests/ui/screenshots/
+tests/ui/report.json
+
+# Podklady od zadavatele (velké soubory, nejsou součást aplikace)
+assets/inspirace/

@@ -17,13 +17,80 @@
         height: 100%;
         background-color: #fcf7f2;
       }
+      /* Na telefonu se výška počítá bez lišty prohlížeče (spodní menu nezajede pod ni). */
+      @supports (height: 100dvh) {
+        html,
+        body {
+          height: 100dvh;
+        }
+      }
       body {
         overflow: hidden;
+        /* Celá stránka nepruží ani se nepřetahuje, posouvá se jen obsah. */
+        overscroll-behavior: none;
+        -webkit-text-size-adjust: 100%;
       }
       #root {
         display: flex;
         height: 100%;
         flex: 1;
+      }
+    </style>
+    <!-- Prvky prohlížeče v barvách aplikace -->
+    <style id="schranka-browser">
+      * {
+        -webkit-tap-highlight-color: transparent;
+        scrollbar-width: thin;
+        scrollbar-color: #e3cfc6 transparent;
+      }
+      ::selection {
+        background: #f7deda;
+        color: #7a2e2e;
+      }
+      input,
+      textarea {
+        caret-color: #a3554b;
+      }
+      ::placeholder {
+        color: #7f6e69;
+        opacity: 1;
+      }
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #e3cfc6;
+        border-radius: 999px;
+        border: 3px solid transparent;
+        background-clip: padding-box;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      /* Tlačítka: dlouhé podržení nevybírá text, kurzor ukazuje klikání. */
+      [role='button'],
+      [role='tab'],
+      [role='radio'],
+      [role='checkbox'],
+      [role='switch'] {
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer;
+      }
+      /* Viditelné zvýraznění pro ovládání klávesnicí (myš a dotyk ho nevidí). */
+      :focus-visible {
+        outline: 3px solid #a3554b;
+        outline-offset: 2px;
+      }
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          scroll-behavior: auto !important;
+        }
       }
     </style>
   </head>

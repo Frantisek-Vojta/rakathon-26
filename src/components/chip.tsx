@@ -7,7 +7,7 @@ export function Chip({ label, selected, onPress }: { label: string; selected: bo
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ selected }}
+      aria-checked={selected}
       accessibilityLabel={label}
       onPress={onPress}
       style={({ pressed }) => [styles.chip, selected && styles.selected, pressed && styles.pressed]}>
@@ -18,7 +18,7 @@ export function Chip({ label, selected, onPress }: { label: string; selected: bo
 
 const styles = StyleSheet.create({
   chip: {
-    minHeight: 40,
+    minHeight: 44,
     paddingHorizontal: 14,
     borderRadius: Radius.pill,
     borderWidth: 1.5,
