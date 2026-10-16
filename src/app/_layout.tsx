@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 
 import { Colors } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { PreferencesProvider, usePreferences } from '@/lib/preferences';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,16 +39,19 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <ThemeProvider value={theme}>
-        <StatusBar style="dark" />
-        <RootNavigator />
-      </ThemeProvider>
+      <PreferencesProvider>
+        <ThemeProvider value={theme}>
+          <StatusBar style="dark" />
+          <RootNavigator />
+        </ThemeProvider>
+      </PreferencesProvider>
     </AuthProvider>
   );
 }
 
 function RootNavigator() {
   const { session, isLoading } = useAuth();
+  const { prefs } = usePreferences();
 
   useEffect(() => {
     if (!isLoading) SplashScreen.hideAsync();
@@ -56,16 +60,22 @@ function RootNavigator() {
   if (isLoading) return null;
 
   const signedIn = !!session;
+  const ready = signedIn && prefs.onboarded;
 
   // Chráněné obrazovky: bez přihlášení se na ně nedá dostat ani přímým odkazem.
+  // Po prvním přihlášení se nejdřív ukáže uvítací průvodce.
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.background } }}>
-      <Stack.Protected guard={signedIn}>
+      <Stack.Protected guard={ready}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="dite/novy" />
         <Stack.Screen name="dite/[id]/index" />
         <Stack.Screen name="dite/[id]/upravit" />
         <Stack.Screen name="dopis/[id]" />
+        <Stack.Screen name="smysl" />
+      </Stack.Protected>
+      <Stack.Protected guard={signedIn && !prefs.onboarded}>
+        <Stack.Screen name="vitejte" />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="prihlaseni" />
