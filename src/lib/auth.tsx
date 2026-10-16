@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { drafts } from './drafts';
 import { toMessage } from './errors';
 import { storage } from './storage';
 import { supabase } from './supabase';
@@ -84,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         // "local" smaže přihlášení ze zařízení i když už účet na serveru neexistuje.
         await supabase.auth.signOut({ scope: 'local' });
+        drafts.clearAll();
       },
 
       async deleteAccount() {
@@ -91,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) return { error: toMessage(error) };
         await supabase.auth.signOut({ scope: 'local' });
         storage.remove(LAST_EMAIL_KEY);
+        drafts.clearAll();
         return { error: null };
       },
     };

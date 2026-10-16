@@ -43,6 +43,20 @@ export const storage = {
   setJSON(key: string, value: unknown) {
     storage.set(key, JSON.stringify(value));
   },
+  removeWithPrefix(prefix: string) {
+    try {
+      const store = backend();
+      if (!store) return;
+      const keys: string[] = [];
+      for (let i = 0; i < store.length; i++) {
+        const key = store.key(i);
+        if (key?.startsWith(PREFIX + prefix)) keys.push(key);
+      }
+      keys.forEach((key) => store.removeItem(key));
+    } catch {
+      // Viz výše.
+    }
+  },
 };
 
 // Přihlášení ukládáme pod vlastním klíčem, aby ho šlo při odhlášení spolehlivě smazat.

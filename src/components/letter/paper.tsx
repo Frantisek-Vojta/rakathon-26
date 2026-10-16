@@ -1,0 +1,136 @@
+import { useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { FONTS, PAPERS, STICKERS } from '@/constants/choices';
+import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import type { LetterFields } from '@/lib/drafts';
+
+type Props = {
+  fields: LetterFields;
+  /** Bez onChange je papír jen ke čtení. */
+  onChange?: (patch: Partial<LetterFields>) => void;
+  footnote?: string;
+};
+
+/** Dopisní papír: v režimu čtení ukazuje hotový dopis, v režimu psaní je to editor. */
+export function LetterPaper({ fields, onChange, footnote }: Props) {
+  const paper = PAPERS[fields.paper] ?? PAPERS.bezova;
+  const font = FONTS[fields.font] ?? FONTS.lora;
+  const sticker = fields.sticker ? STICKERS[fields.sticker]?.emoji : null;
+  const [height, setHeight] = useState(320);
+  const textStyle = { fontFamily: font.family, fontSize: font.size, lineHeight: font.lineHeight };
+
+  return (
+    <View style={[styles.paper, { backgroundColor: paper.color, borderColor: paper.edge }]}>
+      {sticker && (
+        <Text style={styles.sticker} accessibilityElementsHidden importantForAccessibility="no">
+          {sticker}
+        </Text>
+      )}
+      {!!fields.occasion && <Text style={styles.occasion}>{fields.occasion}</Text>}
+
+      {onChange ? (
+        <>
+          <TextInput
+            accessibilityLabel="Název vzkazu"
+            value={fields.title}
+            onChangeText={(title) => onChange({ title })}
+            placeholder="Název (nepovinný), např. K tvým narozeninám"
+            placeholderTextColor={Colors.textFaint}
+            maxLength={120}
+            style={[styles.title, styles.titleInput, sticker && styles.titleWithSticker]}
+          />
+          <TextInput
+            accessibilityLabel="Text dopisu"
+            value={fields.body}
+            onChangeText={(body) => onChange({ body })}
+            placeholder={'Sem napište, co máte na srdci.\nStačí jedna věta…'}
+            placeholderTextColor={Colors.textFaint}
+            multiline
+            maxLength={20000}
+            textAlignVertical="top"
+            scrollEnabled={false}
+            onContentSizeChange={(e) => {
+              // Pole roste s textem. Jen roste a jen o celé pixely, jinak by se
+              // změna výšky a nové měření mohly točit dokola.
+              const next = Math.ceil(e.nativeEvent.contentSize.height);
+              setHeight((current) => (next > current + 1 ? next : current));
+            }}
+            style={[styles.body, textStyle, { height }]}
+          />
+        </>
+      ) : (
+        <>
+          {!!fields.title.trim() && (
+            <Text accessibilityRole="header" style={[styles.title, sticker && styles.titleWithSticker]}>
+              {fields.title}
+            </Text>
+          )}
+          <Text selectable style={[styles.body, styles.readBody, textStyle]}>
+            {fields.body}
+          </Text>
+        </>
+      )}
+
+      {!!footnote && <Text style={styles.footnote}>{footnote}</Text>}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  paper: {
+    borderRadius: Radius.lg,
+    borderWidth: 1.5,
+    padding: Spacing.lg,
+    gap: Spacing.sm,
+    shadowColor: '#7A2E2E',
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
+  },
+  sticker: {
+    position: 'absolute',
+    top: 14,
+    right: 16,
+    fontSize: 34,
+  },
+  occasion: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 12,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: Colors.primary,
+  },
+  title: {
+    fontFamily: Fonts.headingBold,
+    fontSize: 22,
+    lineHeight: 30,
+    color: Colors.heading,
+  },
+  titleInput: {
+    outlineWidth: 0,
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(122, 46, 46, 0.15)',
+  },
+  titleWithSticker: {
+    paddingRight: 44,
+  },
+  body: {
+    color: Colors.text,
+    paddingTop: Spacing.sm,
+    // Na webu prohlížeč kreslí kolem pole modrý rámeček, papír má vlastní vzhled.
+    outlineWidth: 0,
+  },
+  readBody: {
+    minHeight: 120,
+  },
+  footnote: {
+    fontFamily: Fonts.body,
+    fontSize: 13,
+    color: Colors.textMuted,
+    textAlign: 'right',
+    marginTop: Spacing.sm,
+  },
+});

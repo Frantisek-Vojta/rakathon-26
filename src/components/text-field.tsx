@@ -107,6 +107,8 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    // Zvýraznění při psaní řeší rámeček pole (boxFocused), ne prohlížeč.
+    outlineWidth: 0,
     fontFamily: Fonts.body,
     fontSize: 17,
     color: Colors.text,
