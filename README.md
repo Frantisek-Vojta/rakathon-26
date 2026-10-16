@@ -102,8 +102,9 @@ vzhled dopisu, export, místní záloha při výpadku internetu, demo účet, sm
 
 ### Na telefonu přes Expo Go
 1. Nainstalujte si **Expo Go** (Google Play / App Store).
-2. Na počítači s projektem spusťte `npm start`, případně `npx expo start --tunnel`, pokud telefon
-   není ve stejné Wi-Fi síti.
+2. Na počítači s projektem spusťte `npm start`. Pokud telefon není ve stejné Wi-Fi síti (nebo síť
+   zařízení odděluje, jako na hackathonu), použijte `npm run start:tunnel` (tunel přes ngrok,
+   nepotřebuje účet u Expa).
 3. Naskenujte QR kód: na Androidu v aplikaci Expo Go, na iPhonu fotoaparátem.
 
 ---
