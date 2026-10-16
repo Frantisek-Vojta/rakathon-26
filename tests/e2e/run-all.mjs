@@ -3,7 +3,7 @@
 //           (bez BASE_URL se testuje http://localhost:8765, viz README)
 import { spawnSync } from 'node:child_process';
 
-const suites = ['auth', 'children', 'letters', 'screens'];
+const suites = ['auth', 'onboarding', 'children', 'letters', 'screens'];
 let failedSuites = 0;
 for (const name of suites) {
   console.log(`\n=== ${name} ===`);

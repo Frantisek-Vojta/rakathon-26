@@ -41,6 +41,15 @@ export async function open(base, { w = 390, h = 844 } = {}) {
       const el = await page.waitForSelector(`::-p-text(${text})`, { timeout });
       await el.click();
     },
+    /** Přihlásí demo účet a projde uvítacího průvodce tlačítkem „Přeskočit“. */
+    async startDemo() {
+      await page.goto(base + '/', { waitUntil: 'load' });
+      await sleep(2000);
+      await (await page.waitForSelector('::-p-text(Vyzkoušet demo)', { timeout: 8000 })).click();
+      await page.waitForSelector('::-p-text(Vítejte!)', { timeout: 15000 });
+      await (await page.waitForSelector('::-p-text(Přeskočit, nastavím později)', { timeout: 8000 })).click();
+      await page.waitForSelector('::-p-text(Vítejte zpět)', { timeout: 15000 });
+    },
     async endDemo() {
       await page.goto(base + '/spravce', { waitUntil: 'load' });
       await sleep(2500);

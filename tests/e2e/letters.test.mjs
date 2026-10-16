@@ -4,14 +4,12 @@ const base = process.env.BASE_URL || 'http://localhost:8765';
 const b = await open(base);
 const url = () => b.page.url();
 try {
-  await b.go('/');
-  await b.click('Vyzkoušet demo');
-  await b.hasText('Místo pro slova, která', 15000);
+  await b.startDemo();
 
   // 1) Otevřít profil fiktivního dítěte (Eliška)
   await b.go('/deti');
   await b.click('Eliška');
-  check('1. Profil Elišky otevřen', await b.hasText('Profil dítěte'));
+  check('1. Profil Elišky otevřen', await b.hasText('Napsat nový vzkaz'));
 
   // 2) Napsat dopis a uložit jako koncept
   await b.click('Napsat dopis');
@@ -23,7 +21,7 @@ try {
   check('Adresa se změnila na ID dopisu', /\/dopis\/[0-9a-f-]{36}/.test(url()), url());
   await b.shot('20-editor');
   await b.click('Uložit koncept');
-  check('2. Koncept uložen (okno)', await b.hasText('Koncept je uložený'));
+  check('2. Koncept uložen (potvrzení bez přerušení psaní)', await b.hasText('Koncept je uložený'));
   await b.sleep(600);
   await b.shot('21-koncept-dialog');
   await b.click('Zpět na profil');
@@ -42,7 +40,7 @@ try {
   await b.sleep(600);
   await b.shot('22-hotovo-dialog');
   await b.click('Pokračovat');
-  check('Zpět v profilu', await b.hasText('Profil dítěte'));
+  check('Zpět v profilu', await b.hasText('Napsat nový vzkaz'));
 
   // 4) Najít hotový dopis v přehledu a otevřít ho
   check('4. Hotový dopis je v přehledu', await b.hasText('Testovací dopis'));
@@ -79,7 +77,7 @@ try {
   check('Potvrzení smazání vzkazu', await b.hasText('Smazat tento vzkaz?'));
   await b.click('Ano, smazat');
   await b.sleep(2500);
-  check('Po smazání zpět v profilu', await b.hasText('Profil dítěte'));
+  check('Po smazání zpět v profilu', await b.hasText('Napsat nový vzkaz'));
   check('Smazaný vzkaz zmizel', !(await b.hasText('Testovací dopis', 2000)));
 
   // Psaní z inspirace: výběr dítěte
@@ -92,7 +90,7 @@ try {
   await b.shot('24-inspirace-editor');
 
   await b.endDemo();
-  await b.hasText('Vítejte', 10000);
+  await b.hasText('Vyzkoušet demo', 10000);
 } finally {
   console.log(b.logs.length ? b.logs.slice(0, 12).join('\n') : 'konzole bez chyb');
   await b.close();
