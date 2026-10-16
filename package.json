@@ -37,6 +37,7 @@
     "@types/react": "~19.3.0",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~58.0.4",
+    "puppeteer-core": "^24.43.1",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -45,7 +46,11 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:security": "node scripts/security-check.mjs",
+    "test:e2e": "node tests/e2e/run-all.mjs",
+    "build:web": "expo export -p web",
+    "serve:web": "npx -y serve@14 -s dist -l 8765"
   },
   "private": true
 }

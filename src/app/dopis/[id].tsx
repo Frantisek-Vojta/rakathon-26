@@ -54,7 +54,8 @@ export default function LetterRoute() {
   const params = useLocalSearchParams<{ id: string; dite?: string; otazka?: string }>();
   // Parametry si zapamatujeme při otevření. Po prvním uložení se v adrese
   // „novy“ změní na skutečné ID a obrazovka se kvůli tomu nesmí znovu načítat.
-  const [start] = useState(() => ({ id: params.id, dite: params.dite, otazka: params.otazka }));
+  // Otázka přichází z adresy, kterou může kdokoli upravit: zkrátíme ji na rozumnou délku.
+  const [start] = useState(() => ({ id: params.id, dite: params.dite, otazka: params.otazka?.slice(0, 200) }));
   const [childId, setChildId] = useState(start.dite);
   const isNew = start.id === 'novy';
 

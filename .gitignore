@@ -49,3 +49,6 @@ example
 .directory
 supabase/.temp
 docs/
+
+# Snímky z testů
+tests/e2e/screenshots/
