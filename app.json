@@ -53,7 +53,8 @@
           "cameraPermission": "Aplikace potřebuje fotoaparát, abyste mohli vyfotit fotku nebo natočit video vzkaz.",
           "microphonePermission": "Aplikace potřebuje mikrofon pro natáčení video vzkazu."
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
