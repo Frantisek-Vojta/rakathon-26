@@ -8,7 +8,8 @@
     "scheme": "schrankavzpominek",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/icon.png",
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +22,12 @@
     },
     "web": {
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Schránka vzpomínek",
+      "shortName": "Schránka",
+      "lang": "cs",
+      "themeColor": "#FCF7F2",
+      "backgroundColor": "#FCF7F2"
     },
     "plugins": [
       "expo-router",
@@ -30,7 +36,7 @@
         {
           "backgroundColor": "#FCF7F2",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 140
         }
       ],
       "expo-sqlite"
