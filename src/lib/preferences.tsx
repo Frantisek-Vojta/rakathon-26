@@ -21,6 +21,8 @@ export type Preferences = {
   support: Support;
   interests: Interest[];
   reminders: Reminders;
+  /** Kdy se nastavení naposledy změnilo: platí vždy novější kopie (účet, nebo zařízení). */
+  updatedAt: number;
 };
 
 export const DEFAULT_PREFERENCES: Preferences = {
@@ -28,6 +30,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   support: 'jemne',
   interests: ['inspirace', 'oceneni', 'pribehy'],
   reminders: 'ne',
+  updatedAt: 0,
 };
 
 const INTERESTS: Interest[] = ['inspirace', 'oceneni', 'citat', 'pribehy', 'pripominky'];
@@ -42,6 +45,7 @@ function sanitize(raw: unknown): Preferences {
       ? INTERESTS.filter((i) => (value.interests as unknown[]).includes(i))
       : DEFAULT_PREFERENCES.interests,
     reminders: value.reminders === 'tydne' || value.reminders === 'casteji' ? value.reminders : 'ne',
+    updatedAt: typeof value.updatedAt === 'number' ? value.updatedAt : 0,
   };
 }
 
@@ -49,10 +53,14 @@ const localKey = (uid: string) => `nastaveni:${uid}`;
 
 function readPreferences(user: User | null): Preferences {
   if (!user) return DEFAULT_PREFERENCES;
-  const fromAccount = user.user_metadata?.nastaveni;
-  if (fromAccount) return sanitize(fromAccount);
-  const fromDevice = storage.getJSON(localKey(user.id));
-  return fromDevice ? sanitize(fromDevice) : DEFAULT_PREFERENCES;
+  const rawAccount = user.user_metadata?.nastaveni;
+  const rawDevice = storage.getJSON(localKey(user.id));
+  const account = rawAccount ? sanitize(rawAccount) : null;
+  const device = rawDevice ? sanitize(rawDevice) : null;
+  // Přihlášení uložené v zařízení může nést starší kopii (změna se nestihla odeslat),
+  // proto vyhrává ta s novějším časem.
+  if (account && device) return device.updatedAt > account.updatedAt ? device : account;
+  return account ?? device ?? DEFAULT_PREFERENCES;
 }
 
 type PreferencesValue = {
@@ -82,7 +90,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const update = useCallback(
     async (patch: Partial<Preferences>) => {
       if (!uid) return 'Nejste přihlášeni.';
-      const next = sanitize({ ...prefs, ...patch });
+      const next = sanitize({ ...prefs, ...patch, updatedAt: Date.now() });
       setOptimistic({ uid, prefs: next });
       storage.setJSON(localKey(uid), next);
       const { error } = await supabase.auth.updateUser({ data: { nastaveni: next } });
