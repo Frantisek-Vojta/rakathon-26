@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BackHeader } from '@/components/back-header';
@@ -8,6 +8,7 @@ import { Button } from '@/components/button';
 import { ChildAvatar } from '@/components/child-avatar';
 import { LetterRow } from '@/components/letter-row';
 import { Screen } from '@/components/screen';
+import { ChildTimeline } from '@/components/timeline';
 import { EmptyState, ErrorState, Loading } from '@/components/states';
 import { Body, Heading, Muted, Title } from '@/components/typography';
 import { CHILD_COLORS } from '@/constants/choices';
@@ -23,6 +24,7 @@ export default function ChildProfileScreen() {
     return { child, letters };
   }, [id]);
   const { data, error, reload } = useFocusData(load);
+  const [view, setView] = useState<'vzkazy' | 'osa'>('vzkazy');
 
   const header = (
     <BackHeader
@@ -70,7 +72,6 @@ export default function ChildProfileScreen() {
       <View style={[styles.profile, { backgroundColor: palette.bg }]}>
         <ChildAvatar name={child.name} color={child.color} size={96} onTint />
         <View style={styles.profileTexts}>
-          <Muted style={styles.kicker}>Profil dítěte</Muted>
           <Title>{child.name}</Title>
           {!!age && <Body style={styles.age}>{age}</Body>}
         </View>
@@ -83,8 +84,37 @@ export default function ChildProfileScreen() {
         <Button label="Napsat dopis" icon="create-outline" onPress={newLetter} />
       </View>
 
-      {letters.length === 0 ? (
-        <EmptyState icon="mail-open-outline" title="Zatím tu není žádný vzkaz" text="I jedna věta má velkou hodnotu. Začněte, kdy budete chtít." />
+      <View style={styles.tabs} accessibilityRole="tablist">
+        {(['vzkazy', 'osa'] as const).map((key) => (
+          <Pressable
+            key={key}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: view === key }}
+            onPress={() => setView(key)}
+            style={[styles.tab, view === key && styles.tabActive]}>
+            <Ionicons
+              name={key === 'vzkazy' ? 'mail-outline' : 'git-commit-outline'}
+              size={18}
+              color={view === key ? Colors.heading : Colors.textMuted}
+            />
+            <Text style={[styles.tabLabel, view === key && styles.tabLabelActive]}>
+              {key === 'vzkazy' ? 'Vzkazy' : 'Časová osa'}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {view === 'osa' ? (
+        <View style={styles.section}>
+          <Muted>Důležité okamžiky v životě dítěte. Ke každému můžete napsat vzkaz, kdykoli budete chtít.</Muted>
+          <ChildTimeline child={child} letters={letters} />
+        </View>
+      ) : letters.length === 0 ? (
+        <EmptyState
+          icon="mail-open-outline"
+          title="Zatím tu není žádný vzkaz"
+          text="I jedna věta má velkou hodnotu. Začněte, kdy budete chtít."
+        />
       ) : (
         <>
           {drafts.length > 0 && (
@@ -139,10 +169,6 @@ const styles = StyleSheet.create({
   profileTexts: {
     flex: 1,
   },
-  kicker: {
-    fontFamily: Fonts.bodySemiBold,
-    fontSize: 14,
-  },
   age: {
     fontFamily: Fonts.bodySemiBold,
     color: Colors.heading,
@@ -161,5 +187,31 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: Spacing.sm,
+  },
+  tabs: {
+    flexDirection: 'row',
+    backgroundColor: Colors.surfaceSoft,
+    borderRadius: Radius.pill,
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 6,
+    minHeight: 44,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabActive: {
+    backgroundColor: Colors.surface,
+  },
+  tabLabel: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 15,
+    color: Colors.textMuted,
+  },
+  tabLabelActive: {
+    color: Colors.heading,
   },
 });

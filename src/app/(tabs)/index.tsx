@@ -1,79 +1,105 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, type Href } from 'expo-router';
 import { useCallback, type ComponentProps } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { Illustration } from '@/components/illustration';
 import { LetterRow } from '@/components/letter-row';
 import { Screen } from '@/components/screen';
 import { Body, Heading, Muted, Title } from '@/components/typography';
 import { promptOfTheDay } from '@/constants/inspiration';
+import { quoteOfTheDay } from '@/constants/support';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useFocusData } from '@/hooks/use-focus-data';
+import { useLayout } from '@/hooks/use-layout';
 import { listChildren, listLetters } from '@/lib/data';
+import { plural } from '@/lib/format';
+import { usePreferences } from '@/lib/preferences';
 
-type Tile = {
+type Energy = {
   title: string;
   text: string;
+  action: string;
   icon: ComponentProps<typeof Ionicons>['name'];
   tint: string;
-  iconColor: string;
+  color: string;
   href: Href;
 };
 
-const tiles: Tile[] = [
-  {
-    title: 'Vytvořit vzkaz',
-    text: 'Napište svému dítěti dopis, vzpomínku nebo vzkaz.',
-    icon: 'create-outline',
-    tint: Colors.primarySoft,
-    iconColor: Colors.primary,
-    href: { pathname: '/dopis/[id]', params: { id: 'novy' } },
-  },
-  {
-    title: 'Moje děti',
-    text: 'Každé dítě má svůj vlastní prostor.',
-    icon: 'people-outline',
-    tint: Colors.sage,
-    iconColor: Colors.sageDark,
-    href: '/deti',
-  },
-  {
-    title: 'Inspirace a tipy',
-    text: 'Otázky a nápady, které pomohou začít.',
-    icon: 'bulb-outline',
-    tint: Colors.peach,
-    iconColor: Colors.peachDark,
-    href: '/inspirace',
-  },
-  {
-    title: 'Správce schránky',
-    text: 'Všechny vzkazy bezpečně na jednom místě.',
-    icon: 'cube-outline',
-    tint: Colors.lavender,
-    iconColor: Colors.lavenderDark,
-    href: '/spravce',
-  },
-];
-
+/**
+ * Úvodní obrazovka: „Vítejte zpět“ a průvodce energií rodiče (podklady FN Olomouc).
+ * Návrat bez výčitek: pokračovat v konceptu, napsat jen jednu větu, nebo si vše jen projít.
+ */
 export default function HomeScreen() {
+  const { isTablet, isDesktop } = useLayout();
+  const { encourage, quote, dailyPrompt } = usePreferences();
   const load = useCallback(async () => {
-    const [children, drafts] = await Promise.all([listChildren(), listLetters({ status: 'koncept' })]);
-    return { children, drafts };
+    const [children, letters] = await Promise.all([listChildren(), listLetters()]);
+    return { children, letters };
   }, []);
   const { data } = useFocusData(load);
-  const question = promptOfTheDay();
+
+  const question = dailyPrompt ? promptOfTheDay() : 'Napište jednu větu, kterou by si vaše dítě mělo jednou pamatovat.';
+  const drafts = data?.letters.filter((l) => l.status === 'koncept') ?? [];
+  const finished = data?.letters.filter((l) => l.status === 'hotovo').length ?? 0;
+  const returning = (data?.letters.length ?? 0) > 0;
   const noChildren = data?.children.length === 0;
 
+  const energies: Energy[] = [
+    {
+      title: 'Mám sílu tvořit',
+      text: 'Chci dnes zachytit víc vzpomínek, myšlenek nebo příběhů.',
+      action: 'Napsat dopis',
+      icon: 'heart-outline',
+      tint: Colors.primarySoft,
+      color: Colors.primaryText,
+      href: { pathname: '/dopis/[id]', params: { id: 'novy' } },
+    },
+    {
+      title: 'Zvládnu jen jednu větu',
+      text: question,
+      action: 'Začít jednou větou',
+      icon: 'pencil-outline',
+      tint: Colors.sage,
+      color: Colors.sageDark,
+      href: { pathname: '/dopis/[id]', params: { id: 'novy', otazka: question } },
+    },
+    {
+      title: 'Dnes potřebuji odpočívat',
+      text: 'Je v pořádku zpomalit. Někdy je důležité jen být a načerpat sílu.',
+      action: 'Jen si projít inspiraci',
+      icon: 'moon-outline',
+      tint: Colors.peach,
+      color: Colors.peachDark,
+      href: '/inspirace',
+    },
+  ];
+
   return (
-    <Screen>
-      <View style={styles.hero}>
-        <Title style={styles.center}>Místo pro slova, která mohou zůstat nablízku.</Title>
-        <Muted style={styles.center}>
-          Vytvářejte vzpomínky, vzkazy a příběhy pro své děti, které si jednou budou moci znovu přečíst a
-          prožít.
-        </Muted>
+    <Screen inTabs width="wide">
+      <View style={[styles.hero, isTablet && styles.heroWide]}>
+        <View style={[styles.heroText, isTablet && styles.heroTextWide]}>
+          <Title style={styles.heroTitle}>
+            {returning ? 'Vítejte zpět' : 'Místo pro slova, která mohou zůstat nablízku'}
+          </Title>
+          <Body style={styles.lead}>
+            {returning
+              ? 'Můžete pokračovat svým tempem.'
+              : 'Vytvářejte vzpomínky, vzkazy a příběhy pro své děti. Kdykoli můžete přestat a vrátit se.'}
+          </Body>
+        </View>
+        <Illustration name="rodina" style={isTablet ? styles.heroImageWide : undefined} />
       </View>
+
+      {encourage && returning && (
+        <View style={styles.gentle}>
+          <Ionicons name="heart" size={24} color={Colors.primaryText} />
+          <Text style={styles.gentleText}>
+            Není potřeba spěchat. <Text style={styles.gentleSoft}>I malý návrat má smysl.</Text>
+          </Text>
+        </View>
+      )}
 
       {noChildren && (
         <View style={styles.onboarding}>
@@ -83,47 +109,83 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {!!data?.drafts.length && (
-        <View style={styles.section}>
-          <Heading>Rozepsané vzkazy</Heading>
-          <Muted>Můžete pokračovat, kdykoli budete chtít. Nic nespěchá.</Muted>
-          {data.drafts.slice(0, 3).map((letter) => (
-            <LetterRow key={letter.id} letter={letter} childName={letter.child?.name} />
+      <View style={styles.section}>
+        <View style={styles.sectionHead}>
+          <Heading>Kolik máte dnes sil?</Heading>
+          <Muted>Vyberte si, co je pro vás dnes možné. Každá možnost je v pořádku.</Muted>
+        </View>
+        <View style={[styles.energies, isDesktop && styles.energiesRow]}>
+          {energies.map((e) => (
+            <Pressable
+              key={e.title}
+              accessibilityRole="button"
+              onPress={() => router.push(e.href)}
+              style={({ pressed }) => [styles.energy, isDesktop && styles.energyColumn, pressed && styles.pressed]}>
+              <View style={[styles.energyIcon, { backgroundColor: e.tint }]}>
+                <Ionicons name={e.icon} size={26} color={e.color} />
+              </View>
+              <View style={styles.energyTexts}>
+                <Text style={styles.energyTitle}>{e.title}</Text>
+                <Text style={styles.energyText}>{e.text}</Text>
+                <View style={styles.energyAction}>
+                  <Text style={styles.energyActionText}>{e.action}</Text>
+                  <Ionicons name="arrow-forward" size={18} color={Colors.primaryText} />
+                </View>
+              </View>
+            </Pressable>
           ))}
         </View>
-      )}
-
-      <View style={styles.smallStep}>
-        <View style={styles.smallStepHead}>
-          <Ionicons name="sunny-outline" size={24} color={Colors.peachDark} />
-          <Heading>Dnešní malý krok</Heading>
-        </View>
-        <Body style={styles.question}>{question}</Body>
-        <Muted>Stačí jedna věta, kterou by si vaše dítě mělo jednou pamatovat.</Muted>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.push({ pathname: '/dopis/[id]', params: { id: 'novy', otazka: question } })}
-          style={({ pressed }) => [styles.smallStepButton, pressed && styles.pressed]}>
-          <Ionicons name="pencil-outline" size={20} color={Colors.heading} />
-          <Body style={styles.smallStepLabel}>Napsat jednu větu</Body>
-          <Ionicons name="chevron-forward" size={20} color={Colors.heading} />
-        </Pressable>
       </View>
 
-      <View style={styles.grid}>
-        {tiles.map((tile) => (
-          <Pressable
-            key={tile.title}
-            accessibilityRole="button"
-            onPress={() => router.push(tile.href)}
-            style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
-            <View style={[styles.tileIcon, { backgroundColor: tile.tint }]}>
-              <Ionicons name={tile.icon} size={26} color={tile.iconColor} />
+      <View style={[styles.columns, isDesktop && styles.columnsWide]}>
+        {drafts.length > 0 && (
+          <View style={[styles.section, styles.column]}>
+            <View style={styles.sectionHead}>
+              <Heading>Pokračovat v konceptu</Heading>
+              <Muted>Vraťte se k tomu, co jste začali, a pište dál, i když jen pár vět.</Muted>
             </View>
-            <Heading style={styles.tileTitle}>{tile.title}</Heading>
-            <Muted style={styles.tileText}>{tile.text}</Muted>
+            {drafts.slice(0, 3).map((letter) => (
+              <LetterRow key={letter.id} letter={letter} childName={letter.child?.name} />
+            ))}
+          </View>
+        )}
+
+        <View style={[styles.section, styles.column]}>
+          {finished > 0 && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/spravce')}
+              style={({ pressed }) => [styles.browse, pressed && styles.pressed]}>
+              <View style={[styles.energyIcon, { backgroundColor: Colors.lavender }]}>
+                <Ionicons name="albums-outline" size={26} color={Colors.lavenderDark} />
+              </View>
+              <View style={styles.energyTexts}>
+                <Text style={styles.energyTitle}>Jen si vše projít</Text>
+                <Text style={styles.energyText}>
+                  Prohlédněte si své vzpomínky. Zatím{' '}
+                  {plural(finished, 'hotový vzkaz', 'hotové vzkazy', 'hotových vzkazů')}.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={22} color={Colors.textFaint} />
+            </Pressable>
+          )}
+
+          {quote && (
+            <View style={styles.quote}>
+              <Ionicons name="leaf-outline" size={22} color={Colors.sageDark} />
+              <Text style={styles.quoteText}>„{quoteOfTheDay()}“</Text>
+            </View>
+          )}
+
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => router.push('/smysl')}
+            style={({ pressed }) => [styles.meaning, pressed && styles.pressed]}>
+            <Ionicons name="help-circle-outline" size={22} color={Colors.primaryText} />
+            <Text style={styles.meaningText}>Proč to má smysl?</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.primaryText} />
           </Pressable>
-        ))}
+        </View>
       </View>
     </Screen>
   );
@@ -131,13 +193,50 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   hero: {
-    backgroundColor: Colors.surfaceSoft,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
+    gap: Spacing.md,
+  },
+  heroWide: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xl,
+  },
+  heroText: {
     gap: Spacing.sm,
   },
-  center: {
-    textAlign: 'center',
+  heroTextWide: {
+    flex: 1,
+  },
+  heroTitle: {
+    fontSize: 36,
+    lineHeight: 44,
+  },
+  heroImageWide: {
+    flex: 1.4,
+  },
+  lead: {
+    fontSize: 19,
+    lineHeight: 28,
+    color: Colors.textMuted,
+  },
+  gentle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    backgroundColor: Colors.surfaceSoft,
+    borderRadius: Radius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+  },
+  gentleText: {
+    flex: 1,
+    fontFamily: Fonts.heading,
+    fontSize: 19,
+    lineHeight: 27,
+    color: Colors.heading,
+  },
+  gentleSoft: {
+    fontFamily: Fonts.body,
+    color: Colors.text,
   },
   onboarding: {
     backgroundColor: Colors.surface,
@@ -148,70 +247,113 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   section: {
+    gap: Spacing.md,
+  },
+  sectionHead: {
+    gap: 2,
+  },
+  energies: {
     gap: Spacing.sm,
   },
-  grid: {
+  energiesRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
+    alignItems: 'stretch',
   },
-  tile: {
-    flexBasis: '48%',
-    flexGrow: 1,
+  energy: {
+    flexDirection: 'row',
+    gap: Spacing.md,
     backgroundColor: Colors.surface,
-    borderColor: Colors.border,
+    borderRadius: Radius.lg,
     borderWidth: 1,
-    borderRadius: Radius.md,
+    borderColor: Colors.border,
     padding: Spacing.md,
-    gap: Spacing.xs,
+  },
+  energyColumn: {
+    flex: 1,
+    flexDirection: 'column',
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.75,
   },
-  tileIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  energyIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.xs,
   },
-  tileTitle: {
-    fontSize: 17,
+  energyTexts: {
+    flex: 1,
+    gap: 4,
+  },
+  energyTitle: {
+    fontFamily: Fonts.heading,
+    fontSize: 19,
+    lineHeight: 25,
+    color: Colors.heading,
+  },
+  energyText: {
+    fontFamily: Fonts.body,
+    fontSize: 15,
     lineHeight: 22,
+    color: Colors.textMuted,
   },
-  tileText: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  smallStep: {
-    backgroundColor: Colors.peach,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    gap: Spacing.sm,
-  },
-  smallStepHead: {
+  energyAction: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: 6,
+    marginTop: 6,
   },
-  question: {
+  energyActionText: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 15,
+    color: Colors.primaryText,
+  },
+  columns: {
+    gap: Spacing.lg,
+  },
+  columnsWide: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  column: {
+    flex: 1,
+  },
+  browse: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: Spacing.md,
+  },
+  quote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    backgroundColor: Colors.sage,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+  },
+  quoteText: {
+    flex: 1,
     fontFamily: Fonts.heading,
     fontSize: 18,
     lineHeight: 26,
+    color: Colors.text,
   },
-  smallStepButton: {
+  meaning: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.pill,
-    minHeight: 52,
-    paddingHorizontal: Spacing.md,
-    marginTop: Spacing.xs,
+    minHeight: 48,
+    alignSelf: 'flex-start',
   },
-  smallStepLabel: {
-    flex: 1,
-    fontFamily: Fonts.bodySemiBold,
+  meaningText: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 16,
+    color: Colors.primaryText,
   },
 });

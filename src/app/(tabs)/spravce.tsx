@@ -6,19 +6,26 @@ import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
 import { ConfirmDialog } from '@/components/dialog';
 import { LetterRow } from '@/components/letter-row';
+import { OptionCard } from '@/components/option-card';
 import { Screen } from '@/components/screen';
 import { EmptyState, ErrorState, Loading } from '@/components/states';
 import { TextField } from '@/components/text-field';
 import { Body, Heading, Muted, Title } from '@/components/typography';
+import { INTEREST_OPTIONS, REMINDER_OPTIONS, SUPPORT_OPTIONS } from '@/constants/support';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useFocusData } from '@/hooks/use-focus-data';
+import { useLayout } from '@/hooks/use-layout';
 import { useAuth } from '@/lib/auth';
 import { listChildren, listLetters, type LetterStatus } from '@/lib/data';
 import { lettersToText, shareExport } from '@/lib/export';
+import { plural } from '@/lib/format';
+import { usePreferences, type Interest, type Reminders } from '@/lib/preferences';
+import { applyReminders, remindersSupported } from '@/lib/reminders';
 
 type StatusFilter = 'vse' | LetterStatus;
 
 export default function ManagerScreen() {
+  const { isDesktop } = useLayout();
   const load = useCallback(async () => {
     const [children, letters] = await Promise.all([listChildren(), listLetters()]);
     return { children, letters };
@@ -42,99 +49,179 @@ export default function ManagerScreen() {
   const finished = data?.letters.filter((l) => l.status === 'hotovo').length ?? 0;
   const drafts = (data?.letters.length ?? 0) - finished;
 
-  return (
-    <Screen>
-      <View style={styles.intro}>
-        <Title>Správce schránky</Title>
-        <Muted>Všechny vaše vzkazy na jednom místě. Upravujte, dopisujte a mějte přehled.</Muted>
+  const library = (
+    <View style={styles.section}>
+      <Heading>Co už je vytvořeno</Heading>
+      {data && (
+        <Text style={styles.summary}>
+          {plural(data.children.length, 'dítě', 'děti', 'dětí')} ·{' '}
+          {plural(finished, 'hotový vzkaz', 'hotové vzkazy', 'hotových vzkazů')} ·{' '}
+          {plural(drafts, 'koncept', 'koncepty', 'konceptů')}
+        </Text>
+      )}
+      <TextField
+        label="Hledat ve vzkazech"
+        value={query}
+        onChangeText={setQuery}
+        placeholder="např. narozeniny"
+        autoCorrect={false}
+        returnKeyType="search"
+      />
+      <View style={styles.chips} accessibilityRole="radiogroup" accessibilityLabel="Stav">
+        <Chip label="Vše" selected={status === 'vse'} onPress={() => setStatus('vse')} />
+        <Chip label="Hotové" selected={status === 'hotovo'} onPress={() => setStatus('hotovo')} />
+        <Chip label="Koncepty" selected={status === 'koncept'} onPress={() => setStatus('koncept')} />
       </View>
+      {data && data.children.length > 1 && (
+        <View style={styles.chips} accessibilityRole="radiogroup" accessibilityLabel="Dítě">
+          <Chip label="Všechny děti" selected={!childId} onPress={() => setChildId(null)} />
+          {data.children.map((c) => (
+            <Chip key={c.id} label={c.name} selected={childId === c.id} onPress={() => setChildId(c.id)} />
+          ))}
+        </View>
+      )}
 
       {error && !data ? (
         <ErrorState message={error} onRetry={reload} />
       ) : !data ? (
         <Loading />
+      ) : data.letters.length === 0 ? (
+        <EmptyState
+          icon="mail-open-outline"
+          title="Zatím tu nejsou žádné vzkazy"
+          text="Až něco napíšete, najdete to tady. I jedna věta má velkou hodnotu."
+        />
+      ) : visible.length === 0 ? (
+        <Muted style={styles.center}>Tomuto výběru neodpovídá žádný vzkaz.</Muted>
       ) : (
-        <>
-          <View style={styles.stats}>
-            <Stat icon="people-outline" value={data.children.length} label="Děti" tint={Colors.sage} color={Colors.sageDark} />
-            <Stat icon="mail-outline" value={finished} label="Hotové" tint={Colors.primarySoft} color={Colors.primary} />
-            <Stat icon="create-outline" value={drafts} label="Koncepty" tint={Colors.draftSoft} color={Colors.draft} />
-          </View>
-
-          <View style={styles.section}>
-            <Heading>Co už je vytvořeno</Heading>
-            <TextField
-              label="Hledat ve vzkazech"
-              value={query}
-              onChangeText={setQuery}
-              placeholder="např. narozeniny"
-              autoCorrect={false}
-              returnKeyType="search"
-            />
-            <View style={styles.chips} accessibilityRole="radiogroup" accessibilityLabel="Stav">
-              <Chip label="Vše" selected={status === 'vse'} onPress={() => setStatus('vse')} />
-              <Chip label="Hotové" selected={status === 'hotovo'} onPress={() => setStatus('hotovo')} />
-              <Chip label="Koncepty" selected={status === 'koncept'} onPress={() => setStatus('koncept')} />
-            </View>
-            {data.children.length > 1 && (
-              <View style={styles.chips} accessibilityRole="radiogroup" accessibilityLabel="Dítě">
-                <Chip label="Všechny děti" selected={!childId} onPress={() => setChildId(null)} />
-                {data.children.map((c) => (
-                  <Chip key={c.id} label={c.name} selected={childId === c.id} onPress={() => setChildId(c.id)} />
-                ))}
-              </View>
-            )}
-
-            {data.letters.length === 0 ? (
-              <EmptyState
-                icon="mail-open-outline"
-                title="Zatím tu nejsou žádné vzkazy"
-                text="Až něco napíšete, najdete to tady. I jedna věta má velkou hodnotu."
-              />
-            ) : visible.length === 0 ? (
-              <Muted style={styles.center}>Tomuto výběru neodpovídá žádný vzkaz.</Muted>
-            ) : (
-              visible.map((letter) => <LetterRow key={letter.id} letter={letter} childName={letter.child?.name} />)
-            )}
-
-            {data.letters.length > 0 && (
-              <Button
-                label="Stáhnout všechny vzkazy"
-                variant="secondary"
-                icon="download-outline"
-                onPress={() => shareExport(lettersToText(data.children, data.letters))}
-              />
-            )}
-          </View>
-        </>
+        visible.map((letter) => <LetterRow key={letter.id} letter={letter} childName={letter.child?.name} />)
       )}
 
-      <PrivacyCard />
-      <AccountCard />
+      {data && data.letters.length > 0 && (
+        <Button
+          label="Stáhnout všechny vzkazy"
+          variant="secondary"
+          icon="download-outline"
+          onPress={() => shareExport(lettersToText(data.children, data.letters))}
+        />
+      )}
+    </View>
+  );
+
+  return (
+    <Screen inTabs width="wide">
+      <View style={styles.intro}>
+        <Title>Správce schránky</Title>
+        <Muted>Všechny vaše vzkazy na jednom místě. Upravujte, dopisujte a mějte přehled.</Muted>
+      </View>
+
+      <View style={[styles.columns, isDesktop && styles.columnsWide]}>
+        <View style={[styles.column, isDesktop && styles.mainColumn]}>{library}</View>
+        <View style={[styles.column, styles.side]}>
+          <SupportCard />
+          <PrivacyCard />
+          <AccountCard />
+        </View>
+      </View>
     </Screen>
   );
 }
 
-function Stat({
-  icon,
-  value,
-  label,
-  tint,
-  color,
-}: {
-  icon: ComponentProps<typeof Ionicons>['name'];
-  value: number;
-  label: string;
-  tint: string;
-  color: string;
-}) {
+function SupportCard() {
+  const { prefs, update } = usePreferences();
+  const [message, setMessage] = useState<string | null>(null);
+  const gentle = prefs.support === 'jemne';
+
+  async function setReminders(reminders: Reminders) {
+    setMessage(null);
+    const problem = await applyReminders(reminders);
+    await update({
+      reminders,
+      interests: reminders === 'ne' ? prefs.interests : withInterest(prefs.interests, 'pripominky'),
+    });
+    if (problem) setMessage(problem);
+    else if (!remindersSupported && reminders !== 'ne')
+      setMessage('Uloženo. Připomínky posílá mobilní aplikace v telefonu.');
+  }
+
   return (
-    <View style={[styles.stat, { backgroundColor: tint }]} accessible accessibilityLabel={`${label}: ${value}`}>
-      <Ionicons name={icon} size={22} color={color} />
-      <Text style={[styles.statValue, { color }]}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+    <View style={styles.card}>
+      <Heading>Podpora a připomínky</Heading>
+      <Muted>Kolik vedení chcete, je jen na vás. Změnit to můžete kdykoli.</Muted>
+      <View style={styles.options} accessibilityRole="radiogroup">
+        {SUPPORT_OPTIONS.map((o) => (
+          <OptionCard
+            key={o.key}
+            kind="radio"
+            selected={prefs.support === o.key}
+            title={o.title}
+            description={o.description}
+            icon={o.icon}
+            tint={o.tint}
+            iconColor={o.iconColor}
+            onPress={() => {
+              update({ support: o.key });
+              if (o.key === 'klidne') applyReminders('ne');
+            }}
+          />
+        ))}
+      </View>
+
+      <Text style={styles.subheading}>Co vám v aplikaci pomáhá</Text>
+      <View style={styles.options}>
+        {INTEREST_OPTIONS.filter((o) => o.key !== 'pripominky').map((o) => (
+          <OptionCard
+            key={o.key}
+            kind="checkbox"
+            selected={prefs.interests.includes(o.key)}
+            title={o.title}
+            description={o.description}
+            icon={o.icon}
+            tint={o.tint}
+            iconColor={o.iconColor}
+            onPress={() =>
+              update({
+                interests: prefs.interests.includes(o.key)
+                  ? prefs.interests.filter((i) => i !== o.key)
+                  : withInterest(prefs.interests, o.key),
+              })
+            }
+          />
+        ))}
+      </View>
+      {!gentle && <Muted>V klidném režimu se nezobrazují ocenění, citáty ani připomínky.</Muted>}
+
+      {gentle && (
+        <>
+          <Text style={styles.subheading}>Připomenutí (volitelné)</Text>
+          <View style={styles.options} accessibilityRole="radiogroup">
+            {REMINDER_OPTIONS.map((o) => (
+              <OptionCard
+                key={o.key}
+                kind="radio"
+                selected={prefs.reminders === o.key}
+                title={o.title}
+                description={o.description}
+                icon={o.icon}
+                tint={o.tint}
+                iconColor={o.iconColor}
+                onPress={() => setReminders(o.key)}
+              />
+            ))}
+          </View>
+        </>
+      )}
+      {message && (
+        <Text style={styles.info} accessibilityLiveRegion="polite">
+          {message}
+        </Text>
+      )}
     </View>
   );
+}
+
+function withInterest(list: Interest[], key: Interest) {
+  return list.includes(key) ? list : [...list, key];
 }
 
 const PRIVACY_POINTS: { icon: ComponentProps<typeof Ionicons>['name']; text: string }[] = [
@@ -169,8 +256,10 @@ function AccountCard() {
     setBusy(true);
     setError(null);
     if (action === 'signout') {
+      await applyReminders('ne');
       await signOut();
     } else {
+      await applyReminders('ne');
       const result = await deleteAccount();
       if (result.error) {
         setError(result.error);
@@ -184,7 +273,7 @@ function AccountCard() {
     <View style={styles.card}>
       <Heading>Účet</Heading>
       <View style={styles.point}>
-        <Ionicons name={isDemo ? 'sparkles-outline' : 'person-circle-outline'} size={22} color={Colors.primary} />
+        <Ionicons name={isDemo ? 'sparkles-outline' : 'person-circle-outline'} size={22} color={Colors.primaryText} />
         <Body style={styles.pointText}>{isDemo ? 'Demo účet s fiktivní rodinou' : email}</Body>
       </View>
       {error && <Text style={styles.error}>{error}</Text>}
@@ -195,7 +284,12 @@ function AccountCard() {
         onPress={() => (isDemo ? setConfirm('signout') : run('signout'))}
       />
       {!isDemo && (
-        <Button label="Smazat účet a všechna data" variant="ghost" icon="trash-outline" onPress={() => setConfirm('delete')} />
+        <Button
+          label="Smazat účet a všechna data"
+          variant="ghost"
+          icon="trash-outline"
+          onPress={() => setConfirm('delete')}
+        />
       )}
 
       <ConfirmDialog
@@ -225,29 +319,29 @@ const styles = StyleSheet.create({
   intro: {
     gap: Spacing.xs,
   },
-  stats: {
+  columns: {
+    gap: Spacing.xl,
+  },
+  columnsWide: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    alignItems: 'flex-start',
   },
-  stat: {
+  column: {
+    gap: Spacing.lg,
+  },
+  mainColumn: {
+    flex: 1.4,
+  },
+  side: {
     flex: 1,
-    alignItems: 'center',
-    borderRadius: Radius.md,
-    paddingVertical: Spacing.md,
-    gap: 2,
-  },
-  statValue: {
-    fontFamily: Fonts.headingBold,
-    fontSize: 26,
-    lineHeight: 32,
-  },
-  statLabel: {
-    fontFamily: Fonts.bodySemiBold,
-    fontSize: 13,
-    color: Colors.text,
   },
   section: {
     gap: Spacing.sm,
+  },
+  summary: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 16,
+    color: Colors.textMuted,
   },
   chips: {
     flexDirection: 'row',
@@ -265,6 +359,20 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     padding: Spacing.lg,
     gap: Spacing.md,
+  },
+  options: {
+    gap: Spacing.sm,
+  },
+  subheading: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 16,
+    color: Colors.text,
+    marginTop: Spacing.sm,
+  },
+  info: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 15,
+    color: Colors.success,
   },
   point: {
     flexDirection: 'row',

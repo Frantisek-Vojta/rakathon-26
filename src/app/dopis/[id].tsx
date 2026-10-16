@@ -13,10 +13,12 @@ import { LetterPaper } from '@/components/letter/paper';
 import { StatusBadge } from '@/components/letter-row';
 import { Screen } from '@/components/screen';
 import { ErrorState, Loading } from '@/components/states';
+import { OCCASIONS } from '@/constants/choices';
 import { ALL_PROMPTS } from '@/constants/inspiration';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useLetterAutosave, type SaveState } from '@/hooks/use-letter-autosave';
 import {
+  countLetters,
   deleteLetter,
   getChild,
   getLetter,
@@ -28,7 +30,8 @@ import {
   type Sticker,
 } from '@/lib/data';
 import { draftKey, drafts, type LetterFields } from '@/lib/drafts';
-import { formatDate } from '@/lib/format';
+import { formatDate, plural } from '@/lib/format';
+import { usePreferences } from '@/lib/preferences';
 
 type ChildInfo = Pick<Child, 'id' | 'name' | 'color'>;
 
@@ -48,14 +51,21 @@ function fieldsOf(letter: Letter): LetterFields {
 /**
  * /dopis/novy?dite=ID      nový dopis pro dítě
  * /dopis/novy?otazka=…     nový dopis z inspirace (nejdřív výběr dítěte)
+ * /dopis/novy?dite=ID&prilezitost=…   nový dopis k milníku z časové osy
  * /dopis/ID                existující dopis (hotový se otevře ke čtení)
  */
 export default function LetterRoute() {
-  const params = useLocalSearchParams<{ id: string; dite?: string; otazka?: string }>();
+  const params = useLocalSearchParams<{ id: string; dite?: string; otazka?: string; prilezitost?: string }>();
   // Parametry si zapamatujeme při otevření. Po prvním uložení se v adrese
   // „novy“ změní na skutečné ID a obrazovka se kvůli tomu nesmí znovu načítat.
   // Otázka přichází z adresy, kterou může kdokoli upravit: zkrátíme ji na rozumnou délku.
-  const [start] = useState(() => ({ id: params.id, dite: params.dite, otazka: params.otazka?.slice(0, 200) }));
+  const [start] = useState(() => ({
+    id: params.id,
+    dite: params.dite,
+    otazka: params.otazka?.slice(0, 200),
+    // Jen příležitosti z nabídky (adresa jde ručně upravit).
+    prilezitost: OCCASIONS.find((o) => o !== 'Kdykoli' && o === params.prilezitost) ?? null,
+  }));
   const [childId, setChildId] = useState(start.dite);
   const isNew = start.id === 'novy';
 
@@ -73,12 +83,29 @@ export default function LetterRoute() {
     );
   }
 
-  return <LetterLoader letterId={isNew ? null : start.id} childId={childId ?? null} prompt={start.otazka} />;
+  return (
+    <LetterLoader
+      letterId={isNew ? null : start.id}
+      childId={childId ?? null}
+      prompt={start.otazka}
+      occasion={start.prilezitost}
+    />
+  );
 }
 
 type Loaded = { child: ChildInfo; letter: Letter | null; fields: LetterFields; restored: boolean };
 
-function LetterLoader({ letterId, childId, prompt }: { letterId: string | null; childId: string | null; prompt?: string }) {
+function LetterLoader({
+  letterId,
+  childId,
+  prompt,
+  occasion,
+}: {
+  letterId: string | null;
+  childId: string | null;
+  prompt?: string;
+  occasion: string | null;
+}) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -99,7 +126,8 @@ function LetterLoader({ letterId, childId, prompt }: { letterId: string | null; 
         } else if (childId) {
           const child = await getChild(childId);
           const local = drafts.load(draftKey(null, childId));
-          if (active) setLoaded({ child, letter: null, fields: local?.fields ?? EMPTY, restored: !!local });
+          if (active)
+            setLoaded({ child, letter: null, fields: local?.fields ?? { ...EMPTY, occasion }, restored: !!local });
         }
       } catch (e) {
         if (active) setError((e as Error).message);
@@ -108,7 +136,7 @@ function LetterLoader({ letterId, childId, prompt }: { letterId: string | null; 
     return () => {
       active = false;
     };
-  }, [letterId, childId, attempt]);
+  }, [letterId, childId, occasion, attempt]);
 
   if (error || !loaded) {
     return (
@@ -136,7 +164,10 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
   const [fields, setFields] = useState(initialFields);
   const [status, setStatus] = useState<LetterStatus>((letter?.status as LetterStatus) ?? 'koncept');
   const [mode, setMode] = useState<'read' | 'edit'>(letter?.status === 'hotovo' && !restored ? 'read' : 'edit');
-  const [dialog, setDialog] = useState<'draft' | 'done' | 'delete' | null>(null);
+  const [dialog, setDialog] = useState<'done' | 'delete' | null>(null);
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [finishedCount, setFinishedCount] = useState(0);
+  const { encourage } = usePreferences();
   const [busy, setBusy] = useState<'draft' | 'done' | 'delete' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(
@@ -163,6 +194,7 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
     setFields(next);
     change(next);
     setError(null);
+    setDraftSaved(false);
   }
 
   function backToProfile() {
@@ -183,16 +215,17 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
     try {
       const saved = await autosave.saveNow(nextStatus);
       setStatus((saved?.status as LetterStatus) ?? nextStatus);
-      if (nextStatus === 'hotovo' && wasDone) {
+      if (nextStatus === 'koncept') {
+        setDraftSaved(true);
+      } else if (wasDone) {
         setMode('read');
         setNotice('Změny jsou uložené.');
       } else {
-        setDialog(nextStatus === 'hotovo' ? 'done' : 'draft');
+        setFinishedCount(await countLetters('hotovo').catch(() => 0));
+        setDialog('done');
       }
     } catch (e) {
-      setError(
-        `${(e as Error).message} Text máte uložený v tomto zařízení, nic se neztratí. Zkuste to prosím znovu.`,
-      );
+      setError(`${(e as Error).message} Text máte uložený v tomto zařízení, nic se neztratí. Zkuste to prosím znovu.`);
     } finally {
       setBusy(null);
     }
@@ -230,24 +263,41 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
     mode === 'read' ? (
       <Button label="Upravit dopis" icon="create-outline" onPress={() => setMode('edit')} />
     ) : (
-      <View style={styles.footerRow}>
-        <Button
-          label={status === 'hotovo' ? 'Do konceptů' : 'Uložit koncept'}
-          variant="secondary"
-          icon="download-outline"
-          onPress={() => save('koncept')}
-          loading={busy === 'draft'}
-          disabled={!!busy}
-          style={styles.footerButton}
-        />
-        <Button
-          label={status === 'hotovo' ? 'Uložit změny' : 'Uložit vzkaz'}
-          icon="checkmark"
-          onPress={() => save('hotovo')}
-          loading={busy === 'done'}
-          disabled={!!busy}
-          style={styles.footerButton}
-        />
+      <View style={styles.footerStack}>
+        {draftSaved && (
+          <View style={styles.draftSaved} accessibilityLiveRegion="polite">
+            <Ionicons name="bookmark" size={20} color={Colors.draft} />
+            <View style={styles.draftSavedTexts}>
+              <Text style={styles.draftSavedTitle}>Koncept je uložený</Text>
+              <Text style={styles.draftSavedText}>Můžete se k němu kdykoli vrátit. Najdete ho v profilu dítěte.</Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              onPress={backToProfile}
+              style={({ pressed }) => [styles.draftSavedLink, pressed && styles.pressedLink]}>
+              <Text style={styles.link}>Zpět na profil</Text>
+            </Pressable>
+          </View>
+        )}
+        <View style={styles.footerRow}>
+          <Button
+            label={status === 'hotovo' ? 'Do konceptů' : 'Uložit koncept'}
+            variant="secondary"
+            icon="download-outline"
+            onPress={() => save('koncept')}
+            loading={busy === 'draft'}
+            disabled={!!busy}
+            style={styles.footerButton}
+          />
+          <Button
+            label={status === 'hotovo' ? 'Uložit změny' : 'Uložit vzkaz'}
+            icon="checkmark"
+            onPress={() => save('hotovo')}
+            loading={busy === 'done'}
+            disabled={!!busy}
+            style={styles.footerButton}
+          />
+        </View>
       </View>
     );
 
@@ -272,7 +322,11 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
         <View style={styles.notice} accessibilityLiveRegion="polite">
           <Ionicons name="checkmark-circle-outline" size={20} color={Colors.success} />
           <Text style={styles.noticeText}>{notice}</Text>
-          <Pressable accessibilityLabel="Zavřít oznámení" onPress={() => setNotice(null)} hitSlop={10}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Zavřít oznámení"
+            onPress={() => setNotice(null)}
+            style={styles.noticeClose}>
             <Ionicons name="close" size={20} color={Colors.textMuted} />
           </Pressable>
         </View>
@@ -286,10 +340,10 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
               <View style={styles.questionTexts}>
                 <Text style={styles.questionText}>{question}</Text>
                 <View style={styles.questionActions}>
-                  <Pressable accessibilityRole="button" onPress={anotherQuestion} hitSlop={8}>
+                  <Pressable accessibilityRole="button" onPress={anotherQuestion} style={styles.textButton}>
                     <Text style={styles.link}>Jiná otázka</Text>
                   </Pressable>
-                  <Pressable accessibilityRole="button" onPress={() => setQuestion(null)} hitSlop={8}>
+                  <Pressable accessibilityRole="button" onPress={() => setQuestion(null)} style={styles.textButton}>
                     <Text style={styles.linkMuted}>Skrýt</Text>
                   </Pressable>
                 </View>
@@ -335,9 +389,13 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
 
       <Dialog
         visible={dialog === 'done'}
-        icon="mail-open-outline"
-        title="Malý krok s velkým významem"
-        message="Právě jste vytvořil/a něco, k čemu se vaše dítě může jednou vrátit. I jedna věta může mít velkou hodnotu."
+        image="obalka"
+        title={encourage ? 'Malý krok s velkým významem' : 'Vzkaz je uložený'}
+        message={
+          encourage
+            ? `Právě jste vytvořil/a něco, k čemu se vaše dítě může jednou vrátit. ${thanks(finishedCount)}`
+            : 'Najdete ho v profilu dítěte i ve Správci schránky.'
+        }
         onClose={() => {
           setDialog(null);
           setMode('read');
@@ -351,16 +409,6 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
             setMode('read');
           }}
         />
-      </Dialog>
-
-      <Dialog
-        visible={dialog === 'draft'}
-        icon="bookmark-outline"
-        title="Koncept je uložený"
-        message="Můžete se k němu kdykoli vrátit a dopsat ho, až budete chtít. Najdete ho v profilu dítěte."
-        onClose={() => setDialog(null)}>
-        <Button label="Zpět na profil" icon="arrow-back" onPress={backToProfile} />
-        <Button label="Psát dál" variant="secondary" onPress={() => setDialog(null)} />
       </Dialog>
 
       <ConfirmDialog
@@ -377,9 +425,25 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
   );
 }
 
+/** Laskavé poděkování. Počet je jen orientační přehled, ne cíl (podklady: „Jemná gamifikace“). */
+function thanks(count: number) {
+  if (count === 1) return 'Vaše první vzpomínka. Děkujeme za váš laskavý krok.';
+  if ([3, 5, 10, 15, 20, 30, 50].includes(count)) {
+    return `Už ${plural(count, 'vzpomínka', 'vzpomínky', 'vzpomínek')}! Děkujeme, že tvoříte.`;
+  }
+  return 'Děkujeme za váš laskavý krok.';
+}
+
 function SaveIndicator({ state }: { state: SaveState }) {
   if (state === 'idle') return null;
-  const map: Record<Exclude<SaveState, 'idle'>, { icon: 'cloud-done-outline' | 'sync-outline' | 'phone-portrait-outline' | 'cloud-offline-outline'; text: string; color: string }> = {
+  const map: Record<
+    Exclude<SaveState, 'idle'>,
+    {
+      icon: 'cloud-done-outline' | 'sync-outline' | 'phone-portrait-outline' | 'cloud-offline-outline';
+      text: string;
+      color: string;
+    }
+  > = {
     local: { icon: 'phone-portrait-outline', text: 'Uloženo v zařízení', color: Colors.textMuted },
     saving: { icon: 'sync-outline', text: 'Ukládám…', color: Colors.textMuted },
     saved: { icon: 'cloud-done-outline', text: 'Uloženo', color: Colors.success },
@@ -455,7 +519,7 @@ const styles = StyleSheet.create({
   link: {
     fontFamily: Fonts.bodyBold,
     fontSize: 15,
-    color: Colors.primary,
+    color: Colors.primaryText,
   },
   linkMuted: {
     fontFamily: Fonts.bodySemiBold,
@@ -476,9 +540,56 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.danger,
   },
+  footerStack: {
+    gap: Spacing.sm,
+  },
   footerRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
+  },
+  draftSaved: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.draftSoft,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.sm,
+    paddingLeft: Spacing.md,
+    paddingRight: Spacing.xs,
+  },
+  draftSavedTexts: {
+    flex: 1,
+  },
+  draftSavedTitle: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 15,
+    color: Colors.draft,
+  },
+  draftSavedText: {
+    fontFamily: Fonts.body,
+    fontSize: 14,
+    lineHeight: 19,
+    color: Colors.text,
+  },
+  draftSavedLink: {
+    minHeight: 44,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: Radius.md,
+    justifyContent: 'center',
+  },
+  pressedLink: {
+    backgroundColor: Colors.surface,
+  },
+  noticeClose: {
+    width: 44,
+    height: 44,
+    marginRight: -Spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textButton: {
+    minHeight: 44,
+    justifyContent: 'center',
   },
   footerButton: {
     flex: 1,

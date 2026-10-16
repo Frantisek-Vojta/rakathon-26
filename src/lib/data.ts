@@ -73,13 +73,25 @@ export async function deleteChild(id: string): Promise<void> {
 
 const LETTER_WITH_CHILD = '*, child:children(id, name, color)';
 
-export async function listLetters(filter: { childId?: string; status?: LetterStatus } = {}): Promise<LetterWithChild[]> {
+export async function listLetters(
+  filter: { childId?: string; status?: LetterStatus } = {},
+): Promise<LetterWithChild[]> {
   let query = supabase.from('letters').select(LETTER_WITH_CHILD).order('updated_at', { ascending: false });
   if (filter.childId) query = query.eq('child_id', filter.childId);
   if (filter.status) query = query.eq('status', filter.status);
   const { data, error } = await query;
   if (error) fail(error);
   return data;
+}
+
+/** Kolik vzkazů v daném stavu rodič má (jen počet, bez stahování textů). */
+export async function countLetters(status: LetterStatus): Promise<number> {
+  const { count, error } = await supabase
+    .from('letters')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', status);
+  if (error) fail(error);
+  return count ?? 0;
 }
 
 export async function getLetter(id: string): Promise<LetterWithChild> {
