@@ -1,0 +1,8 @@
+.env*
+*.pptx
+docs/
+supabase/
+dist/
+node_modules/
+.expo/
+.claude/
