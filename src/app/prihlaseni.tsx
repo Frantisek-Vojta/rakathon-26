@@ -3,10 +3,12 @@ import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, type TextInputInstance } from 'react-native';
 
 import { Button } from '@/components/button';
+import { Illustration } from '@/components/illustration';
 import { Screen } from '@/components/screen';
 import { TextField } from '@/components/text-field';
 import { Body, Heading, Muted, Title } from '@/components/typography';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { useLayout } from '@/hooks/use-layout';
 import { getLastEmail, useAuth } from '@/lib/auth';
 
 type Mode = 'login' | 'register';
@@ -21,6 +23,7 @@ export default function SignInScreen() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<'form' | 'demo' | null>(null);
   const passwordRef = useRef<TextInputInstance>(null);
+  const { isTablet } = useLayout();
 
   const isRegister = mode === 'register';
 
@@ -52,114 +55,143 @@ export default function SignInScreen() {
     if (result.error) setError(result.error);
   }
 
+  const intro = (
+    <View style={[styles.hero, isTablet && styles.heroWide]}>
+      <Illustration name="krajina" maxWidth={isTablet ? 460 : 420} />
+      <Title style={[styles.title, !isTablet && styles.center]}>Schránka vzpomínek</Title>
+      <Body style={[styles.lead, !isTablet && styles.center]}>
+        Místo pro slova, která mohou zůstat nablízku. Pro dopisy a vzkazy vašim dětem, které si jednou budou moci znovu
+        přečíst.
+      </Body>
+    </View>
+  );
+
   return (
-    <Screen>
-      <View style={styles.hero}>
-        <View style={styles.heroIcon}>
-          <Ionicons name="heart" size={28} color={Colors.primary} />
-        </View>
-        <Title style={styles.center}>Vítejte</Title>
-        <Body style={styles.center}>
-          Bezpečné místo pro dopisy a vzkazy vašim dětem. Pro chvíle, kdy u nich nebudete moci být.
-        </Body>
-      </View>
-
-      <View style={styles.demoCard}>
-        <Heading>Jen se chcete podívat?</Heading>
-        <Muted>
-          Vyzkoušejte appku s fiktivní rodinou: Eliška, Matěj a Aneta. Bez registrace, ukázková data se po
-          odhlášení smažou.
-        </Muted>
-        <Button label="Vyzkoušet demo" icon="sparkles-outline" onPress={demo} loading={busy === 'demo'} disabled={!!busy} />
-      </View>
-
-      <View style={styles.formCard}>
-        <View style={styles.tabs} accessibilityRole="tablist">
-          {(['login', 'register'] as const).map((m) => (
-            <Pressable
-              key={m}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: mode === m }}
-              onPress={() => {
-                setMode(m);
-                setError(null);
-              }}
-              style={[styles.tab, mode === m && styles.tabActive]}>
-              <Text style={[styles.tabLabel, mode === m && styles.tabLabelActive]}>
-                {m === 'login' ? 'Přihlásit se' : 'Vytvořit účet'}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        <TextField
-          label="E-mail"
-          value={email}
-          onChangeText={setEmail}
-          placeholder="vas@email.cz"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="email"
-          textContentType="emailAddress"
-          returnKeyType="next"
-          onSubmitEditing={() => passwordRef.current?.focus()}
-          maxLength={254}
-        />
-        <TextField
-          ref={passwordRef}
-          label="Heslo"
-          value={password}
-          onChangeText={setPassword}
-          secret
-          hint={isRegister ? 'Aspoň 8 znaků.' : undefined}
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete={isRegister ? 'new-password' : 'current-password'}
-          textContentType={isRegister ? 'newPassword' : 'password'}
-          returnKeyType="go"
-          onSubmitEditing={submit}
-          maxLength={72}
-        />
-
-        {error && (
-          <View style={styles.errorBox} accessibilityLiveRegion="polite">
-            <Ionicons name="alert-circle-outline" size={20} color={Colors.danger} />
-            <Text style={styles.errorText}>{error}</Text>
+    <Screen width={isTablet ? 'wide' : 'narrow'}>
+      <View style={[styles.layout, isTablet && styles.layoutWide]}>
+        {intro}
+        <View style={[styles.side, isTablet && styles.sideWide]}>
+          <View style={styles.demoCard}>
+            <Heading>Jen se chcete podívat?</Heading>
+            <Muted>
+              Vyzkoušejte appku s fiktivní rodinou: Eliška, Matěj a Aneta. Bez registrace, ukázková data se po odhlášení
+              smažou.
+            </Muted>
+            <Button
+              label="Vyzkoušet demo"
+              icon="sparkles-outline"
+              onPress={demo}
+              loading={busy === 'demo'}
+              disabled={!!busy}
+            />
           </View>
-        )}
 
-        <Button
-          label={isRegister ? 'Vytvořit účet' : 'Přihlásit se'}
-          onPress={submit}
-          loading={busy === 'form'}
-          disabled={!!busy}
-        />
-      </View>
+          <View style={styles.formCard}>
+            <View style={styles.tabs} accessibilityRole="tablist">
+              {(['login', 'register'] as const).map((m) => (
+                <Pressable
+                  key={m}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: mode === m }}
+                  onPress={() => {
+                    setMode(m);
+                    setError(null);
+                  }}
+                  style={[styles.tab, mode === m && styles.tabActive]}>
+                  <Text style={[styles.tabLabel, mode === m && styles.tabLabelActive]}>
+                    {m === 'login' ? 'Přihlásit se' : 'Vytvořit účet'}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
 
-      <View style={styles.privacy}>
-        <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} />
-        <Muted style={styles.privacyText}>
-          Vaše vzpomínky vidíte jen vy. Nikdo jiný k nim přes appku nemá přístup.
-        </Muted>
+            <TextField
+              label="E-mail"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="vas@email.cz"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+              maxLength={254}
+            />
+            <TextField
+              ref={passwordRef}
+              label="Heslo"
+              value={password}
+              onChangeText={setPassword}
+              secret
+              hint={isRegister ? 'Aspoň 8 znaků.' : undefined}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete={isRegister ? 'new-password' : 'current-password'}
+              textContentType={isRegister ? 'newPassword' : 'password'}
+              returnKeyType="go"
+              onSubmitEditing={submit}
+              maxLength={72}
+            />
+
+            {error && (
+              <View style={styles.errorBox} accessibilityLiveRegion="polite">
+                <Ionicons name="alert-circle-outline" size={20} color={Colors.danger} />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
+
+            <Button
+              label={isRegister ? 'Vytvořit účet' : 'Přihlásit se'}
+              onPress={submit}
+              loading={busy === 'form'}
+              disabled={!!busy}
+            />
+          </View>
+
+          <View style={styles.privacy}>
+            <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} />
+            <Muted style={styles.privacyText}>
+              Vaše vzpomínky vidíte jen vy. Nikdo jiný k nim přes appku nemá přístup.
+            </Muted>
+          </View>
+        </View>
       </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingTop: Spacing.md,
+  layout: {
+    gap: Spacing.lg,
   },
-  heroIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: Colors.primarySoft,
+  layoutWide: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: Spacing.xxl,
+  },
+  hero: {
+    gap: Spacing.sm,
+  },
+  heroWide: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 34,
+    lineHeight: 42,
+  },
+  lead: {
+    fontSize: 18,
+    lineHeight: 27,
+    color: Colors.textMuted,
+  },
+  side: {
+    gap: Spacing.lg,
+  },
+  sideWide: {
+    flex: 1,
+    maxWidth: 480,
   },
   center: {
     textAlign: 'center',

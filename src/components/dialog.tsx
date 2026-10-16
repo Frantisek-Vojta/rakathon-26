@@ -3,8 +3,10 @@ import type { ComponentProps, ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { Illustration } from '@/components/illustration';
 import { Body, Heading } from '@/components/typography';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import type { IllustrationName } from '@/constants/illustrations';
+import { Colors, Radius, Shadows, Spacing } from '@/constants/theme';
 
 type Props = {
   visible: boolean;
@@ -12,18 +14,30 @@ type Props = {
   message?: string;
   icon?: ComponentProps<typeof Ionicons>['name'];
   iconColor?: string;
+  /** Akvarelová ilustrace místo ikony (např. obálka po dokončení vzkazu). */
+  image?: IllustrationName;
   onClose: () => void;
   children?: ReactNode;
 };
 
 /** Jemné okno uprostřed obrazovky. Funguje stejně na webu i v telefonu. */
-export function Dialog({ visible, title, message, icon, iconColor = Colors.primary, onClose, children }: Props) {
+export function Dialog({
+  visible,
+  title,
+  message,
+  icon,
+  iconColor = Colors.primaryText,
+  image,
+  onClose,
+  children,
+}: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <Pressable accessibilityLabel="Zavřít" style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={styles.card} accessibilityViewIsModal>
-          {icon && (
+          {image && <Illustration name={image} maxWidth={260} />}
+          {icon && !image && (
             <View style={styles.icon}>
               <Ionicons name={icon} size={30} color={iconColor} />
             </View>
@@ -49,7 +63,16 @@ type ConfirmProps = {
 };
 
 /** Potvrzení před nevratnou akcí (smazání). Výchozí volba je bezpečné „Ponechat“. */
-export function ConfirmDialog({ visible, title, message, confirmLabel, danger, busy, onConfirm, onCancel }: ConfirmProps) {
+export function ConfirmDialog({
+  visible,
+  title,
+  message,
+  confirmLabel,
+  danger,
+  busy,
+  onConfirm,
+  onCancel,
+}: ConfirmProps) {
   return (
     <Dialog
       visible={visible}
@@ -80,6 +103,7 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     gap: Spacing.md,
     alignItems: 'stretch',
+    boxShadow: Shadows.dialog,
   },
   icon: {
     alignSelf: 'center',
