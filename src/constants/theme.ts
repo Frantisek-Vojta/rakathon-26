@@ -10,6 +10,12 @@ export const Colors = {
   heading: '#7A2E2E',
   text: '#4A3B38',
   textMuted: '#7D6B66',
+  textFaint: '#A8968F',
+  danger: '#B3261E',
+  success: '#4E7A4A',
+  successSoft: '#E6EFE2',
+  draft: '#3D63A8',
+  draftSoft: '#E5EEFB',
 
   primary: '#B5655B',
   primaryPressed: '#9E5249',
@@ -22,6 +28,8 @@ export const Colors = {
   peachDark: '#B9733F',
   lavender: '#ECE7F6',
   lavenderDark: '#6B5A9E',
+  sky: '#E1ECF5',
+  skyDark: '#3F6E93',
 } as const;
 
 export const Fonts = {
@@ -30,6 +38,7 @@ export const Fonts = {
   body: 'Nunito_400Regular',
   bodySemiBold: 'Nunito_600SemiBold',
   bodyBold: 'Nunito_700Bold',
+  handwriting: 'Caveat_500Medium',
 } as const;
 
 export const Spacing = {
