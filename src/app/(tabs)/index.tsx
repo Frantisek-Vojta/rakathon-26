@@ -1,11 +1,16 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, type Href } from 'expo-router';
-import type { ComponentProps } from 'react';
+import { useCallback, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { Button } from '@/components/button';
+import { LetterRow } from '@/components/letter-row';
 import { Screen } from '@/components/screen';
 import { Body, Heading, Muted, Title } from '@/components/typography';
+import { promptOfTheDay } from '@/constants/inspiration';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { useFocusData } from '@/hooks/use-focus-data';
+import { listChildren, listLetters } from '@/lib/data';
 
 type Tile = {
   title: string;
@@ -23,7 +28,7 @@ const tiles: Tile[] = [
     icon: 'create-outline',
     tint: Colors.primarySoft,
     iconColor: Colors.primary,
-    href: '/deti',
+    href: { pathname: '/dopis/[id]', params: { id: 'novy' } },
   },
   {
     title: 'Moje děti',
@@ -35,7 +40,7 @@ const tiles: Tile[] = [
   },
   {
     title: 'Inspirace a tipy',
-    text: 'Nápady, které vám mohou pomoci začít.',
+    text: 'Otázky a nápady, které pomohou začít.',
     icon: 'bulb-outline',
     tint: Colors.peach,
     iconColor: Colors.peachDark,
@@ -43,7 +48,7 @@ const tiles: Tile[] = [
   },
   {
     title: 'Správce schránky',
-    text: 'Vše bezpečně na jednom místě.',
+    text: 'Všechny vzkazy bezpečně na jednom místě.',
     icon: 'cube-outline',
     tint: Colors.lavender,
     iconColor: Colors.lavenderDark,
@@ -52,14 +57,57 @@ const tiles: Tile[] = [
 ];
 
 export default function HomeScreen() {
+  const load = useCallback(async () => {
+    const [children, drafts] = await Promise.all([listChildren(), listLetters({ status: 'koncept' })]);
+    return { children, drafts };
+  }, []);
+  const { data } = useFocusData(load);
+  const question = promptOfTheDay();
+  const noChildren = data?.children.length === 0;
+
   return (
     <Screen>
       <View style={styles.hero}>
         <Title style={styles.center}>Místo pro slova, která mohou zůstat nablízku.</Title>
         <Muted style={styles.center}>
-          Vytvářejte vzpomínky, vzkazy a příběhy pro své děti, které si jednou budou moci znovu
-          přečíst, poslechnout a prožít.
+          Vytvářejte vzpomínky, vzkazy a příběhy pro své děti, které si jednou budou moci znovu přečíst a
+          prožít.
         </Muted>
+      </View>
+
+      {noChildren && (
+        <View style={styles.onboarding}>
+          <Heading>Začněte malým krokem</Heading>
+          <Body>Přidejte dítě, pro které chcete psát. Stačí jméno, zbytek může počkat.</Body>
+          <Button label="Přidat dítě" icon="add" onPress={() => router.push('/dite/novy')} />
+        </View>
+      )}
+
+      {!!data?.drafts.length && (
+        <View style={styles.section}>
+          <Heading>Rozepsané vzkazy</Heading>
+          <Muted>Můžete pokračovat, kdykoli budete chtít. Nic nespěchá.</Muted>
+          {data.drafts.slice(0, 3).map((letter) => (
+            <LetterRow key={letter.id} letter={letter} childName={letter.child?.name} />
+          ))}
+        </View>
+      )}
+
+      <View style={styles.smallStep}>
+        <View style={styles.smallStepHead}>
+          <Ionicons name="sunny-outline" size={24} color={Colors.peachDark} />
+          <Heading>Dnešní malý krok</Heading>
+        </View>
+        <Body style={styles.question}>{question}</Body>
+        <Muted>Stačí jedna věta, kterou by si vaše dítě mělo jednou pamatovat.</Muted>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push({ pathname: '/dopis/[id]', params: { id: 'novy', otazka: question } })}
+          style={({ pressed }) => [styles.smallStepButton, pressed && styles.pressed]}>
+          <Ionicons name="pencil-outline" size={20} color={Colors.heading} />
+          <Body style={styles.smallStepLabel}>Napsat jednu větu</Body>
+          <Ionicons name="chevron-forward" size={20} color={Colors.heading} />
+        </Pressable>
       </View>
 
       <View style={styles.grid}>
@@ -77,19 +125,6 @@ export default function HomeScreen() {
           </Pressable>
         ))}
       </View>
-
-      <View style={styles.smallStep}>
-        <Heading>Dnešní malý krok</Heading>
-        <Body>Napište jednu větu, kterou by si vaše dítě mělo jednou pamatovat.</Body>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.push('/deti')}
-          style={({ pressed }) => [styles.smallStepButton, pressed && styles.pressed]}>
-          <Ionicons name="pencil-outline" size={20} color={Colors.heading} />
-          <Body style={styles.smallStepLabel}>Napsat jednu větu</Body>
-          <Ionicons name="chevron-forward" size={20} color={Colors.heading} />
-        </Pressable>
-      </View>
     </Screen>
   );
 }
@@ -103,6 +138,17 @@ const styles = StyleSheet.create({
   },
   center: {
     textAlign: 'center',
+  },
+  onboarding: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  section: {
+    gap: Spacing.sm,
   },
   grid: {
     flexDirection: 'row',
@@ -144,13 +190,23 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     gap: Spacing.sm,
   },
+  smallStepHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  question: {
+    fontFamily: Fonts.heading,
+    fontSize: 18,
+    lineHeight: 26,
+  },
   smallStepButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
     backgroundColor: Colors.surface,
     borderRadius: Radius.pill,
-    paddingVertical: 12,
+    minHeight: 52,
     paddingHorizontal: Spacing.md,
     marginTop: Spacing.xs,
   },
