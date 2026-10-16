@@ -1,4 +1,4 @@
-// Barvy, písma a rozestupy podle návrhů obrazovek od FN Olomouc.
+// Barvy, písma a rozestupy podle návrhů obrazovek ze zadání výzvy.
 // Teplé akvarelové tóny: krémové pozadí, vínové nadpisy, terakotová tlačítka.
 // Všechny dvojice text/pozadí splňují kontrast WCAG AA (aspoň 4,5 : 1), ověřeno auditem.
 

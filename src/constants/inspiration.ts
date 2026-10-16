@@ -99,7 +99,7 @@ export const OFFLINE_GIFTS: { icon: IconName; title: string; text: string }[] = 
   { icon: 'diamond-outline', title: 'Šperk s fotografií', text: 'Vzpomínka, kterou má vždy u sebe.' },
 ];
 
-/** Moje životní příběhy: témata pro zachycení vlastního života (podklady FN Olomouc). */
+/** Moje životní příběhy: témata pro zachycení vlastního života (podle podkladů k výzvě). */
 export const LIFE_STORIES: { icon: IconName; title: string; question: string }[] = [
   {
     icon: 'home-outline',

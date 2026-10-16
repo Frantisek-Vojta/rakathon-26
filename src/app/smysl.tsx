@@ -11,7 +11,7 @@ import { Body, Heading, Muted, Title } from '@/components/typography';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useLayout } from '@/hooks/use-layout';
 
-// Texty vycházejí z podkladů FN Olomouc („Proč to má smysl“, odborný kontext projektu).
+// Texty vycházejí z podkladů k výzvě („Proč to má smysl“).
 const REASONS: {
   icon: ComponentProps<typeof Ionicons>['name'];
   tint: string;
@@ -91,7 +91,6 @@ export default function MeaningScreen() {
 
       <View style={styles.quote}>
         <Text style={styles.quoteText}>„Technologie nenahrazuje vztah, ale může ho pomoci uchovat.“</Text>
-        <Muted>Mgr. Lenka Fuxová a Mgr. Kateřina Holá, Ph.D., FN Olomouc</Muted>
       </View>
 
       <Button

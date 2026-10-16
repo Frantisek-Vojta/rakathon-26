@@ -4,8 +4,7 @@
 > Mobilní aplikace, ve které rodič uchová dopisy a vzkazy pro své děti. Je určená hlavně
 > rodičům se závažným onemocněním, ale může ji použít každý.
 
-Prototyp z **Rakathonu 2026 (Brno)** pro výzvu **„Vzkazy pro budoucnost“**, kterou zadala
-**Fakultní nemocnice Olomouc** (Mgr. Lenka Fuxová, Mgr. Kateřina Holá, Ph.D.).
+Prototyp z **Rakathonu 2026 (Brno)**, výzva **„Vzkazy pro budoucnost“**.
 
 | | |
 |---|---|
@@ -53,7 +52,7 @@ Prototyp z **Rakathonu 2026 (Brno)** pro výzvu **„Vzkazy pro budoucnost“**,
 průvodce energií, časová osa dítěte, životní příběhy, inspirace, export, místní záloha při
 výpadku internetu, demo účet, smazání účtu, plně responzivní rozvržení a přístupnost podle WCAG.
 
-### Podle nových podkladů FN Olomouc
+### Podle nových podkladů k výzvě
 
 | Podklad | Jak ho appka naplňuje |
 |---|---|
@@ -212,7 +211,7 @@ rakathon/
 │   │   ├── errors.ts                srozumitelné české chybové hlášky
 │   │   └── database.types.ts        typy vygenerované z databáze
 │   └── constants/
-│       ├── theme.ts                 barvy, písma, rozestupy (podle návrhů FN Olomouc)
+│       ├── theme.ts                 barvy, písma, rozestupy (podle návrhů obrazovek ze zadání)
 │       ├── choices.ts               papíry, písma, nálepky, příležitosti, barvy profilu
 │       ├── support.ts               volby podpory, připomínek a citáty dne
 │       ├── illustrations.ts         seznam ilustrací
@@ -425,7 +424,7 @@ Podrobný výsledek je v [`tests/ui/report.md`](tests/ui/report.md).
 4. **Mapa vzpomínek** v pastelové krajině jako vizuální přehled (běžný seznam zůstane).
 5. **Šifrování end-to-end** (viz 8.6).
 6. **Export do PDF** a tisk na papír, převod řeči na text.
-7. Spolupráce s psychology FN Olomouc na dalších inspiračních otázkách a ověření s pacienty.
+7. Spolupráce s psychology na dalších inspiračních otázkách a ověření s pacienty.
 
 ---
 

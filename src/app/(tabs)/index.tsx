@@ -28,7 +28,7 @@ type Energy = {
 };
 
 /**
- * Úvodní obrazovka: „Vítejte zpět“ a průvodce energií rodiče (podklady FN Olomouc).
+ * Úvodní obrazovka: „Vítejte zpět“ a průvodce energií rodiče (podle podkladů k výzvě).
  * Návrat bez výčitek: pokračovat v konceptu, napsat jen jednu větu, nebo si vše jen projít.
  */
 export default function HomeScreen() {
