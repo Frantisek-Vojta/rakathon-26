@@ -29,7 +29,14 @@
       "backgroundColor": "#FCF7F2"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "asyncRoutes": {
+            "web": false
+          }
+        }
+      ],
       [
         "expo-splash-screen",
         {
