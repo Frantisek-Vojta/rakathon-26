@@ -2,39 +2,64 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useState, type ComponentProps } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AudioPlayer } from '@/components/media/audio-player';
 import { VideoPlayer } from '@/components/media/video-player';
 import { VoiceRecorder } from '@/components/media/voice-recorder';
+import { WebCamera, webCameraSupported } from '@/components/media/web-camera';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { deleteMedia, uploadMedia, useMediaUrl, type MediaInfo, type MemoryKind } from '@/lib/media';
+import {
+  deleteMedia,
+  MediaRejected,
+  mediaUrl,
+  uploadMedia,
+  useMediaUrl,
+  type MediaInfo,
+  type MemoryKind,
+} from '@/lib/media';
+import { saveFromUrl } from '@/lib/save-file';
 
 type MediaKind = Exclude<MemoryKind, 'dopis'>;
+type Pending = { uri: string; mime?: string | null; durationMs?: number | null };
 
 type Props = {
   kind: MediaKind;
   media: MediaInfo | null;
   /** Bez onChange se soubor jen zobrazí (režim čtení). */
   onChange?: (media: MediaInfo | null) => void;
+  /** Název souboru při stažení, např. „eliska-ukolebavka.m4a“. */
+  downloadName?: string;
 };
 
-/** Fotka, hlasová nahrávka nebo video u vzpomínky: přidání, náhled, výměna a odebrání. */
-export function MediaField({ kind, media, onChange }: Props) {
+/** Na počítači se soubory vybírají „z počítače“, v telefonu „z galerie“. */
+function onComputer() {
+  return Platform.OS === 'web' && typeof window !== 'undefined' && !window.matchMedia?.('(pointer: coarse)').matches;
+}
+
+/** Fotka, hlasová nahrávka nebo video u vzpomínky: přidání, náhled, výměna, odebrání a stažení. */
+export function MediaField({ kind, media, onChange, downloadName }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Nahrávka, kterou se nepodařilo odeslat (výpadek internetu): jde poslat znovu, nic se neztratí.
+  const [failed, setFailed] = useState<Pending | null>(null);
+  const [camera, setCamera] = useState(false);
   const editable = !!onChange;
+  const computer = onComputer();
 
-  async function save(uri: string, mime?: string | null, durationMs?: number | null) {
+  async function save({ uri, mime, durationMs }: Pending) {
     setBusy(true);
     setError(null);
+    setFailed(null);
     try {
       const info = await uploadMedia(uri, kind, { mime, durationMs });
       const old = media?.path;
       onChange?.(info);
       if (old) deleteMedia(old).catch(() => undefined);
+      if (Platform.OS === 'web' && uri.startsWith('blob:')) URL.revokeObjectURL(uri);
     } catch (e) {
       setError((e as Error).message);
+      if (!(e instanceof MediaRejected)) setFailed({ uri, mime, durationMs });
     } finally {
       setBusy(false);
     }
@@ -42,6 +67,11 @@ export function MediaField({ kind, media, onChange }: Props) {
 
   async function pick(source: 'camera' | 'library') {
     setError(null);
+    setFailed(null);
+    if (source === 'camera' && kind !== 'hlas' && webCameraSupported(kind)) {
+      setCamera(true);
+      return;
+    }
     const permission =
       source === 'camera'
         ? await ImagePicker.requestCameraPermissionsAsync()
@@ -58,6 +88,8 @@ export function MediaField({ kind, media, onChange }: Props) {
       mediaTypes: kind === 'foto' ? ['images'] : ['videos'],
       quality: 0.8,
       videoMaxDuration: 180,
+      // Video vzkaz se natáčí přední kamerou (jako selfie), fotka zadní.
+      cameraType: kind === 'video' ? ImagePicker.CameraType.front : ImagePicker.CameraType.back,
     };
     const result =
       source === 'camera'
@@ -65,7 +97,11 @@ export function MediaField({ kind, media, onChange }: Props) {
         : await ImagePicker.launchImageLibraryAsync(options);
     if (result.canceled || !result.assets?.[0]) return;
     const asset = result.assets[0];
-    await save(asset.uri, asset.mimeType, asset.duration ? Math.round(asset.duration) : null);
+    await save({
+      uri: asset.uri,
+      mime: asset.mimeType,
+      durationMs: asset.duration ? Math.round(asset.duration) : null,
+    });
   }
 
   function remove() {
@@ -76,15 +112,36 @@ export function MediaField({ kind, media, onChange }: Props) {
 
   const preview = media ? <MediaPreview kind={kind} media={media} /> : null;
 
-  if (!editable) return preview;
+  if (!editable) {
+    if (!media) return null;
+    return (
+      <View style={styles.wrap}>
+        {preview}
+        {downloadName && <DownloadButton media={media} name={downloadName} />}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.wrap}>
       {busy ? (
         <View style={styles.busy} accessibilityLiveRegion="polite">
           <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style={styles.busyText}>Nahrávám, chvilku strpení…</Text>
+          <Text style={styles.busyText}>Ukládám, chvilku strpení…</Text>
         </View>
+      ) : camera && kind !== 'hlas' ? (
+        <WebCamera
+          mode={kind}
+          onCaptured={(uri, mime, durationMs) => {
+            setCamera(false);
+            save({ uri, mime, durationMs });
+          }}
+          onCancel={() => setCamera(false)}
+          onUnavailable={() => {
+            setCamera(false);
+            pick('library');
+          }}
+        />
       ) : media ? (
         <>
           {preview}
@@ -102,7 +159,7 @@ export function MediaField({ kind, media, onChange }: Props) {
           </View>
         </>
       ) : kind === 'hlas' ? (
-        <VoiceRecorder onRecorded={(uri, duration) => save(uri, null, duration)} />
+        <VoiceRecorder onRecorded={(uri, durationMs) => save({ uri, durationMs })} />
       ) : (
         <View style={styles.empty}>
           <View style={styles.emptyIcon}>
@@ -116,7 +173,7 @@ export function MediaField({ kind, media, onChange }: Props) {
           <Text style={styles.emptyText}>
             {kind === 'foto'
               ? 'Společná chvíle, ke které se dítě může jednou vracet. Pár slov k ní můžete připsat níže.'
-              : 'Pár slov přímo do kamery, nebo video z galerie. Nejvýš 3 minuty a 50 MB.'}
+              : `Pár slov přímo do kamery, nebo hotové video ${computer ? 'z počítače' : 'z galerie'}. Nejvýš 3 minuty a 50 MB.`}
           </Text>
           <View style={styles.emptyButtons}>
             <BigButton
@@ -125,15 +182,59 @@ export function MediaField({ kind, media, onChange }: Props) {
               onPress={() => pick('camera')}
               primary
             />
-            <BigButton icon="images-outline" label="Vybrat z galerie" onPress={() => pick('library')} />
+            <BigButton
+              icon="images-outline"
+              label={computer ? 'Vybrat z počítače' : 'Vybrat z galerie'}
+              onPress={() => pick('library')}
+            />
           </View>
         </View>
       )}
       {error && (
         <View style={styles.errorBox} accessibilityLiveRegion="polite">
           <Ionicons name="alert-circle-outline" size={20} color={Colors.danger} />
-          <Text style={styles.errorText}>{error}</Text>
+          <View style={styles.errorTexts}>
+            <Text style={styles.errorText}>{error}</Text>
+            {failed && !busy && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => save(failed)}
+                style={({ pressed }) => [styles.retry, pressed && styles.pressed]}>
+                <Ionicons name="refresh" size={18} color={Colors.primaryText} />
+                <Text style={styles.retryText}>Zkusit znovu uložit</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
+      )}
+    </View>
+  );
+}
+
+/** Stažení souboru do zařízení: záloha, přenos do počítače, vytištění fotky. */
+function DownloadButton({ media, name }: { media: MediaInfo; name: string }) {
+  const [state, setState] = useState<'idle' | 'busy' | 'error'>('idle');
+  async function download() {
+    setState('busy');
+    try {
+      await saveFromUrl(await mediaUrl(media.path), name, media.mime);
+      setState('idle');
+    } catch {
+      setState('error');
+    }
+  }
+  return (
+    <View style={styles.downloadRow}>
+      <SmallButton
+        icon="download-outline"
+        label={state === 'busy' ? 'Stahuji…' : 'Stáhnout soubor'}
+        onPress={download}
+        disabled={state === 'busy'}
+      />
+      {state === 'error' && (
+        <Text style={styles.downloadError} accessibilityLiveRegion="polite">
+          Stažení se nepodařilo. Zkuste to prosím znovu.
+        </Text>
       )}
     </View>
   );
@@ -199,16 +300,19 @@ function SmallButton({
   icon,
   label,
   onPress,
+  disabled,
 }: {
   icon: ComponentProps<typeof Ionicons>['name'];
   label: string;
   onPress: () => void;
+  disabled?: boolean;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.small, pressed && styles.pressed]}>
+      disabled={disabled}
+      style={({ pressed }) => [styles.small, pressed && styles.pressed, disabled && styles.disabled]}>
       <Ionicons name={icon} size={18} color={Colors.heading} />
       <Text style={styles.smallLabel}>{label}</Text>
     </Pressable>
@@ -297,6 +401,9 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.8,
   },
+  disabled: {
+    opacity: 0.55,
+  },
   bigLabel: {
     fontFamily: Fonts.bodyBold,
     fontSize: 16,
@@ -320,6 +427,17 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bodySemiBold,
     fontSize: 15,
     color: Colors.heading,
+  },
+  downloadRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  downloadError: {
+    fontFamily: Fonts.bodySemiBold,
+    fontSize: 14,
+    color: Colors.danger,
   },
   photo: {
     width: '100%',
@@ -353,10 +471,25 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
     padding: Spacing.md,
   },
-  errorText: {
+  errorTexts: {
     flex: 1,
+    gap: Spacing.xs,
+  },
+  errorText: {
     fontFamily: Fonts.bodySemiBold,
     fontSize: 15,
     color: Colors.danger,
+  },
+  retry: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    minHeight: 44,
+  },
+  retryText: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 15,
+    color: Colors.primaryText,
   },
 });

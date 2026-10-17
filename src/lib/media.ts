@@ -47,6 +47,9 @@ function mimeFromUri(uri: string) {
   return found?.[0];
 }
 
+/** Chyba, kterou opakování nespraví (špatný typ nebo velikost souboru). */
+export class MediaRejected extends Error {}
+
 async function currentUserId() {
   const { data } = await supabase.auth.getSession();
   const uid = data.session?.user.id;
@@ -68,12 +71,12 @@ export async function uploadMedia(
   const mime = rawMime.split(';')[0].trim().toLowerCase();
   const expected = kind === 'foto' ? 'image/' : kind === 'hlas' ? 'audio/' : 'video/';
   if (!mime.startsWith(expected)) {
-    throw new Error(
+    throw new MediaRejected(
       kind === 'foto' ? 'Vyberte prosím fotku.' : kind === 'video' ? 'Vyberte prosím video.' : 'Nahrávku nejde uložit.',
     );
   }
   if (body.byteLength > MAX_MEDIA_BYTES) {
-    throw new Error('Soubor je větší než 50 MB. Zkuste kratší video nebo menší fotku.');
+    throw new MediaRejected('Soubor je větší než 50 MB. Zkuste kratší video nebo menší fotku.');
   }
   const ext = EXTENSIONS[mime] ?? mime.split('/')[1]?.replace(/[^a-z0-9]/g, '') ?? 'bin';
   const random = Math.random().toString(36).slice(2, 10);
