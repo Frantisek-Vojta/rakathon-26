@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BackHeader } from '@/components/back-header';
 import { Button } from '@/components/button';
@@ -9,6 +9,7 @@ import { ChildAvatar } from '@/components/child-avatar';
 import { ConfirmDialog, Dialog } from '@/components/dialog';
 import { LetterAppearance } from '@/components/letter/appearance';
 import { ChildPicker } from '@/components/letter/child-picker';
+import { DictationButton } from '@/components/letter/dictation';
 import { LetterPaper } from '@/components/letter/paper';
 import { MediaField } from '@/components/media/media-field';
 import { StatusBadge } from '@/components/letter-row';
@@ -17,6 +18,7 @@ import { ErrorState, Loading } from '@/components/states';
 import { OCCASIONS } from '@/constants/choices';
 import { ALL_PROMPTS } from '@/constants/inspiration';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { appendDictated, dictationSupported } from '@/hooks/use-dictation';
 import { useLetterAutosave, type SaveState } from '@/hooks/use-letter-autosave';
 import {
   countLetters,
@@ -31,6 +33,7 @@ import {
   type Sticker,
 } from '@/lib/data';
 import { draftKey, drafts, type LetterFields } from '@/lib/drafts';
+import { memoryFileName } from '@/lib/export';
 import { formatDate, plural } from '@/lib/format';
 import { deleteMedia, KIND_LABELS, type MemoryKind } from '@/lib/media';
 import { usePreferences } from '@/lib/preferences';
@@ -54,6 +57,13 @@ const MISSING_MEDIA: Record<Exclude<MemoryKind, 'dopis'>, string> = {
   foto: 'Nejdřív prosím přidejte fotku.',
   hlas: 'Nejdřív prosím nahrajte hlasový vzkaz.',
   video: 'Nejdřív prosím přidejte video.',
+};
+
+const BODY_LABEL: Record<MemoryKind, string> = {
+  dopis: 'Text dopisu',
+  foto: 'Pár slov k fotce',
+  hlas: 'Pár slov k nahrávce',
+  video: 'Pár slov k videu',
 };
 
 const BODY_PLACEHOLDER: Record<MemoryKind, string> = {
@@ -438,6 +448,11 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
           kind={fields.kind}
           media={fields.media}
           onChange={mode === 'edit' ? (media) => update({ media }) : undefined}
+          downloadName={memoryFileName(child.name, {
+            title: fields.title,
+            kind: fields.kind,
+            media_path: fields.media?.path ?? null,
+          })}
         />
       )}
 
@@ -447,17 +462,31 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
           onChange={mode === 'edit' ? update : undefined}
           footnote={footnote}
           placeholder={BODY_PLACEHOLDER[fields.kind]}
+          bodyLabel={BODY_LABEL[fields.kind]}
           minHeight={fields.kind === 'dopis' ? 320 : 140}
         />
       )}
 
+      {mode === 'edit' && <DictationButton onText={(text) => update({ body: appendDictated(fields.body, text) })} />}
+
       {mode === 'edit' && fields.kind === 'dopis' && (
         <View style={styles.tip}>
           <Ionicons name="mic-outline" size={20} color={Colors.textMuted} />
-          <Text style={styles.tipText}>
-            Nechce se vám psát? Na klávesnici telefonu klepněte na mikrofon a text se napíše sám. Nebo vytvořte hlasový
-            vzkaz.
-          </Text>
+          <View style={styles.tipTexts}>
+            {!dictationSupported() && Platform.OS !== 'web' && (
+              <Text style={styles.tipText}>
+                Nechce se vám psát? Na klávesnici telefonu klepněte na mikrofon a text se napíše sám.
+              </Text>
+            )}
+            <Pressable
+              accessibilityRole="link"
+              onPress={() =>
+                router.push({ pathname: '/dopis/[id]', params: { id: 'novy', dite: child.id, druh: 'hlas' } })
+              }
+              style={({ pressed }) => [styles.tipLink, pressed && styles.pressedLink]}>
+              <Text style={styles.link}>Raději nahrát hlasový vzkaz</Text>
+            </Pressable>
+          </View>
         </View>
       )}
 
@@ -501,7 +530,7 @@ function LetterEditor({ child, letter, fields: initialFields, restored, prompt }
         }}>
         <Button label="Pokračovat" icon="arrow-forward" onPress={backToProfile} />
         <Button
-          label="Zobrazit dopis"
+          label={fields.kind === 'dopis' ? 'Zobrazit dopis' : 'Zobrazit vzpomínku'}
           variant="secondary"
           onPress={() => {
             setDialog(null);
@@ -656,10 +685,19 @@ const styles = StyleSheet.create({
   tip: {
     flexDirection: 'row',
     gap: Spacing.sm,
-    alignItems: 'flex-start',
+    alignItems: 'center',
+  },
+  tipTexts: {
+    flex: 1,
+    gap: 2,
+  },
+  tipLink: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
+    justifyContent: 'center',
+    borderRadius: Radius.md,
   },
   tipText: {
-    flex: 1,
     fontFamily: Fonts.body,
     fontSize: 14,
     lineHeight: 20,

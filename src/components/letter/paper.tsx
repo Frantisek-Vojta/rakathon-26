@@ -13,10 +13,19 @@ type Props = {
   placeholder?: string;
   /** Výška pole pro text (dopis vyšší, popisek k fotce nižší). */
   minHeight?: number;
+  /** Název pole pro čtečku obrazovky. */
+  bodyLabel?: string;
 };
 
 /** Dopisní papír: v režimu čtení ukazuje hotový dopis, v režimu psaní je to editor. */
-export function LetterPaper({ fields, onChange, footnote, placeholder, minHeight = 320 }: Props) {
+export function LetterPaper({
+  fields,
+  onChange,
+  footnote,
+  placeholder,
+  minHeight = 320,
+  bodyLabel = 'Text dopisu',
+}: Props) {
   const paper = PAPERS[fields.paper] ?? PAPERS.bezova;
   const font = FONTS[fields.font] ?? FONTS.lora;
   const sticker = fields.sticker ? STICKERS[fields.sticker]?.emoji : null;
@@ -44,7 +53,7 @@ export function LetterPaper({ fields, onChange, footnote, placeholder, minHeight
             style={[styles.title, styles.titleInput, sticker && styles.titleWithSticker]}
           />
           <TextInput
-            accessibilityLabel="Text dopisu"
+            accessibilityLabel={bodyLabel}
             value={fields.body}
             onChangeText={(body) => onChange({ body })}
             placeholder={placeholder ?? 'Sem napište, co máte na srdci.\nStačí jedna věta…'}
