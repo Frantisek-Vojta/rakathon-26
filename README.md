@@ -455,7 +455,7 @@ Testy v prohlížeči používají nainstalovaný Firefox (případně `FIREFOX=
 Aplikace je pro lidi, kteří mohou být unavení nebo mít horší zrak, a pro porotu, která ji otevře
 na čemkoli. Proto ji automaticky kontrolujeme ve **6 velikostech**: malý telefon 320 px, telefon
 390 px, telefon na šířku, tablet 768 px, notebook 1280 px a monitor 1600 px. Kontrolujeme všech
-**18 obrazovek** (včetně nahrávání hlasu, kamery a přehrávačů), celkem 108 kombinací.
+**22 obrazovek** (včetně registrace, stránky GDPR, nahrávání hlasu, kamery, přehrávačů a mapy), celkem 132 kombinací.
 
 | Kontrola | Pravidlo | Výsledek |
 |---|---|---|

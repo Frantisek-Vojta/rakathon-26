@@ -1,7 +1,7 @@
 # UI/UX audit
 
 Adresa: http://localhost:8765  
-Datum: 2026-10-17 07:05
+Datum: 2026-10-17 08:29
 
 ## Souhrn
 
@@ -14,7 +14,7 @@ Datum: 2026-10-17 07:05
 | Porušení WCAG (axe-core) | 0 |
 | Chyby v konzoli | 0 |
 
-Obrazovek × velikostí: 108
+Obrazovek × velikostí: 132
 
 ## Podrobnosti
 
@@ -48,6 +48,10 @@ Obrazovek × velikostí: 108
 
 ### smysl · telefon-maly (320×640) ✅
 
+### mapa · telefon-maly (320×640) ✅
+
+### zasady · telefon-maly (320×640) ✅
+
 ### hlas-cteni · telefon-maly (320×640) ✅
 
 ### hlas-novy · telefon-maly (320×640) ✅
@@ -79,6 +83,10 @@ Obrazovek × velikostí: 108
 ### spravce · telefon (390×844) ✅
 
 ### smysl · telefon (390×844) ✅
+
+### mapa · telefon (390×844) ✅
+
+### zasady · telefon (390×844) ✅
 
 ### hlas-cteni · telefon (390×844) ✅
 
@@ -112,6 +120,10 @@ Obrazovek × velikostí: 108
 
 ### smysl · telefon-nasirku (844×390) ✅
 
+### mapa · telefon-nasirku (844×390) ✅
+
+### zasady · telefon-nasirku (844×390) ✅
+
 ### hlas-cteni · telefon-nasirku (844×390) ✅
 
 ### hlas-novy · telefon-nasirku (844×390) ✅
@@ -143,6 +155,10 @@ Obrazovek × velikostí: 108
 ### spravce · tablet (768×1024) ✅
 
 ### smysl · tablet (768×1024) ✅
+
+### mapa · tablet (768×1024) ✅
+
+### zasady · tablet (768×1024) ✅
 
 ### hlas-cteni · tablet (768×1024) ✅
 
@@ -176,6 +192,10 @@ Obrazovek × velikostí: 108
 
 ### smysl · notebook (1280×800) ✅
 
+### mapa · notebook (1280×800) ✅
+
+### zasady · notebook (1280×800) ✅
+
 ### hlas-cteni · notebook (1280×800) ✅
 
 ### hlas-novy · notebook (1280×800) ✅
@@ -208,6 +228,10 @@ Obrazovek × velikostí: 108
 
 ### smysl · monitor (1600×1000) ✅
 
+### mapa · monitor (1600×1000) ✅
+
+### zasady · monitor (1600×1000) ✅
+
 ### hlas-cteni · monitor (1600×1000) ✅
 
 ### hlas-novy · monitor (1600×1000) ✅
@@ -224,12 +248,36 @@ Obrazovek × velikostí: 108
 
 ### prihlaseni · telefon-maly (320×640) ✅
 
+### registrace · telefon-maly (320×640) ✅
+
+### zasady-bez-prihlaseni · telefon-maly (320×640) ✅
+
 ### prihlaseni · telefon (390×844) ✅
+
+### registrace · telefon (390×844) ✅
+
+### zasady-bez-prihlaseni · telefon (390×844) ✅
 
 ### prihlaseni · telefon-nasirku (844×390) ✅
 
+### registrace · telefon-nasirku (844×390) ✅
+
+### zasady-bez-prihlaseni · telefon-nasirku (844×390) ✅
+
 ### prihlaseni · tablet (768×1024) ✅
+
+### registrace · tablet (768×1024) ✅
+
+### zasady-bez-prihlaseni · tablet (768×1024) ✅
 
 ### prihlaseni · notebook (1280×800) ✅
 
+### registrace · notebook (1280×800) ✅
+
+### zasady-bez-prihlaseni · notebook (1280×800) ✅
+
 ### prihlaseni · monitor (1600×1000) ✅
+
+### registrace · monitor (1600×1000) ✅
+
+### zasady-bez-prihlaseni · monitor (1600×1000) ✅
