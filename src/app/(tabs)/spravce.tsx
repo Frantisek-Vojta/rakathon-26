@@ -16,8 +16,8 @@ import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useFocusData } from '@/hooks/use-focus-data';
 import { useLayout } from '@/hooks/use-layout';
 import { useAuth } from '@/lib/auth';
-import { listChildren, listLetters, type LetterStatus } from '@/lib/data';
-import { lettersToText, shareExport } from '@/lib/export';
+import { listChildren, listLetters, type ChildWithCounts, type LetterStatus, type LetterWithChild } from '@/lib/data';
+import { exportBackup } from '@/lib/export';
 import type { MemoryKind } from '@/lib/media';
 import { plural } from '@/lib/format';
 import { usePreferences, type Interest, type Reminders } from '@/lib/preferences';
@@ -113,14 +113,7 @@ export default function ManagerScreen() {
         visible.map((letter) => <LetterRow key={letter.id} letter={letter} childName={letter.child?.name} />)
       )}
 
-      {data && data.letters.length > 0 && (
-        <Button
-          label="Stáhnout všechny vzkazy"
-          variant="secondary"
-          icon="download-outline"
-          onPress={() => shareExport(lettersToText(data.children, data.letters))}
-        />
-      )}
+      {data && data.letters.length > 0 && <BackupCard family={data.children} letters={data.letters} />}
     </View>
   );
 
@@ -236,16 +229,78 @@ function SupportCard() {
   );
 }
 
+/** Záloha všeho do jednoho souboru, který otevře jakýkoli prohlížeč i bez aplikace. */
+function BackupCard({ family, letters }: { family: ChildWithCounts[]; letters: LetterWithChild[] }) {
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
+
+  async function run() {
+    setMessage(null);
+    setProgress({ done: 0, total: 0 });
+    try {
+      await exportBackup(family, letters, (done, total) => setProgress({ done, total }));
+      setMessage({ text: 'Záloha je připravená. Najdete ji ve stažených souborech.' });
+    } catch (e) {
+      setMessage({
+        text: `${(e as Error).message || 'Zálohu se nepodařilo připravit.'} Zkuste to prosím znovu.`,
+        error: true,
+      });
+    } finally {
+      setProgress(null);
+    }
+  }
+
+  return (
+    <View style={styles.backup}>
+      <View style={styles.point}>
+        <Ionicons name="archive-outline" size={22} color={Colors.sageDark} />
+        <View style={styles.backupTexts}>
+          <Body style={styles.backupTitle}>Záloha všech vzpomínek</Body>
+          <Muted>
+            Jeden soubor se všemi dopisy, fotkami, nahrávkami a videi. Uvnitř je stránka, kterou otevře jakýkoli
+            prohlížeč, i bez aplikace a bez internetu.
+          </Muted>
+        </View>
+      </View>
+      <Button
+        label={
+          progress
+            ? progress.total
+              ? `Připravuji zálohu… ${progress.done} z ${progress.total}`
+              : 'Připravuji zálohu…'
+            : 'Stáhnout zálohu'
+        }
+        variant="secondary"
+        icon="download-outline"
+        onPress={run}
+        disabled={!!progress}
+      />
+      {message && (
+        <Text style={[styles.info, message.error && styles.error]} accessibilityLiveRegion="polite">
+          {message.text}
+        </Text>
+      )}
+    </View>
+  );
+}
+
 function withInterest(list: Interest[], key: Interest) {
   return list.includes(key) ? list : [...list, key];
 }
 
 const PRIVACY_POINTS: { icon: ComponentProps<typeof Ionicons>['name']; text: string }[] = [
-  { icon: 'lock-closed-outline', text: 'Vzkazy vidíte jen vy. Databáze to hlídá u každého záznamu zvlášť.' },
+  {
+    icon: 'lock-closed-outline',
+    text: 'Vzkazy, fotky i nahrávky vidíte jen vy. Databáze to hlídá u každého záznamu i souboru zvlášť.',
+  },
   { icon: 'shield-checkmark-outline', text: 'Spojení se serverem je šifrované.' },
   { icon: 'phone-portrait-outline', text: 'Rozepsaný text se ukládá i v zařízení, aby se neztratil.' },
   { icon: 'eye-off-outline', text: 'Žádné sdílení, žádná reklama, žádná sociální síť.' },
-  { icon: 'trash-outline', text: 'Smazáním účtu zmizí natrvalo i všechny vzkazy.' },
+  {
+    icon: 'mic-outline',
+    text: 'Diktování na webu zajišťuje prohlížeč (Chrome k tomu používá Google). Hlasové vzkazy zůstávají jen ve vaší schránce.',
+  },
+  { icon: 'trash-outline', text: 'Smazáním účtu zmizí natrvalo i všechny vzkazy, fotky a nahrávky.' },
 ];
 
 function PrivacyCard() {
@@ -321,7 +376,7 @@ function AccountCard() {
         visible={confirm === 'delete'}
         danger
         title="Smazat účet?"
-        message="Natrvalo smažeme váš účet, všechny profily dětí i všechny vzkazy. Tento krok nejde vrátit."
+        message="Natrvalo smažeme váš účet, profily dětí i všechny vzkazy, fotky a nahrávky. Tento krok nejde vrátit."
         confirmLabel="Ano, smazat vše"
         busy={busy}
         onConfirm={() => run('delete')}
@@ -404,5 +459,20 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bodySemiBold,
     fontSize: 15,
     color: Colors.danger,
+  },
+  backup: {
+    gap: Spacing.md,
+    backgroundColor: Colors.sage,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginTop: Spacing.sm,
+  },
+  backupTexts: {
+    flex: 1,
+    gap: 2,
+  },
+  backupTitle: {
+    fontFamily: Fonts.bodyBold,
+    color: Colors.heading,
   },
 });
