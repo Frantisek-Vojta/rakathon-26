@@ -268,8 +268,7 @@ rakathon/
 ├── public/index.html                šablona webové stránky (čeština, styly prohlížeče)
 ├── assets/images/                   ikona aplikace a ilustrace
 ├── app.json                         nastavení aplikace (název, ikona, barvy)
-├── vercel.json                      nasazení webu + bezpečnostní hlavičky
-└── navrh                            původní zadání týmu
+└── vercel.json                      nasazení webu + bezpečnostní hlavičky
 ```
 
 ---

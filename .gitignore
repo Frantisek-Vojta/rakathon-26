@@ -59,3 +59,8 @@ tests/ui/report.json
 
 # Podklady od zadavatele (velké soubory, nejsou součást aplikace)
 assets/inspirace/
+
+# Poznámky týmu a nastavení nástrojů pro AI: jen v počítači, ne na GitHubu
+navrh
+AGENTS.md
+.claude/
