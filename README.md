@@ -40,7 +40,8 @@ Prototyp z **Rakathonu 2026 (Brno)**, výzva **„Vzkazy pro budoucnost“**.
 
 | Obrazovka | Co na ní rodič najde |
 |---|---|
-| **Přihlášení** | Přihlášení e-mailem, registrace, nebo **„Vyzkoušet demo“** jedním klepnutím |
+| **Přihlášení** | Přihlášení e-mailem, registrace (e-mail, heslo, heslo znovu, **souhlas s podmínkami a GDPR**), nebo **„Vyzkoušet demo“** jedním klepnutím |
+| **Ochrana osobních údajů** | Stránka se záložkami **Osobní údaje (GDPR)** a **Podmínky používání**, dostupná i bez přihlášení (z registrace a ze Správce) |
 | **Uvítací průvodce** (jen poprvé) | **Vítejte** → **Co je pro vás důležité?** → **Jakou podporu si přejete?** (jemné vedení / klidný režim) → **Připomenutí** (jen když o ně stojíte). Dá se přeskočit, vše jde později změnit |
 | **Místo pro slova** (domů) | **Vítejte zpět**, **Kolik máte dnes sil?** (*Mám sílu tvořit* / *Zvládnu jen jednu větu* / *Dnes potřebuji odpočívat*), **Nemusíte psát** (napsat / namluvit / natočit / fotka), pokračování v konceptu, jen si vše projít, citát dne |
 | **Moje děti** | Karty dětí s věkem a počtem dopisů, nahrávek, videí a fotek, přidání dítěte |
@@ -208,6 +209,7 @@ rakathon/
 │   │   ├── vitejte.tsx              uvítací průvodce (podpora, zájmy, připomenutí)
 │   │   ├── smysl.tsx                Proč to má smysl
 │   │   ├── mapa.tsx                 Mapa vzpomínek
+│   │   ├── zasady.tsx               Ochrana osobních údajů (GDPR) a podmínky, i bez přihlášení
 │   │   ├── (tabs)/                  4 hlavní obrazovky
 │   │   │   ├── _layout.tsx          menu: dole na telefonu, vlevo na počítači
 │   │   │   ├── index.tsx            Místo pro slova (domů)
@@ -255,6 +257,7 @@ rakathon/
 │       ├── choices.ts               papíry, písma, nálepky, příležitosti, barvy profilu
 │       ├── support.ts               volby podpory, připomínek a citáty dne
 │       ├── illustrations.ts         seznam ilustrací
+│       ├── legal.ts                 texty GDPR a podmínek, verze podmínek
 │       └── inspiration.ts           otázky, životní příběhy, dary mimo aplikaci
 ├── supabase/migrations/             ← DATABÁZE (tabulky, pravidla, úložiště, ukázková data)
 ├── supabase/demo-media/             ukázková fotka, ukolébavka a video pro demo
@@ -330,7 +333,9 @@ Migrace jsou v `supabase/migrations/`:
 - Pomocné funkce jsou v neveřejném schématu `private` s pevným `search_path`.
 
 ### 8.2 Přihlášení
-- Supabase Auth: hesla jsou uložená jako hash, nikdy v čitelné podobě. Minimální délka hesla je 8 znaků.
+- Supabase Auth: hesla jsou uložená jako hash (bcrypt), nikdy v čitelné podobě. Minimální délka hesla je 8 znaků.
+- **Registrace:** heslo se zadává dvakrát. Bez zaškrtnutého souhlasu s podmínkami a se zpracováním osobních údajů
+  (včetně citlivých údajů ve vzpomínkách, čl. 9 GDPR) účet nevznikne. K účtu se uloží verze podmínek a čas souhlasu.
 - Přihlašovací token se automaticky obnovuje (platnost 1 h, rotace obnovovacích tokenů).
 - **Demo účty** jsou anonymní a každý má vlastní oddělená fiktivní data. Při ukončení dema se
   smažou i s daty.
@@ -352,7 +357,19 @@ Vercel posílá bezpečnostní hlavičky (`vercel.json`):
   vyhledávačích). Obrázky a média se smí načítat jen z naší databáze.
 - Text se nikdy nevkládá jako HTML (React Native ho vždy zobrazí jako text).
 
-### 8.5 Soukromí a GDPR
+### 8.5 Šifrování
+
+| Kde | Jak |
+|---|---|
+| Přenos mezi aplikací a serverem | vždy šifrovaně (HTTPS / TLS), prohlížeč jinou cestu nepovolí (HSTS) |
+| Data a soubory na serveru | šifrované AES-256 (Supabase šifruje všechna uložená data) |
+| Hesla | jen jako hash (bcrypt), čitelné heslo nezná nikdo |
+| Odkazy na fotky, nahrávky a videa | podepsané, platné 1 hodinu |
+
+Nejde zatím o šifrování end-to-end: správce serveru by technicky mohl obsah vidět. Proto je to první
+bod v kapitole 8.7.
+
+### 8.6 Soukromí a GDPR
 - **Data leží v EU-kompatibilní lokalitě:** Supabase, region `eu-west-2` (Londýn). Velká
   Británie má od EU rozhodnutí o odpovídající ochraně.
 - **Minimalizace:** ukládáme jen e-mail, jména dětí (nebo přezdívky), texty a soubory, které
@@ -364,8 +381,10 @@ Vercel posílá bezpečnostní hlavičky (`vercel.json`):
 - **Diktování** na webu zajišťuje prohlížeč (Chrome k tomu posílá zvuk Googlu). Aplikace to
   uvádí ve Správci. Hlasové vzkazy se nikam jinam neposílají.
 - **Sdílené zařízení:** při odhlášení se smaže přihlášení i místní zálohy textů.
+- **Informace a souhlas:** stránka *Ochrana osobních údajů a podmínky* (`/zasady`) srozumitelně popisuje, kdo
+  data zpracovává, jaká, proč, kde jsou, jak jsou chráněná, jak dlouho a jaká má rodič práva.
 
-### 8.6 Co bychom přidali pro ostré nasazení
+### 8.7 Co bychom přidali pro ostré nasazení
 - **Šifrování dopisů v zařízení (end-to-end):** text by se šifroval klíčem odvozeným z hesla.
   Nikdo kromě rodiče, ani správce databáze, by ho nepřečetl.
 - Potvrzení e-mailu, kontrola uniklých hesel, CAPTCHA pro demo účty, dvoufázové ověření.
@@ -476,7 +495,7 @@ Podrobný výsledek je v [`tests/ui/report.md`](tests/ui/report.md).
 
 1. **Předání dítěti** (další fáze podle zadání): strážce vzkazů potvrdí milník, dítě dostane
    bezpečný jednorázový odkaz.
-2. **Šifrování end-to-end** (viz 8.6), i pro fotky a nahrávky.
+2. **Šifrování end-to-end** (viz 8.7), i pro fotky a nahrávky.
 3. **Přepis hlasových vzkazů na text** přímo v zařízení (aby šly prohledávat) a diktování
    v mobilní aplikaci i bez klávesnice.
 4. **Tisk knihy vzpomínek** (PDF) a fotokniha.
