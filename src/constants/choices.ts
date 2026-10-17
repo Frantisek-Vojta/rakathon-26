@@ -1,6 +1,11 @@
 // Nabídky, ze kterých si rodič vybírá. Hodnoty musí odpovídat kontrolám v databázi.
 import { Colors, Fonts } from './theme';
+import type MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import type { ComponentProps } from 'react';
+
 import type { ChildColor, LetterFont, Paper, Sticker } from '@/lib/data';
+
+type StickerIconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 
 export const CHILD_COLORS: Record<ChildColor, { label: string; bg: string; fg: string }> = {
   rose: { label: 'Růžová', bg: Colors.primarySoft, fg: Colors.primary },
@@ -10,12 +15,13 @@ export const CHILD_COLORS: Record<ChildColor, { label: string; bg: string; fg: s
   sky: { label: 'Nebeská', bg: Colors.sky, fg: Colors.skyDark },
 };
 
-export const PAPERS: Record<Paper, { label: string; color: string; edge: string }> = {
-  bezova: { label: 'Béžová', color: '#FBF5EA', edge: '#EADBC4' },
-  ruzova: { label: 'Růžová', color: '#FCEDEA', edge: '#F2CFC8' },
-  salvejova: { label: 'Šalvějová', color: '#EFF4EA', edge: '#CFDCC6' },
-  merunkova: { label: 'Meruňková', color: '#FDF0E4', edge: '#F3D3B5' },
-  piskova: { label: 'Písková', color: '#F7F0E6', edge: '#E3D5BF' },
+// `name` je celý název („papír“ je rodu mužského: Béžový papír, ne Béžová papír).
+export const PAPERS: Record<Paper, { label: string; name: string; color: string; edge: string }> = {
+  bezova: { label: 'Béžová', name: 'Béžový papír', color: '#FBF5EA', edge: '#EADBC4' },
+  ruzova: { label: 'Růžová', name: 'Růžový papír', color: '#FCEDEA', edge: '#F2CFC8' },
+  salvejova: { label: 'Šalvějová', name: 'Šalvějový papír', color: '#EFF4EA', edge: '#CFDCC6' },
+  merunkova: { label: 'Meruňková', name: 'Meruňkový papír', color: '#FDF0E4', edge: '#F3D3B5' },
+  piskova: { label: 'Písková', name: 'Pískový papír', color: '#F7F0E6', edge: '#E3D5BF' },
 };
 
 export const FONTS: Record<LetterFont, { label: string; family: string; size: number; lineHeight: number }> = {
@@ -24,14 +30,15 @@ export const FONTS: Record<LetterFont, { label: string; family: string; size: nu
   caveat: { label: 'Ručně psané', family: Fonts.handwriting, size: 25, lineHeight: 34 },
 };
 
-export const STICKERS: Record<Sticker, { label: string; emoji: string }> = {
-  srdce: { label: 'Srdce', emoji: '❤️' },
-  kvetina: { label: 'Květina', emoji: '🌸' },
-  hvezda: { label: 'Hvězda', emoji: '⭐' },
-  medvidek: { label: 'Medvídek', emoji: '🧸' },
-  slunce: { label: 'Slunce', emoji: '☀️' },
-  duha: { label: 'Duha', emoji: '🌈' },
-  obalka: { label: 'Obálka', emoji: '💌' },
+// Nálepky jsou ikony (ne emoji), aby vypadaly všude stejně a ladily s aplikací.
+export const STICKERS: Record<Sticker, { label: string; icon: StickerIconName; color: string }> = {
+  srdce: { label: 'Srdce', icon: 'heart', color: '#C2453D' },
+  kvetina: { label: 'Květina', icon: 'flower', color: '#C4577D' },
+  hvezda: { label: 'Hvězda', icon: 'star', color: '#B98419' },
+  medvidek: { label: 'Medvídek', icon: 'teddy-bear', color: '#8A5A35' },
+  slunce: { label: 'Slunce', icon: 'white-balance-sunny', color: '#C97516' },
+  duha: { label: 'Duha', icon: 'looks', color: '#6E5BA8' },
+  obalka: { label: 'Obálka', icon: 'email-heart-outline', color: '#94473F' },
 };
 
 // Příležitosti, ke kterým může vzkaz patřit. Jen štítek, žádné odpočty ani připomínky.

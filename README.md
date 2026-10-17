@@ -9,9 +9,9 @@ Prototyp z **Rakathonu 2026 (Brno)**, výzva **„Vzkazy pro budoucnost“**.
 
 | | |
 |---|---|
-| 🌐 **Webová verze** | https://rakathon-vzpominky.vercel.app |
-| 📱 **Telefon** | Expo Go (návod níže) |
-| 🧪 **Vyzkoušení bez registrace** | tlačítko **„Vyzkoušet demo“** (fiktivní rodina Eliška, Matěj, Aneta) |
+| **Webová verze** | https://rakathon-vzpominky.vercel.app |
+| **Telefon** | Expo Go (návod níže) |
+| **Vyzkoušení bez registrace** | tlačítko **„Vyzkoušet demo“** (fiktivní rodina Eliška, Matěj, Aneta) |
 
 ---
 
@@ -93,25 +93,25 @@ nezávisí na tom, jestli aplikace bude existovat i za dvacet let.
 
 | # | Krok ze zadání | Kde v aplikaci | Ověřeno testem |
 |---|---|---|---|
-| 1 | Otevřete profil fiktivního dítěte (Eliška) | Moje děti → Eliška | ✅ `letters.test.mjs` |
-| 2 | Napište dopis a uložte jej jako koncept | Profil → **Napsat dopis** → **Uložit koncept** | ✅ |
-| 3 | Koncept znovu otevřete, upravte a dokončete | Profil → Rozepsané → dopis → **Uložit vzkaz** | ✅ |
-| 4 | Najděte hotový dopis v přehledu a otevřete jej | Profil → Hotové, nebo **Správce schránky** | ✅ |
-| 5 | Restartujte demo: uložený dopis stále existuje | Zavřít a znovu otevřít aplikaci / obnovit stránku | ✅ |
+| 1 | Otevřete profil fiktivního dítěte (Eliška) | Moje děti → Eliška | ano, `letters.test.mjs` |
+| 2 | Napište dopis a uložte jej jako koncept | Profil → **Napsat dopis** → **Uložit koncept** | ano |
+| 3 | Koncept znovu otevřete, upravte a dokončete | Profil → Rozepsané → dopis → **Uložit vzkaz** | ano |
+| 4 | Najděte hotový dopis v přehledu a otevřete jej | Profil → Hotové, nebo **Správce schránky** | ano |
+| 5 | Restartujte demo: uložený dopis stále existuje | Zavřít a znovu otevřít aplikaci / obnovit stránku | ano |
 
 ### Povinné funkce MVP (slidy 8 a 14)
 
 | Požadavek | Stav |
 |---|---|
-| Profil dítěte (alespoň jedno fiktivní dítě) | ✅ Eliška, Matěj, Aneta v demu + přidání vlastních |
-| Textový dopis: vytvořit, otevřít, upravit | ✅ |
-| Stav koncept / hotové | ✅ štítky „Koncept“ a „Hotové“, přepínání oběma směry |
-| Přehled: zobrazit a znovu otevřít uložené vzkazy | ✅ profil dítěte + Správce schránky |
-| Zachování dat po restartu | ✅ databáze Supabase + přihlášení uložené v zařízení |
-| Spustitelné demo na telefonu | ✅ Expo Go (Android i iPhone) + web |
-| Funkční průchod webem | ✅ https://rakathon-vzpominky.vercel.app |
-| Návrh bezpečného ukládání dat | ✅ [kapitola 8](#8-bezpečnost-a-ochrana-dat) |
-| *Nice-to-have:* fotografie, audio, převod řeči na text, export | ✅ fotky, hlasové a video vzkazy, diktování, záloha (ZIP + kniha vzpomínek) |
+| Profil dítěte (alespoň jedno fiktivní dítě) | Eliška, Matěj, Aneta v demu + přidání vlastních |
+| Textový dopis: vytvořit, otevřít, upravit | ano |
+| Stav koncept / hotové | štítky „Koncept“ a „Hotové“, přepínání oběma směry |
+| Přehled: zobrazit a znovu otevřít uložené vzkazy | profil dítěte + Správce schránky |
+| Zachování dat po restartu | databáze Supabase + přihlášení uložené v zařízení |
+| Spustitelné demo na telefonu | Expo Go (Android i iPhone) + web |
+| Funkční průchod webem | https://rakathon-vzpominky.vercel.app |
+| Návrh bezpečného ukládání dat | [kapitola 8](#8-bezpečnost-a-ochrana-dat) |
+| *Nice-to-have:* fotografie, audio, převod řeči na text, export | fotky, hlasové a video vzkazy, diktování, záloha (ZIP + kniha vzpomínek) |
 
 ### Principy návrhu (slide 5) a etika (slide 13)
 

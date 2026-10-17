@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Chip } from '@/components/chip';
+import { StickerIcon } from '@/components/sticker-icon';
 import { FONTS, OCCASIONS, PAPERS, STICKERS } from '@/constants/choices';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import type { LetterFont, Paper, Sticker } from '@/lib/data';
@@ -28,7 +29,7 @@ export function LetterAppearance({ fields, onChange }: Props) {
         <View style={styles.toggleTexts}>
           <Text style={styles.toggleTitle}>Vzhled a příležitost</Text>
           <Text style={styles.toggleSummary} numberOfLines={1}>
-            {PAPERS[fields.paper].label} papír · {FONTS[fields.font].label} písmo
+            {PAPERS[fields.paper].name} · {FONTS[fields.font].label} písmo
             {fields.occasion ? ` · ${fields.occasion}` : ''}
           </Text>
         </View>
@@ -44,7 +45,7 @@ export function LetterAppearance({ fields, onChange }: Props) {
                 <Pressable
                   key={key}
                   accessibilityRole="radio"
-                  accessibilityLabel={`${PAPERS[key].label} papír`}
+                  accessibilityLabel={PAPERS[key].name}
                   aria-checked={selected}
                   onPress={() => onChange({ paper: key })}
                   style={[
@@ -80,7 +81,7 @@ export function LetterAppearance({ fields, onChange }: Props) {
                   aria-checked={selected}
                   onPress={() => onChange({ sticker: key })}
                   style={[styles.sticker, selected && styles.stickerSelected]}>
-                  <Text style={styles.stickerEmoji}>{STICKERS[key].emoji}</Text>
+                  <StickerIcon sticker={key} size={24} />
                 </Pressable>
               );
             })}
@@ -182,8 +183,5 @@ const styles = StyleSheet.create({
   stickerSelected: {
     borderColor: Colors.primary,
     backgroundColor: Colors.primarySoft,
-  },
-  stickerEmoji: {
-    fontSize: 22,
   },
 });

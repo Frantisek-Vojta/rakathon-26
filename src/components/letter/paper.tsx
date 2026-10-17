@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { FONTS, PAPERS, STICKERS } from '@/constants/choices';
+import { StickerIcon } from '@/components/sticker-icon';
 import { Colors, Fonts, Radius, Shadows, Spacing } from '@/constants/theme';
 import type { LetterFields } from '@/lib/drafts';
 
@@ -28,17 +29,13 @@ export function LetterPaper({
 }: Props) {
   const paper = PAPERS[fields.paper] ?? PAPERS.bezova;
   const font = FONTS[fields.font] ?? FONTS.lora;
-  const sticker = fields.sticker ? STICKERS[fields.sticker]?.emoji : null;
+  const sticker = fields.sticker && STICKERS[fields.sticker] ? fields.sticker : null;
   const [height, setHeight] = useState(minHeight);
   const textStyle = { fontFamily: font.family, fontSize: font.size, lineHeight: font.lineHeight };
 
   return (
     <View style={[styles.paper, { backgroundColor: paper.color, borderColor: paper.edge }]}>
-      {sticker && (
-        <Text style={styles.sticker} accessibilityElementsHidden importantForAccessibility="no">
-          {sticker}
-        </Text>
-      )}
+      <StickerIcon sticker={sticker} size={34} style={styles.sticker} />
       {!!fields.occasion && <Text style={styles.occasion}>{fields.occasion}</Text>}
 
       {onChange ? (
@@ -101,7 +98,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 14,
     right: 16,
-    fontSize: 34,
   },
   occasion: {
     fontFamily: Fonts.bodyBold,

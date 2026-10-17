@@ -5,8 +5,8 @@
 //   <dítě>/      fotky, hlasové nahrávky a videa každého dítěte
 import { strToU8, zipSync, type Zippable } from 'fflate';
 
-import { PAPERS, STICKERS } from '@/constants/choices';
-import type { ChildWithCounts, LetterFont, LetterWithChild, Paper, Sticker } from './data';
+import { PAPERS } from '@/constants/choices';
+import type { ChildWithCounts, LetterFont, LetterWithChild, Paper } from './data';
 import { formatAge, formatDate } from './format';
 import { formatDuration, KIND_LABELS, mediaUrl, type MemoryKind } from './media';
 import { readUrl, saveFile } from './save-file';
@@ -76,7 +76,6 @@ const HTML_FONTS: Record<LetterFont, string> = {
 function memoryHtml(letter: LetterWithChild, file: string | undefined) {
   const kind = kindOf(letter);
   const paper = PAPERS[letter.paper as Paper] ?? PAPERS.bezova;
-  const sticker = letter.sticker ? STICKERS[letter.sticker as Sticker]?.emoji : null;
   const meta = [
     kind === 'dopis' ? null : KIND_LABELS[kind],
     letter.media_duration_ms ? formatDuration(letter.media_duration_ms) : null,
@@ -93,7 +92,6 @@ function memoryHtml(letter: LetterWithChild, file: string | undefined) {
         : `<video controls preload="metadata" src="${src}"></video>`;
   return `
     <article style="background:${paper.color};border-color:${paper.edge}">
-      ${sticker ? `<span class="sticker" aria-hidden="true">${sticker}</span>` : ''}
       <h3>${escape(letter.title.trim() || KIND_LABELS[kind])}</h3>
       <p class="meta">${escape(capitalize(meta.join(' · ')))}</p>
       ${media}
@@ -128,12 +126,11 @@ function bookHtml(children: ChildWithCounts[], letters: LetterWithChild[], files
   h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; color: #7A2E2E; line-height: 1.25; }
   h1 { font-size: 2em; margin: 0 0 8px; }
   h2 { font-size: 1.5em; margin: 48px 0 8px; }
-  h3 { font-size: 1.2em; margin: 0 0 4px; padding-right: 40px; }
+  h3 { font-size: 1.2em; margin: 0 0 4px; }
   .meta { color: #6F5E59; font-size: 15px; margin: 0 0 12px; }
   nav { margin: 16px 0 0; }
   a { color: #94473F; font-weight: 700; }
   article { position: relative; border: 1px solid; border-radius: 16px; padding: 20px; margin: 16px 0; }
-  .sticker { position: absolute; top: 14px; right: 16px; font-size: 24px; }
   .body { white-space: pre-wrap; font-size: 18px; line-height: 1.7; margin: 12px 0 0; }
   img, video { display: block; width: 100%; border-radius: 12px; background: #FBEFEA; }
   audio { width: 100%; }

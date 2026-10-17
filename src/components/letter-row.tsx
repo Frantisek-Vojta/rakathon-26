@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { StickerIcon } from '@/components/sticker-icon';
 import { PAPERS, STICKERS } from '@/constants/choices';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import type { Letter, Paper, Sticker } from '@/lib/data';
@@ -42,7 +43,7 @@ function PhotoThumb({ path }: { path: string }) {
 export function LetterRow({ letter, childName }: { letter: Letter; childName?: string }) {
   const kind = (letter.kind as MemoryKind) ?? 'dopis';
   const paper = PAPERS[letter.paper as Paper] ?? PAPERS.bezova;
-  const sticker = letter.sticker ? STICKERS[letter.sticker as Sticker]?.emoji : null;
+  const sticker = letter.sticker && STICKERS[letter.sticker as Sticker] ? letter.sticker : null;
   const title = letter.title.trim() || excerpt(letter.body, 40) || KIND_LABELS[kind];
   const preview = letter.title.trim() ? excerpt(letter.body) : '';
   const kindInfo =
@@ -63,9 +64,7 @@ export function LetterRow({ letter, childName }: { letter: Letter; childName?: s
         ) : kind !== 'dopis' ? (
           <Ionicons name={KIND_ICONS[kind]} size={24} color={Colors.primaryText} />
         ) : sticker ? (
-          <Text style={styles.sticker} accessibilityElementsHidden importantForAccessibility="no">
-            {sticker}
-          </Text>
+          <StickerIcon sticker={sticker} size={26} />
         ) : (
           <Ionicons name="mail-outline" size={22} color={Colors.primaryText} />
         )}
@@ -115,9 +114,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  },
-  sticker: {
-    fontSize: 24,
   },
   thumb: {
     width: 52,
