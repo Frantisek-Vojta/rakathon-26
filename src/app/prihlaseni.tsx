@@ -60,8 +60,8 @@ export default function SignInScreen() {
       <Illustration name="krajina" maxWidth={isTablet ? 460 : 420} />
       <Title style={[styles.title, !isTablet && styles.center]}>Schránka vzpomínek</Title>
       <Body style={[styles.lead, !isTablet && styles.center]}>
-        Místo pro slova, která mohou zůstat nablízku. Pro dopisy a vzkazy vašim dětem, které si jednou budou moci znovu
-        přečíst.
+        Místo pro slova, která mohou zůstat nablízku. Dopisy, nahrávky, videa a fotky pro vaše děti, ke kterým se mohou
+        jednou vracet.
       </Body>
     </View>
   );
@@ -74,8 +74,8 @@ export default function SignInScreen() {
           <View style={styles.demoCard}>
             <Heading>Jen se chcete podívat?</Heading>
             <Muted>
-              Vyzkoušejte appku s fiktivní rodinou: Eliška, Matěj a Aneta. Bez registrace, ukázková data se po odhlášení
-              smažou.
+              Vyzkoušejte aplikaci s fiktivní rodinou: Eliška, Matěj a Aneta. Bez registrace, ukázková data se po
+              odhlášení smažou.
             </Muted>
             <Button
               label="Vyzkoušet demo"
@@ -153,7 +153,7 @@ export default function SignInScreen() {
           <View style={styles.privacy}>
             <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} />
             <Muted style={styles.privacyText}>
-              Vaše vzpomínky vidíte jen vy. Nikdo jiný k nim přes appku nemá přístup.
+              Vaše vzpomínky vidíte jen vy. Nikdo jiný k nim přes aplikaci nemá přístup.
             </Muted>
           </View>
         </View>

@@ -23,7 +23,7 @@ export default function ChildrenScreen() {
     <Screen inTabs width="wide">
       <View style={styles.intro}>
         <Title>Moje děti</Title>
-        <Muted>Každé dítě má svůj vlastní prostor. Vyberte, pro koho chcete psát.</Muted>
+        <Muted>Každé dítě má svůj vlastní prostor. Vyberte, pro koho chcete tvořit.</Muted>
       </View>
 
       {loading && !children ? (

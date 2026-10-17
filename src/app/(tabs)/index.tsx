@@ -105,7 +105,7 @@ export default function HomeScreen() {
       {noChildren && (
         <View style={styles.onboarding}>
           <Heading>Začněte malým krokem</Heading>
-          <Body>Přidejte dítě, pro které chcete psát. Stačí jméno, zbytek může počkat.</Body>
+          <Body>Přidejte dítě, pro které chcete vzpomínky uchovat. Stačí jméno, zbytek může počkat.</Body>
           <Button label="Přidat dítě" icon="add" onPress={() => router.push('/dite/novy')} />
         </View>
       )}
@@ -141,7 +141,7 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHead}>
           <Heading>Nemusíte psát</Heading>
-          <Muted>Vzpomínku můžete namluvit, natočit nebo přidat fotku. Jak je vám to nejbližší.</Muted>
+          <Muted>Vzpomínku můžete i namluvit, natočit nebo k ní přidat fotku. Vyberte, co je vám dnes nejbližší.</Muted>
         </View>
         <CreateMemory />
       </View>
@@ -172,7 +172,7 @@ export default function HomeScreen() {
                 <Text style={styles.energyTitle}>Jen si vše projít</Text>
                 <Text style={styles.energyText}>
                   Prohlédněte si své vzpomínky. Zatím{' '}
-                  {plural(finished, 'hotový vzkaz', 'hotové vzkazy', 'hotových vzkazů')}.
+                  {plural(finished, 'hotová vzpomínka', 'hotové vzpomínky', 'hotových vzpomínek')}.
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={22} color={Colors.textFaint} />

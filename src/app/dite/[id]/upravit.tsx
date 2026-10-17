@@ -69,7 +69,10 @@ export default function EditChildScreen() {
             visible={confirm}
             danger
             title={`Smazat profil: ${child.name}?`}
-            message={deleteError ?? 'Smaže se i všechno, co jste pro toto dítě napsali. Tento krok nejde vrátit.'}
+            message={
+              deleteError ??
+              'Smažou se i všechny dopisy, nahrávky, videa a fotky pro toto dítě. Tento krok nejde vrátit.'
+            }
             confirmLabel="Ano, smazat"
             busy={deleting}
             onConfirm={remove}

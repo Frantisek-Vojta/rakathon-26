@@ -79,7 +79,7 @@ export default function ChildProfileScreen() {
 
       <View style={styles.create}>
         <Heading>Vytvořit novou vzpomínku</Heading>
-        <Muted>Napište, namluvte, natočte nebo přidejte fotku. Jak je vám to nejbližší.</Muted>
+        <Muted>Napište, namluvte, natočte nebo přidejte fotku. Vyberte, co je vám nejbližší.</Muted>
         <CreateMemory childId={child.id} />
       </View>
 

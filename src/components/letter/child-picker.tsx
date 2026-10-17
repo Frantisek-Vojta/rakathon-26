@@ -39,7 +39,7 @@ export function ChildPicker({ prompt, onPick }: { prompt?: string; onPick: (chil
           <Pressable
             key={child.id}
             accessibilityRole="button"
-            accessibilityLabel={`Psát pro: ${child.name}`}
+            accessibilityLabel={`Pro: ${child.name}`}
             onPress={() => onPick(child.id)}
             style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
             <ChildAvatar name={child.name} color={child.color} size={56} />
