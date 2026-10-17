@@ -163,7 +163,7 @@ export default function HomeScreen() {
           {finished > 0 && (
             <Pressable
               accessibilityRole="button"
-              onPress={() => router.push('/spravce')}
+              onPress={() => router.push('/mapa')}
               style={({ pressed }) => [styles.browse, pressed && styles.pressed]}>
               <View style={[styles.energyIcon, { backgroundColor: Colors.lavender }]}>
                 <Ionicons name="albums-outline" size={26} color={Colors.lavenderDark} />
@@ -171,8 +171,8 @@ export default function HomeScreen() {
               <View style={styles.energyTexts}>
                 <Text style={styles.energyTitle}>Jen si vše projít</Text>
                 <Text style={styles.energyText}>
-                  Prohlédněte si své vzpomínky. Zatím{' '}
-                  {plural(finished, 'hotová vzpomínka', 'hotové vzpomínky', 'hotových vzpomínek')}.
+                  Mapa vzpomínek: zatím {plural(finished, 'hotová vzpomínka', 'hotové vzpomínky', 'hotových vzpomínek')}
+                  .
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={22} color={Colors.textFaint} />

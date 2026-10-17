@@ -73,6 +73,7 @@ function RootNavigator() {
         <Stack.Screen name="dite/[id]/upravit" />
         <Stack.Screen name="dopis/[id]" />
         <Stack.Screen name="smysl" />
+        <Stack.Screen name="mapa" />
       </Stack.Protected>
       <Stack.Protected guard={signedIn && !prefs.onboarded}>
         <Stack.Screen name="vitejte" />

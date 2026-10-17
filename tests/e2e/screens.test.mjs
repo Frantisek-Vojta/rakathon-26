@@ -25,6 +25,18 @@ try {
   await b.go('/smysl');
   check('Proč to má smysl', await b.hasText('Vzpomínky mají smysl'));
 
+  // Mapa vzpomínek: z domovské obrazovky přes „Jen si vše projít“
+  await b.go('/');
+  await b.click('Jen si vše projít');
+  check('Mapa vzpomínek se otevře', await b.hasText('Mapa vzpomínek'));
+  check('Souhrn pod mapou', await b.hasText('Zatím 7 hotových vzpomínek'));
+  const places = await b.page.evaluate(
+    () => [...document.querySelectorAll('[role="button"]')].filter((e) => /\n(Eliška|Matěj|Aneta)$/.test(e.innerText.trim())).length,
+  );
+  check('Na mapě je 7 hotových vzpomínek', places === 7, `${places} míst`);
+  await b.click('Ukolébavka na dobrou noc');
+  check('Místo na mapě otevře vzpomínku', await b.hasText('Upravit vzpomínku'));
+
   await b.go('/deti');
   await b.click('Eliška');
   await b.click('Časová osa');

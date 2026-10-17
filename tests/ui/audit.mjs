@@ -100,6 +100,7 @@ const SCREENS = [
   { name: 'inspirace', path: '/inspirace' },
   { name: 'spravce', path: '/spravce' },
   { name: 'smysl', path: '/smysl' },
+  { name: 'mapa', path: '/mapa' },
   { name: 'hlas-cteni', path: `/dopis/${ids.voice}` },
   { name: 'hlas-novy', path: `/dopis/novy?dite=${ids.child}&druh=hlas` },
   { name: 'foto-novy', path: `/dopis/novy?dite=${ids.child}&druh=foto` },

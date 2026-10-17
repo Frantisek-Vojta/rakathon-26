@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { useCallback, useMemo, useState, type ComponentProps } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -61,7 +62,16 @@ export default function ManagerScreen() {
 
   const library = (
     <View style={styles.section}>
-      <Heading>Co už je vytvořeno</Heading>
+      <View style={styles.libraryHead}>
+        <Heading>Co už je vytvořeno</Heading>
+        <Button
+          label="Mapa vzpomínek"
+          variant="secondary"
+          icon="map-outline"
+          onPress={() => router.push('/mapa')}
+          style={styles.mapButton}
+        />
+      </View>
       {data && (
         <Text style={styles.summary}>
           {plural(data.children.length, 'dítě', 'děti', 'dětí')} ·{' '}
@@ -459,6 +469,17 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bodySemiBold,
     fontSize: 15,
     color: Colors.danger,
+  },
+  libraryHead: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+  },
+  mapButton: {
+    minHeight: 44,
+    paddingHorizontal: Spacing.md,
   },
   backup: {
     gap: Spacing.md,
