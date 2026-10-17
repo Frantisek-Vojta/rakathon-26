@@ -49,11 +49,12 @@ Prototyp z **Rakathonu 2026 (Brno)**, výzva **„Vzkazy pro budoucnost“**.
 | **Hlasový vzkaz** | Jedno velké tlačítko: mluvte, zastavte, hotovo. Přehrávač, nahrát znovu. Ukázka: ukolébavka pro Elišku |
 | **Video vzkaz** | Natočení kamerou (v telefonu přední kamerou, na počítači přímo v okně aplikace z webkamery) nebo video z galerie, max. 3 minuty |
 | **Fotka** | Vyfotit (i webkamerou) nebo vybrat z galerie, k fotce pár slov. Každý soubor jde **stáhnout** |
-| **Inspirace a tipy** | **Proč to má smysl**, **Moje životní příběhy** (5 témat), 22 otázek v 5 tématech (klepnutím začne nový dopis), **Nemusí to být jen v aplikaci** (9 nápadů na vzpomínkové dary) |
+| **Inspirace a tipy** | **Proč to má smysl**, **Moje životní příběhy** (5 témat), 22 otázek v 5 tématech (klepnutím začne nový dopis, srdíčkem se uloží do **Moje oblíbené**), **Nemusí to být jen v aplikaci** (9 nápadů na vzpomínkové dary, u každého **Zapsat dar**: rodina pak ví, že dar existuje a kde je) |
+| **Mapa vzpomínek** | Hotové vzpomínky jako místa na cestě akvarelovou krajinou, filtr podle typu, klepnutím se vzpomínka otevře. Vede sem **Jen si vše projít** na domovské obrazovce. Běžný seznam zůstává ve Správci |
 | **Správce schránky** | Přehled všech vzpomínek, hledání, filtr podle stavu, typu a dítěte, **záloha všeho do jednoho souboru**, **nastavení podpory a připomínek**, informace o ochraně dat, účet, smazání účtu |
 
 **Nad rámec povinného MVP:** fotky, hlasové a video vzkazy, diktování, záloha s offline „knihou
-vzpomínek“, uvítací průvodce, jemné vedení / klidný režim, připomínky v telefonu, průvodce energií,
+vzpomínek“, mapa vzpomínek, oblíbené otázky, zápis dárků mimo aplikaci, uvítací průvodce, jemné vedení / klidný režim, připomínky v telefonu, průvodce energií,
 časová osa dítěte, životní příběhy, inspirace, místní záloha při výpadku internetu, demo účet,
 smazání účtu, plně responzivní rozvržení a přístupnost podle WCAG.
 
@@ -83,7 +84,8 @@ nezávisí na tom, jestli aplikace bude existovat i za dvacet let.
 | **Jemná gamifikace** | Jen laskavé poděkování po uložení a orientační počet („Už 5 vzpomínek!“). Žádné série, žebříčky ani odpočty. V klidném režimu vypnuto |
 | **Připomínky podle přání** | Zapínají se až po volbě uživatele (1× nebo 3× týdně, nebo vůbec). Text na zamčené obrazovce neprozradí obsah: „Možná je dnes hezký okamžik na malou vzpomínku.“ |
 | **Časová osa dítěte, Moje životní příběhy, Mimo aplikaci, Proč to má smysl** | Samostatné části aplikace, obsahově podle podkladů |
-| **Mapa vzpomínek** | Zatím ne, viz [Co dál](#14-co-dál). Běžný seznam je ve Správci schránky |
+| **Mapa vzpomínek** | Hotové vzpomínky jako místa v pastelové krajině (Domů → Jen si vše projít). Běžný seznam zůstává ve Správci, jak podklady doporučují |
+| **Uložené inspirace, evidence fyzických darů** | Srdíčko u otázky → Moje oblíbené. U nápadů na dary tlačítko Zapsat dar |
 
 ---
 
@@ -112,6 +114,7 @@ nezávisí na tom, jestli aplikace bude existovat i za dvacet let.
 | Funkční průchod webem | https://rakathon-vzpominky.vercel.app |
 | Návrh bezpečného ukládání dat | [kapitola 8](#8-bezpečnost-a-ochrana-dat) |
 | *Nice-to-have:* fotografie, audio, převod řeči na text, export | fotky, hlasové a video vzkazy, diktování, záloha (ZIP + kniha vzpomínek) |
+| *Další rozvoj z podkladů:* milníky, uložené inspirace, evidence fyzických darů, mapa vzpomínek | časová osa, Moje oblíbené, Zapsat dar, Mapa vzpomínek |
 
 ### Principy návrhu (slide 5) a etika (slide 13)
 
@@ -204,6 +207,7 @@ rakathon/
 │   │   ├── prihlaseni.tsx           přihlášení, registrace, „Vyzkoušet demo“
 │   │   ├── vitejte.tsx              uvítací průvodce (podpora, zájmy, připomenutí)
 │   │   ├── smysl.tsx                Proč to má smysl
+│   │   ├── mapa.tsx                 Mapa vzpomínek
 │   │   ├── (tabs)/                  4 hlavní obrazovky
 │   │   │   ├── _layout.tsx          menu: dole na telefonu, vlevo na počítači
 │   │   │   ├── index.tsx            Místo pro slova (domů)
@@ -223,6 +227,8 @@ rakathon/
 │   │   ├── timeline.tsx             časová osa dítěte
 │   │   ├── illustration.tsx         akvarelová ilustrace
 │   │   ├── create-memory.tsx        4 způsoby vzpomínky: napsat, namluvit, natočit, fotka
+│   │   ├── memory-map.tsx           mapa vzpomínek v akvarelové krajině
+│   │   ├── sticker-icon.tsx         nálepky na dopisech (ikony, ne emoji)
 │   │   ├── letter/                  papír, volba vzhledu, výběr dítěte, diktování
 │   │   └── media/                   nahrávání hlasu, přehrávače, fotka/video, webkamera (.web.tsx)
 │   ├── hooks/
@@ -411,7 +417,7 @@ V nastavení Auth zapněte *Anonymous sign-ins* (demo) a *Confirm email* nechte 
 | Příkaz | Co ověřuje |
 |---|---|
 | `npm run test:security` | 28 kontrol zabezpečení databáze a úložiště: dva účty, „útoky“ jednoho na druhý (čtení, změna, mazání cizích dat, podvržení vlastníka, cizí dítě, cizí soubory), nepřihlášený přístup, zakázané typy souborů, kontroly hodnot, smazání účtu. Test po sobě uklidí |
-| `npm run test:e2e` | 120 kontrol v 7 sadách: přihlášení a localStorage, chráněné stránky, uvítací průvodce, děti, **všech 5 akceptačních kroků**, obnova textu po zavření, ukázková fotka / ukolébavka / video, nahrání hlasu (testovací mikrofon), fotka z galerie, **video a fotka z webkamery**, **diktování**, stažení souboru, **záloha ZIP**, časová osa, klidný režim, inspirace, Správce, filtry, hledání |
+| `npm run test:e2e` | 130 kontrol v 7 sadách: přihlášení a localStorage, chráněné stránky, uvítací průvodce, děti, **všech 5 akceptačních kroků**, obnova textu po zavření, ukázková fotka / ukolébavka / video, nahrání hlasu (testovací mikrofon), fotka z galerie, **video a fotka z webkamery**, **diktování**, stažení souboru, **záloha ZIP**, časová osa, klidný režim, inspirace, oblíbené otázky, zápis daru, mapa vzpomínek, Správce, filtry, hledání |
 | `npm run test:ui` | UI/UX audit: všechny obrazovky v 6 velikostech (viz [kapitola 12](#12-uiux-přístupnost-a-responzivita)) |
 
 ```bash
@@ -470,12 +476,11 @@ Podrobný výsledek je v [`tests/ui/report.md`](tests/ui/report.md).
 
 1. **Předání dítěti** (další fáze podle zadání): strážce vzkazů potvrdí milník, dítě dostane
    bezpečný jednorázový odkaz.
-2. **Mapa vzpomínek** v pastelové krajině jako vizuální přehled (běžný seznam zůstane).
-3. **Šifrování end-to-end** (viz 8.6), i pro fotky a nahrávky.
-4. **Přepis hlasových vzkazů na text** přímo v zařízení (aby šly prohledávat) a diktování
+2. **Šifrování end-to-end** (viz 8.6), i pro fotky a nahrávky.
+3. **Přepis hlasových vzkazů na text** přímo v zařízení (aby šly prohledávat) a diktování
    v mobilní aplikaci i bez klávesnice.
-5. **Tisk knihy vzpomínek** (PDF) a fotokniha.
-6. Spolupráce s psychology na dalších inspiračních otázkách a ověření s pacienty.
+4. **Tisk knihy vzpomínek** (PDF) a fotokniha.
+5. Spolupráce s psychology na dalších inspiračních otázkách a ověření s pacienty.
 
 ---
 
