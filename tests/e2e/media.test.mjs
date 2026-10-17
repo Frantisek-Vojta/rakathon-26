@@ -58,12 +58,12 @@ try {
   await b.go('/deti');
   await b.click('Matěj');
   await b.click('Přidat fotku');
-  check('Editor fotky', await b.hasText('Vybrat z galerie'));
+  check('Editor fotky', await b.hasText('Vybrat z počítače'));
   await b.prepareFile(photo, 'image/jpeg', 'louka.jpg');
-  await b.click('Vybrat z galerie');
+  await b.click('Vybrat z počítače');
   await b.sleep(4000);
   check('Vybraná fotka se nahrála a zobrazí', await imageLoaded('Fotka u vzpomínky'));
-  await b.type('textarea[aria-label="Text dopisu"]', 'Testovací fotka z galerie.');
+  await b.type('textarea[aria-label="Pár slov k fotce"]', 'Testovací fotka z galerie.');
   await b.click('Uložit vzkaz');
   check('Fotka uložena', await b.hasText('Malý krok s velkým významem', 10000));
   await b.click('Pokračovat');

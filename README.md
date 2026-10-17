@@ -1,8 +1,9 @@
 # Schránka vzpomínek
 
 > **Místo pro slova, která mohou zůstat nablízku.**
-> Mobilní aplikace, ve které rodič uchová dopisy a vzkazy pro své děti. Je určená hlavně
-> rodičům se závažným onemocněním, ale může ji použít každý.
+> Mobilní aplikace, ve které rodič uchová dopisy, hlasové a video vzkazy a fotky pro své děti.
+> Je určená hlavně rodičům se závažným onemocněním, ale může ji použít každý.
+> **Nemusíte psát:** vzkaz jde namluvit, natočit, nebo nadiktovat.
 
 Prototyp z **Rakathonu 2026 (Brno)**, výzva **„Vzkazy pro budoucnost“**.
 
@@ -35,26 +36,46 @@ Prototyp z **Rakathonu 2026 (Brno)**, výzva **„Vzkazy pro budoucnost“**.
 
 ## 1. Co aplikace umí
 
-**Hlavní průchod:** vybrat dítě → napsat dopis → uložit → upravit → znovu najít.
+**Hlavní průchod:** vybrat dítě → napsat dopis (nebo nahrát hlas, natočit video, přidat fotku) → uložit → upravit → znovu najít.
 
 | Obrazovka | Co na ní rodič najde |
 |---|---|
 | **Přihlášení** | Přihlášení e-mailem, registrace, nebo **„Vyzkoušet demo“** jedním klepnutím |
 | **Uvítací průvodce** (jen poprvé) | **Vítejte** → **Co je pro vás důležité?** → **Jakou podporu si přejete?** (jemné vedení / klidný režim) → **Připomenutí** (jen když o ně stojíte). Dá se přeskočit, vše jde později změnit |
-| **Místo pro slova** (domů) | **Vítejte zpět**, **Kolik máte dnes sil?** (*Mám sílu tvořit* / *Zvládnu jen jednu větu* / *Dnes potřebuji odpočívat*), pokračování v konceptu, jen si vše projít, citát dne |
-| **Moje děti** | Karty dětí s věkem a počtem hotových vzkazů a konceptů, přidání dítěte |
-| **Profil dítěte** | Jméno, věk, popis, „Napsat dopis“, přepínač **Vzkazy / Časová osa**. Časová osa ukazuje milníky (škola, 18. narozeniny, maturita, svatba…) a u každého, jestli je vzkaz hotový, rozepsaný, nebo ho jde napsat |
-| **Dopis** | Psaní na dopisní papír. Volba papíru, písma (i ručně psaného), nálepky a příležitosti. Průběžné ukládání, **Uložit koncept** (jemné potvrzení bez přerušení), **Uložit vzkaz** (poděkování s ilustrací), režim čtení |
+| **Místo pro slova** (domů) | **Vítejte zpět**, **Kolik máte dnes sil?** (*Mám sílu tvořit* / *Zvládnu jen jednu větu* / *Dnes potřebuji odpočívat*), **Nemusíte psát** (napsat / namluvit / natočit / fotka), pokračování v konceptu, jen si vše projít, citát dne |
+| **Moje děti** | Karty dětí s věkem a počtem dopisů, nahrávek, videí a fotek, přidání dítěte |
+| **Profil dítěte** | Jméno, věk, popis, **Vytvořit novou vzpomínku** (4 způsoby), přepínač **Vzkazy / Časová osa**. Časová osa ukazuje milníky (škola, 18. narozeniny, maturita, svatba…) a u každého, jestli je vzkaz hotový, rozepsaný, nebo ho jde napsat |
+| **Dopis** | Psaní na dopisní papír. Volba papíru, písma (i ručně psaného), nálepky a příležitosti. **Diktování hlasem** (text se píše sám), průběžné ukládání, **Uložit koncept** (jemné potvrzení bez přerušení), **Uložit vzkaz** (poděkování s ilustrací), režim čtení |
+| **Hlasový vzkaz** | Jedno velké tlačítko: mluvte, zastavte, hotovo. Přehrávač, nahrát znovu. Ukázka: ukolébavka pro Elišku |
+| **Video vzkaz** | Natočení kamerou (v telefonu přední kamerou, na počítači přímo v okně aplikace z webkamery) nebo video z galerie, max. 3 minuty |
+| **Fotka** | Vyfotit (i webkamerou) nebo vybrat z galerie, k fotce pár slov. Každý soubor jde **stáhnout** |
 | **Inspirace a tipy** | **Proč to má smysl**, **Moje životní příběhy** (5 témat), 22 otázek v 5 tématech (klepnutím začne nový dopis), **Nemusí to být jen v aplikaci** (9 nápadů na vzpomínkové dary) |
-| **Správce schránky** | Přehled všech vzkazů, hledání, filtr podle stavu a dítěte, **export do souboru**, **nastavení podpory a připomínek**, informace o ochraně dat, účet, smazání účtu |
+| **Správce schránky** | Přehled všech vzpomínek, hledání, filtr podle stavu, typu a dítěte, **záloha všeho do jednoho souboru**, **nastavení podpory a připomínek**, informace o ochraně dat, účet, smazání účtu |
 
-**Nad rámec povinného MVP:** uvítací průvodce, jemné vedení / klidný režim, připomínky v telefonu,
-průvodce energií, časová osa dítěte, životní příběhy, inspirace, export, místní záloha při
-výpadku internetu, demo účet, smazání účtu, plně responzivní rozvržení a přístupnost podle WCAG.
+**Nad rámec povinného MVP:** fotky, hlasové a video vzkazy, diktování, záloha s offline „knihou
+vzpomínek“, uvítací průvodce, jemné vedení / klidný režim, připomínky v telefonu, průvodce energií,
+časová osa dítěte, životní příběhy, inspirace, místní záloha při výpadku internetu, demo účet,
+smazání účtu, plně responzivní rozvržení a přístupnost podle WCAG.
+
+### Záloha: kniha vzpomínek, která přežije i aplikaci
+
+Ve Správci schránky je tlačítko **Stáhnout zálohu**. Vznikne jeden soubor ZIP:
+
+```
+schranka-vzpominek-2026-10-17/
+├── index.html      kniha vzpomínek: otevře ji jakýkoli prohlížeč, bez internetu i bez aplikace
+├── vzkazy.txt      všechny texty jako obyčejný text
+├── eliska/ukolebavka-na-dobrou-noc.m4a
+├── matej/nase-louka.jpg
+└── aneta/video-k-tvym-narozeninam.mp4
+```
+
+Kniha ukazuje dopisy na jejich barevném papíře, fotky, přehrává nahrávky i videa. Vzpomínky tak
+nezávisí na tom, jestli aplikace bude existovat i za dvacet let.
 
 ### Podle nových podkladů k výzvě
 
-| Podklad | Jak ho appka naplňuje |
+| Podklad | Jak ho aplikace naplňuje |
 |---|---|
 | **Přívětivý začátek i návrat** | Uvítací průvodce a domovská obrazovka „Vítejte zpět“: pokračovat v konceptu, malý podnět, nebo jen prohlížet. Bez výčitek |
 | **Vlastní tempo** | Průvodce energií: delší tvorba, jediná věta, nebo odpočinek a inspirace. Rozpracovaný text se nikdy neztratí |
@@ -76,7 +97,7 @@ výpadku internetu, demo účet, smazání účtu, plně responzivní rozvržen�
 | 2 | Napište dopis a uložte jej jako koncept | Profil → **Napsat dopis** → **Uložit koncept** | ✅ |
 | 3 | Koncept znovu otevřete, upravte a dokončete | Profil → Rozepsané → dopis → **Uložit vzkaz** | ✅ |
 | 4 | Najděte hotový dopis v přehledu a otevřete jej | Profil → Hotové, nebo **Správce schránky** | ✅ |
-| 5 | Restartujte demo: uložený dopis stále existuje | Zavřít a znovu otevřít appku / obnovit stránku | ✅ |
+| 5 | Restartujte demo: uložený dopis stále existuje | Zavřít a znovu otevřít aplikaci / obnovit stránku | ✅ |
 
 ### Povinné funkce MVP (slidy 8 a 14)
 
@@ -90,20 +111,21 @@ výpadku internetu, demo účet, smazání účtu, plně responzivní rozvržen�
 | Spustitelné demo na telefonu | ✅ Expo Go (Android i iPhone) + web |
 | Funkční průchod webem | ✅ https://rakathon-vzpominky.vercel.app |
 | Návrh bezpečného ukládání dat | ✅ [kapitola 8](#8-bezpečnost-a-ochrana-dat) |
+| *Nice-to-have:* fotografie, audio, převod řeči na text, export | ✅ fotky, hlasové a video vzkazy, diktování, záloha (ZIP + kniha vzpomínek) |
 
 ### Principy návrhu (slide 5) a etika (slide 13)
 
 | Princip | Jak ho naplňujeme |
 |---|---|
 | **Laskavá**: bez nátlaku a hodnocení | Žádné odpočty, série ani „splněno na X %“. Připomínky jen na přání. Texty typu „Není potřeba spěchat“, „Stačí jedna věta“ |
-| **Jednoduchá**: i při únavě | Velká písmena a tlačítka (min. 44–52 px), málo voleb, vzhled dopisu schovaný pod jedním tlačítkem |
+| **Jednoduchá**: i při únavě | Velká písmena a tlačítka (min. 44–52 px), málo voleb, vzhled dopisu schovaný pod jedním tlačítkem. Kdo nemá sílu psát, vzkaz namluví, natočí nebo nadiktuje |
 | **Po malých krocích** | Každé písmeno se hned uloží, rozepsaný text se obnoví, „Dnešní malý krok“ = jedna věta |
 | **Soukromá** | Žádný veřejný profil ani sdílení. Data vidí jen přihlášený rodič, hlídá to databáze |
 | **Osobní** | Samostatný profil a prostor pro každé dítě |
 | **Otevřená nápadům** | Inspirace + nápady na dary mimo telefon |
 | **Fiktivní data** | Demo obsahuje jen smyšlená jména a texty |
-| **Předání ≠ uložení** | Předání dítěti je podle zadání až další fáze, appka ho záměrně nedělá |
-| **Žádná sociální síť** | Appka nemá žádnou sociální funkci |
+| **Předání ≠ uložení** | Předání dítěti je podle zadání až další fáze, aplikace ho záměrně nedělá |
+| **Žádná sociální síť** | Aplikace nemá žádnou sociální funkci |
 
 ---
 
@@ -131,21 +153,25 @@ výpadku internetu, demo účet, smazání účtu, plně responzivní rozvržen�
  │  Telefon nebo prohlížeč   │ ───────────────────────────────▶ │  Supabase (databáze, Londýn)  │
  │                           │                                   │                              │
  │  Aplikace Schránka        │ ◀─────────────────────────────── │  Přihlášení (Auth)            │
- │  vzpomínek                │       jen VAŠE děti a dopisy      │  Tabulky: děti, dopisy        │
- │                           │                                   │  Pravidla: každý vidí jen své │
- │  localStorage:            │                                   └──────────────────────────────┘
- │  přihlášení + rozepsaný   │
- │  text (záloha)            │      Vercel jen doručí samotnou aplikaci (soubory),
- └───────────────────────────┘      žádná osobní data přes něj nejdou.
+ │  vzpomínek                │   jen VAŠE děti, dopisy a soubory │  Tabulky: děti, dopisy        │
+ │                           │                                   │  Úložiště: fotky, nahrávky,   │
+ │  localStorage:            │                                   │  videa (soukromá složka)      │
+ │  přihlášení + rozepsaný   │                                   │  Pravidla: každý vidí jen své │
+ │  text (záloha)            │                                   └──────────────────────────────┘
+ └───────────────────────────┘      Vercel jen doručí samotnou aplikaci (soubory),
+                                    žádná osobní data přes něj nejdou.
 ```
 
-1. **Aplikace** je jedna sada kódu (React Native). Běží jako mobilní appka i jako webová stránka.
+1. **Aplikace** je jedna sada kódu (React Native). Běží jako mobilní aplikace i jako webová stránka.
 2. **Přihlášení** zajišťuje Supabase. Po přihlášení si zařízení pamatuje „vstupenku“ (token)
    v localStorage, takže se nemusíte přihlašovat znovu ani po restartu.
 3. **Data** (děti a dopisy) jsou v databázi. Databáze u každého řádku kontroluje, komu patří.
    Cizí data vám nevydá, ani kdyby někdo obešel aplikaci a ptal se databáze napřímo.
 4. **Psaní** se ukládá dvakrát: okamžitě do zařízení a po chvilce do databáze. Když vypadne
-   internet nebo se appka zavře, text se při dalším otevření obnoví.
+   internet nebo se aplikace zavře, text se při dalším otevření obnoví.
+5. **Fotky, nahrávky a videa** leží v soukromém úložišti, každý rodič má svou složku. Aplikace
+   nikdy nedostane trvalý odkaz, jen odkaz platný 1 hodinu. Když se nahrávka nepodaří odeslat
+   (výpadek internetu), zůstane v zařízení a jde ji poslat znovu jedním tlačítkem.
 
 ---
 
@@ -160,6 +186,9 @@ výpadku internetu, demo účet, smazání účtu, plně responzivní rozvržen�
 | Hosting webu | **Vercel** (statické soubory + bezpečnostní hlavičky) | Veřejný odkaz, HTTPS |
 | Písma | Lora (nadpisy), Nunito (text), Caveat (ručně psané) | Teplý vzhled podle návrhů, české znaky |
 | Připomínky | **expo-notifications** (plánované přímo v telefonu, bez serveru) | Jen na přání uživatele, nic se neposílá ven |
+| Fotky, hlas, video | **expo-image-picker**, **expo-audio**, **expo-video**; na počítači webkamera přes `getUserMedia` + `MediaRecorder` | Natáčení a nahrávání v telefonu i na webu bez dalších aplikací |
+| Diktování | **Web Speech API** prohlížeče (Chrome, Edge, Safari); v telefonu mikrofon na klávesnici | Zdarma, bez placeného API |
+| Záloha | **fflate** (ZIP v zařízení), **expo-file-system** + **expo-sharing** v telefonu | Data jdou odnést kamkoli, bez serveru |
 | Ilustrace | Akvarely z podkladů FN Olomouc, oříznuté a prolnuté (ImageMagick → WebP) | Vizuální konzistence s návrhy, malá velikost (24–68 kB) |
 | Testy | puppeteer-core + Firefox (E2E), axe-core (přístupnost), supabase-js (bezpečnost) | Automatické ověření průchodů, UI/UX i ochrany dat |
 
@@ -193,10 +222,13 @@ rakathon/
 │   │   ├── option-card.tsx          volba s ikonou (průvodce, nastavení)
 │   │   ├── timeline.tsx             časová osa dítěte
 │   │   ├── illustration.tsx         akvarelová ilustrace
-│   │   └── letter/                  papír, volba vzhledu, výběr dítěte
+│   │   ├── create-memory.tsx        4 způsoby vzpomínky: napsat, namluvit, natočit, fotka
+│   │   ├── letter/                  papír, volba vzhledu, výběr dítěte, diktování
+│   │   └── media/                   nahrávání hlasu, přehrávače, fotka/video, webkamera (.web.tsx)
 │   ├── hooks/
 │   │   ├── use-focus-data.ts        načtení dat při každém zobrazení obrazovky
 │   │   ├── use-layout.ts            telefon / tablet / počítač podle šířky okna
+│   │   ├── use-dictation.ts         diktování (řeč → text) v prohlížeči
 │   │   └── use-letter-autosave.ts   průběžné ukládání dopisu (zařízení → databáze)
 │   ├── lib/                         ← LOGIKA BEZ VZHLEDU
 │   │   ├── supabase.ts              připojení k databázi
@@ -206,7 +238,9 @@ rakathon/
 │   │   ├── drafts.ts                místní záloha rozepsaných dopisů
 │   │   ├── preferences.tsx          jemné vedení / klidný režim, zájmy, připomínky
 │   │   ├── reminders(.native).ts    připomínky v telefonu (na webu se jen uloží volba)
-│   │   ├── export.ts                export vzkazů do souboru
+│   │   ├── media.ts                 nahrání, odkazy s omezenou platností a mazání souborů
+│   │   ├── save-file(.native).ts    uložení souboru: na webu stažení, v telefonu nabídka sdílení
+│   │   ├── export.ts                záloha: ZIP s knihou vzpomínek (index.html), texty a soubory
 │   │   ├── format.ts                české datum, věk, skloňování
 │   │   ├── errors.ts                srozumitelné české chybové hlášky
 │   │   └── database.types.ts        typy vygenerované z databáze
@@ -216,9 +250,11 @@ rakathon/
 │       ├── support.ts               volby podpory, připomínek a citáty dne
 │       ├── illustrations.ts         seznam ilustrací
 │       └── inspiration.ts           otázky, životní příběhy, dary mimo aplikaci
-├── supabase/migrations/             ← DATABÁZE (tabulky, pravidla, ukázková data)
-├── scripts/security-check.mjs       bezpečnostní test databáze
-├── tests/e2e/                       testy v prohlížeči (80 kontrol)
+├── supabase/migrations/             ← DATABÁZE (tabulky, pravidla, úložiště, ukázková data)
+├── supabase/demo-media/             ukázková fotka, ukolébavka a video pro demo
+├── scripts/security-check.mjs       bezpečnostní test databáze a úložiště
+├── scripts/upload-demo-media.mjs    nahraje ukázková média do úložiště (jednorázově)
+├── tests/e2e/                       testy v prohlížeči (7 sad)
 ├── tests/ui/                        UI/UX audit (velikosti obrazovek, přístupnost) + report.md
 ├── public/index.html                šablona webové stránky (čeština, styly prohlížeče)
 ├── assets/images/                   ikona aplikace a ilustrace
@@ -251,11 +287,19 @@ rakathon/
 | `status` | `koncept` nebo `hotovo` | jen tyto dvě hodnoty |
 | `occasion` | příležitost (narozeniny, svatba…) | max. 80 znaků |
 | `paper`, `font`, `sticker` | vzhled | jen povolené hodnoty |
+| `kind` | `dopis`, `foto`, `hlas` nebo `video` | jen tyto hodnoty, u souboru nejde změnit |
+| `media_path`, `media_mime`, `media_size`, `media_duration_ms` | soubor ke vzpomínce | cesta jen do vlastní složky (`<id rodiče>/…`), max. 50 MB, max. 1 hodina |
 | `created_at`, `updated_at`, `finished_at` | časy | nastavuje databáze |
+
+**Úložiště `vzpominky`** (Supabase Storage): soukromé, max. 50 MB na soubor, jen obrázky, zvuk a
+video. Každý rodič má složku pojmenovanou podle svého ID a jiné složky nevidí. Složka `demo/` se
+ukázkovými médii je jen ke čtení.
 
 Migrace jsou v `supabase/migrations/`:
 - `20261016150000_init.sql`: tabulky, pravidla přístupu, triggery, smazání účtu
 - `20261016151000_demo_seed.sql`: fiktivní data pro demo účty
+- `20261017000000_media.sql`: typy vzpomínek, sloupce pro soubory, úložiště a jeho pravidla
+- `20261017001000_demo_media_seed.sql`: ukázková fotka, ukolébavka a video v demu
 
 ---
 
@@ -273,7 +317,10 @@ Migrace jsou v `supabase/migrations/`:
 - **Složený cizí klíč** `(child_id, owner_id)`: dopis nejde „přilepit“ k cizímu dítěti, ani když
   někdo zná jeho ID. Obyčejný cizí klíč by to nezachytil, protože RLS na kontrolu klíčů neplatí.
 - **Kontroly hodnot** (délky, povolené stavy) přímo v databázi.
-- **Limity proti zneužití:** max. 20 dětí a 1000 vzkazů na účet.
+- **Limity proti zneužití:** max. 20 dětí a 1000 vzkazů na účet, soubory max. 50 MB.
+- **Soubory:** pravidla úložiště pustí rodiče jen do jeho složky (číst, nahrát, smazat). Cizí
+  soubor nejde stáhnout, přepsat ani „připojit“ ke svému dopisu (databáze cestu kontroluje).
+  Aplikace dostává jen odkazy s platností 1 hodina.
 - Pomocné funkce jsou v neveřejném schématu `private` s pevným `search_path`.
 
 ### 8.2 Přihlášení
@@ -294,18 +341,22 @@ Vercel posílá bezpečnostní hlavičky (`vercel.json`):
 - **Content-Security-Policy**: skripty jen z naší domény, síťová spojení jen na naši databázi,
   žádné vkládání do cizích stránek. To brání krádeži přihlášení přes podvržený skript (XSS).
 - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`,
-  `Strict-Transport-Security`, `Permissions-Policy` (zakázaná kamera, mikrofon, poloha),
-  `noindex` (soukromá aplikace nemá být ve vyhledávačích).
+  `Strict-Transport-Security`, `Permissions-Policy` (kamera a mikrofon jen pro naši stránku
+  a jen na vyžádání uživatele, poloha zakázaná), `noindex` (soukromá aplikace nemá být ve
+  vyhledávačích). Obrázky a média se smí načítat jen z naší databáze.
 - Text se nikdy nevkládá jako HTML (React Native ho vždy zobrazí jako text).
 
 ### 8.5 Soukromí a GDPR
 - **Data leží v EU-kompatibilní lokalitě:** Supabase, region `eu-west-2` (Londýn). Velká
   Británie má od EU rozhodnutí o odpovídající ochraně.
-- **Minimalizace:** ukládáme jen e-mail, jména dětí (nebo přezdívky) a texty dopisů.
-  Žádná analytika, reklama ani sledování.
-- **Právo na výmaz:** Správce schránky → *Smazat účet a všechna data*. Databáze smaže účet
-  i všechny děti a dopisy najednou (`on delete cascade`).
-- **Přenositelnost:** export všech vzkazů do textového souboru.
+- **Minimalizace:** ukládáme jen e-mail, jména dětí (nebo přezdívky), texty a soubory, které
+  rodič sám přidá. Žádná analytika, reklama ani sledování.
+- **Právo na výmaz:** Správce schránky → *Smazat účet a všechna data*. Aplikace smaže všechny
+  soubory a databáze účet i všechny děti a dopisy najednou (`on delete cascade`).
+- **Přenositelnost:** záloha všeho do jednoho souboru ZIP (texty, fotky, nahrávky, videa
+  a offline kniha vzpomínek). Každý soubor jde stáhnout i zvlášť.
+- **Diktování** na webu zajišťuje prohlížeč (Chrome k tomu posílá zvuk Googlu). Aplikace to
+  uvádí ve Správci. Hlasové vzkazy se nikam jinam neposílají.
 - **Sdílené zařízení:** při odhlášení se smaže přihlášení i místní zálohy textů.
 
 ### 8.6 Co bychom přidali pro ostré nasazení
@@ -329,7 +380,7 @@ klíče začínají `schranka:`.
 | `schranka:prihlaseni` | přihlašovací token Supabase | zůstanete přihlášení i po restartu | odhlášení |
 | `schranka:posledni-email` | poslední použitý e-mail | předvyplnění přihlášení | smazání účtu |
 | `schranka:rozepsano:<id>` | rozepsaný text dopisu | ochrana proti ztrátě při výpadku internetu | po uložení do databáze, při odhlášení |
-| `schranka:nastaveni:<uživatel>` | zvolená podpora, zájmy a připomínky | appka se chová podle přání i bez internetu (zároveň se ukládá k účtu) | smazání účtu |
+| `schranka:nastaveni:<uživatel>` | zvolená podpora, zájmy a připomínky | aplikace se chová podle přání i bez internetu (zároveň se ukládá k účtu) | smazání účtu |
 
 ---
 
@@ -359,8 +410,8 @@ V nastavení Auth zapněte *Anonymous sign-ins* (demo) a *Confirm email* nechte 
 
 | Příkaz | Co ověřuje |
 |---|---|
-| `npm run test:security` | 18 kontrol zabezpečení databáze: dva účty, „útoky“ jednoho na druhý (čtení, změna, mazání cizích dat, podvržení vlastníka, cizí dítě), nepřihlášený přístup, kontroly hodnot, smazání účtu. Test po sobě uklidí |
-| `npm run test:e2e` | 80 kontrol v prohlížeči: přihlášení a localStorage, chráněné stránky, uvítací průvodce, děti, **všech 5 akceptačních kroků**, obnova textu po zavření, časová osa, klidný režim, inspirace, Správce, filtry, hledání, export |
+| `npm run test:security` | 28 kontrol zabezpečení databáze a úložiště: dva účty, „útoky“ jednoho na druhý (čtení, změna, mazání cizích dat, podvržení vlastníka, cizí dítě, cizí soubory), nepřihlášený přístup, zakázané typy souborů, kontroly hodnot, smazání účtu. Test po sobě uklidí |
+| `npm run test:e2e` | 120 kontrol v 7 sadách: přihlášení a localStorage, chráněné stránky, uvítací průvodce, děti, **všech 5 akceptačních kroků**, obnova textu po zavření, ukázková fotka / ukolébavka / video, nahrání hlasu (testovací mikrofon), fotka z galerie, **video a fotka z webkamery**, **diktování**, stažení souboru, **záloha ZIP**, časová osa, klidný režim, inspirace, Správce, filtry, hledání |
 | `npm run test:ui` | UI/UX audit: všechny obrazovky v 6 velikostech (viz [kapitola 12](#12-uiux-přístupnost-a-responzivita)) |
 
 ```bash
@@ -379,7 +430,7 @@ Testy v prohlížeči používají nainstalovaný Firefox (případně `FIREFOX=
 Aplikace je pro lidi, kteří mohou být unavení nebo mít horší zrak, a pro porotu, která ji otevře
 na čemkoli. Proto ji automaticky kontrolujeme ve **6 velikostech**: malý telefon 320 px, telefon
 390 px, telefon na šířku, tablet 768 px, notebook 1280 px a monitor 1600 px. Kontrolujeme všech
-**11 obrazovek**, celkem 66 kombinací.
+**18 obrazovek** (včetně nahrávání hlasu, kamery a přehrávačů), celkem 108 kombinací.
 
 | Kontrola | Pravidlo | Výsledek |
 |---|---|---|
@@ -417,14 +468,14 @@ Podrobný výsledek je v [`tests/ui/report.md`](tests/ui/report.md).
 
 ## 14. Co dál
 
-1. **Hlas a video:** nahrát známý hlas, pohádku na dobrou noc.
-2. **Fotografie** k dopisům.
-3. **Předání dítěti** (další fáze podle zadání): strážce vzkazů potvrdí milník, dítě dostane
+1. **Předání dítěti** (další fáze podle zadání): strážce vzkazů potvrdí milník, dítě dostane
    bezpečný jednorázový odkaz.
-4. **Mapa vzpomínek** v pastelové krajině jako vizuální přehled (běžný seznam zůstane).
-5. **Šifrování end-to-end** (viz 8.6).
-6. **Export do PDF** a tisk na papír, převod řeči na text.
-7. Spolupráce s psychology na dalších inspiračních otázkách a ověření s pacienty.
+2. **Mapa vzpomínek** v pastelové krajině jako vizuální přehled (běžný seznam zůstane).
+3. **Šifrování end-to-end** (viz 8.6), i pro fotky a nahrávky.
+4. **Přepis hlasových vzkazů na text** přímo v zařízení (aby šly prohledávat) a diktování
+   v mobilní aplikaci i bez klávesnice.
+5. **Tisk knihy vzpomínek** (PDF) a fotokniha.
+6. Spolupráce s psychology na dalších inspiračních otázkách a ověření s pacienty.
 
 ---
 

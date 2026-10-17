@@ -49,7 +49,7 @@ try {
   await b.sleep(500);
   check('Hledání najde vzkaz o moři', await b.hasText('Náš výlet k moři', 3000));
   check('Hledání skryje ostatní', !(await b.hasText('Na první den ve škole', 1500)));
-  check('Export je k dispozici', await b.hasText('Stáhnout všechny vzkazy'));
+  check('Záloha je k dispozici', await b.hasText('Stáhnout zálohu'));
   check('Informace o ochraně dat', await b.hasText('Jak chráníme vaše vzpomínky'));
 
   // Klidný režim: bez povzbuzení a motivačních prvků

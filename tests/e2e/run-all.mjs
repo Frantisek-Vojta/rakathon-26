@@ -1,9 +1,9 @@
 // Spustí všechny testy v prohlížeči za sebou.
-// Použití:  BASE_URL=https://rakathon-26.vercel.app npm run test:e2e
+// Použití:  BASE_URL=https://rakathon-vzpominky.vercel.app npm run test:e2e
 //           (bez BASE_URL se testuje http://localhost:8765, viz README)
 import { spawnSync } from 'node:child_process';
 
-const suites = ['auth', 'onboarding', 'children', 'letters', 'media', 'screens'];
+const suites = ['auth', 'onboarding', 'children', 'letters', 'media', 'capture', 'screens'];
 let failedSuites = 0;
 for (const name of suites) {
   console.log(`\n=== ${name} ===`);

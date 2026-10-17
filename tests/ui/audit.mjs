@@ -73,6 +73,22 @@ await b.go(`/dite/${ids.child}`);
 await b.click('Ukolébavka na dobrou noc');
 await b.hasText('Upravit vzpomínku');
 ids.voice = b.page.url().split('/dopis/')[1].split(/[/?]/)[0];
+await b.go('/deti');
+await b.click('Aneta');
+await b.click('Video k tvým narozeninám');
+await b.hasText('Upravit vzpomínku');
+ids.video = b.page.url().split('/dopis/')[1].split(/[/?]/)[0];
+
+/** Klikne na viditelné tlačítko s přesně tímto textem a počká na výsledek (kamera v okně aplikace). */
+async function press(text, waitFor) {
+  await b.page.evaluate((t) => {
+    const label = (el) => el.innerText.replace(/[\uE000-\uF8FF]/g, '').trim().split('\n')[0].trim();
+    const el = [...document.querySelectorAll('[role="button"]')].filter((e) => label(e) === t && e.offsetParent).at(-1);
+    el?.click();
+  }, text);
+  await b.hasText(waitFor, 10000);
+  await b.sleep(1200);
+}
 
 const SCREENS = [
   { name: 'domu', path: '/' },
@@ -88,6 +104,17 @@ const SCREENS = [
   { name: 'hlas-novy', path: `/dopis/novy?dite=${ids.child}&druh=hlas` },
   { name: 'foto-novy', path: `/dopis/novy?dite=${ids.child}&druh=foto` },
   { name: 'video-novy', path: `/dopis/novy?dite=${ids.child}&druh=video` },
+  { name: 'video-cteni', path: `/dopis/${ids.video}` },
+  {
+    name: 'kamera-video',
+    path: `/dopis/novy?dite=${ids.child}&druh=video`,
+    action: () => press('Natočit video', 'Začít natáčet'),
+  },
+  {
+    name: 'kamera-foto',
+    path: `/dopis/novy?dite=${ids.child}&druh=foto`,
+    action: () => press('Vyfotit', 'Až budete připraveni'),
+  },
 ];
 
 /** Kontroly, které běží uvnitř stránky. */
@@ -153,6 +180,7 @@ async function audit(vp, screen) {
   await b.page.setViewport({ width: vp.w, height: vp.h });
   await b.page.goto(BASE + screen.path, { waitUntil: 'load' });
   await waitIdle();
+  if (screen.action) await screen.action();
   const file = `${screen.name}--${vp.name}.png`;
   await b.page.screenshot({ path: OUT + file });
   const found = await b.page.evaluate(inspect);

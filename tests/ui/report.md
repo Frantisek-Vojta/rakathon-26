@@ -1,7 +1,7 @@
 # UI/UX audit
 
 Adresa: http://localhost:8765  
-Datum: 2026-10-16 23:01
+Datum: 2026-10-17 07:05
 
 ## Souhrn
 
@@ -14,7 +14,7 @@ Datum: 2026-10-16 23:01
 | Porušení WCAG (axe-core) | 0 |
 | Chyby v konzoli | 0 |
 
-Obrazovek × velikostí: 90
+Obrazovek × velikostí: 108
 
 ## Podrobnosti
 
@@ -56,6 +56,12 @@ Obrazovek × velikostí: 90
 
 ### video-novy · telefon-maly (320×640) ✅
 
+### video-cteni · telefon-maly (320×640) ✅
+
+### kamera-video · telefon-maly (320×640) ✅
+
+### kamera-foto · telefon-maly (320×640) ✅
+
 ### domu · telefon (390×844) ✅
 
 ### deti · telefon (390×844) ✅
@@ -81,6 +87,12 @@ Obrazovek × velikostí: 90
 ### foto-novy · telefon (390×844) ✅
 
 ### video-novy · telefon (390×844) ✅
+
+### video-cteni · telefon (390×844) ✅
+
+### kamera-video · telefon (390×844) ✅
+
+### kamera-foto · telefon (390×844) ✅
 
 ### domu · telefon-nasirku (844×390) ✅
 
@@ -108,6 +120,12 @@ Obrazovek × velikostí: 90
 
 ### video-novy · telefon-nasirku (844×390) ✅
 
+### video-cteni · telefon-nasirku (844×390) ✅
+
+### kamera-video · telefon-nasirku (844×390) ✅
+
+### kamera-foto · telefon-nasirku (844×390) ✅
+
 ### domu · tablet (768×1024) ✅
 
 ### deti · tablet (768×1024) ✅
@@ -133,6 +151,12 @@ Obrazovek × velikostí: 90
 ### foto-novy · tablet (768×1024) ✅
 
 ### video-novy · tablet (768×1024) ✅
+
+### video-cteni · tablet (768×1024) ✅
+
+### kamera-video · tablet (768×1024) ✅
+
+### kamera-foto · tablet (768×1024) ✅
 
 ### domu · notebook (1280×800) ✅
 
@@ -160,6 +184,12 @@ Obrazovek × velikostí: 90
 
 ### video-novy · notebook (1280×800) ✅
 
+### video-cteni · notebook (1280×800) ✅
+
+### kamera-video · notebook (1280×800) ✅
+
+### kamera-foto · notebook (1280×800) ✅
+
 ### domu · monitor (1600×1000) ✅
 
 ### deti · monitor (1600×1000) ✅
@@ -185,6 +215,12 @@ Obrazovek × velikostí: 90
 ### foto-novy · monitor (1600×1000) ✅
 
 ### video-novy · monitor (1600×1000) ✅
+
+### video-cteni · monitor (1600×1000) ✅
+
+### kamera-video · monitor (1600×1000) ✅
+
+### kamera-foto · monitor (1600×1000) ✅
 
 ### prihlaseni · telefon-maly (320×640) ✅
 

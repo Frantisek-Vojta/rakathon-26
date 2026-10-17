@@ -14,6 +14,8 @@ try {
   // 2) Napsat dopis a uložit jako koncept
   await b.click('Napsat dopis');
   check('Editor se otevřel', await b.hasText('Pro:'));
+  // Firefox diktování neumí: tlačítko se neukáže, nabídne se hlasový vzkaz.
+  check('Bez diktování nabídne hlasový vzkaz', (await b.hasText('Raději nahrát hlasový vzkaz')) && !(await b.hasText('Diktovat hlasem', 1000)));
   await b.type('input[aria-label="Název vzkazu"]', 'Testovací dopis');
   await b.type('textarea[aria-label="Text dopisu"]', 'Milá Eliško,\nmoc tě mám ráda.');
   await b.sleep(3000);
