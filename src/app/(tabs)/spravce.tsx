@@ -303,7 +303,7 @@ const PRIVACY_POINTS: { icon: ComponentProps<typeof Ionicons>['name']; text: str
     icon: 'lock-closed-outline',
     text: 'Vzkazy, fotky i nahrávky vidíte jen vy. Databáze to hlídá u každého záznamu i souboru zvlášť.',
   },
-  { icon: 'shield-checkmark-outline', text: 'Spojení se serverem je šifrované.' },
+  { icon: 'shield-checkmark-outline', text: 'Spojení se serverem i uložená data jsou šifrovaná (HTTPS, AES-256).' },
   { icon: 'phone-portrait-outline', text: 'Rozepsaný text se ukládá i v zařízení, aby se neztratil.' },
   { icon: 'eye-off-outline', text: 'Žádné sdílení, žádná reklama, žádná sociální síť.' },
   {
@@ -323,6 +323,12 @@ function PrivacyCard() {
           <Body style={styles.pointText}>{p.text}</Body>
         </View>
       ))}
+      <Button
+        label="Ochrana osobních údajů a podmínky"
+        variant="secondary"
+        icon="document-text-outline"
+        onPress={() => router.push('/zasady')}
+      />
     </View>
   );
 }

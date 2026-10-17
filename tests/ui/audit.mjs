@@ -101,6 +101,7 @@ const SCREENS = [
   { name: 'spravce', path: '/spravce' },
   { name: 'smysl', path: '/smysl' },
   { name: 'mapa', path: '/mapa' },
+  { name: 'zasady', path: '/zasady' },
   { name: 'hlas-cteni', path: `/dopis/${ids.voice}` },
   { name: 'hlas-novy', path: `/dopis/novy?dite=${ids.child}&druh=hlas` },
   { name: 'foto-novy', path: `/dopis/novy?dite=${ids.child}&druh=foto` },
@@ -196,7 +197,18 @@ for (const vp of VIEWPORTS) {
 // Přihlášení: odhlásit demo a projít stejné velikosti.
 await b.endDemo();
 await b.hasText('Vyzkoušet demo', 10000);
-for (const vp of loginShots) await audit(vp, { name: 'prihlaseni', path: '/prihlaseni' });
+const registerTab = async () => {
+  await b.page.evaluate(() =>
+    [...document.querySelectorAll('[role="tab"]')].find((t) => t.innerText.includes('Vytvořit účet'))?.click(),
+  );
+  await b.hasText('Heslo znovu', 5000);
+  await b.sleep(600);
+};
+for (const vp of loginShots) {
+  await audit(vp, { name: 'prihlaseni', path: '/prihlaseni' });
+  await audit(vp, { name: 'registrace', path: '/prihlaseni', action: registerTab });
+  await audit(vp, { name: 'zasady-bez-prihlaseni', path: '/zasady' });
+}
 const consoleLog = b.logs.slice();
 await b.close();
 

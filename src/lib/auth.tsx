@@ -1,6 +1,8 @@
 import type { Session } from '@supabase/supabase-js';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { TERMS_VERSION } from '@/constants/legal';
+
 import { drafts } from './drafts';
 import { toMessage } from './errors';
 import { deleteAllMyMedia } from './media';
@@ -61,7 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       async signUp(email, password) {
         const cleanEmail = email.trim().toLowerCase();
-        const { data, error } = await supabase.auth.signUp({ email: cleanEmail, password });
+        // K účtu uložíme, se kterou verzí podmínek a kdy rodič souhlasil (doložitelnost souhlasu podle GDPR).
+        const { data, error } = await supabase.auth.signUp({
+          email: cleanEmail,
+          password,
+          options: { data: { souhlas: { verze: TERMS_VERSION, cas: new Date().toISOString() } } },
+        });
         if (error) return { error: toMessage(error) };
         // Supabase z bezpečnostních důvodů neprozradí, že e-mail už je registrovaný:
         // vrátí uživatele bez přihlášení. Poznáme to podle prázdného seznamu identit.

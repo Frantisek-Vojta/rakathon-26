@@ -66,7 +66,8 @@ function RootNavigator() {
   // Po prvním přihlášení se nejdřív ukáže uvítací průvodce.
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.background } }}>
-      <Stack.Protected guard={ready}>
+      {/* Kam vést, když stránka není dostupná: nepřihlášený na přihlášení, nový účet do průvodce. */}
+      <Stack.Protected guard={ready} redirectTo={signedIn ? '/vitejte' : '/prihlaseni'}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="dite/novy" />
         <Stack.Screen name="dite/[id]/index" />
@@ -75,12 +76,14 @@ function RootNavigator() {
         <Stack.Screen name="smysl" />
         <Stack.Screen name="mapa" />
       </Stack.Protected>
-      <Stack.Protected guard={signedIn && !prefs.onboarded}>
+      <Stack.Protected guard={signedIn && !prefs.onboarded} redirectTo={signedIn ? '/' : '/prihlaseni'}>
         <Stack.Screen name="vitejte" />
       </Stack.Protected>
-      <Stack.Protected guard={!signedIn}>
+      <Stack.Protected guard={!signedIn} redirectTo={prefs.onboarded ? '/' : '/vitejte'}>
         <Stack.Screen name="prihlaseni" />
       </Stack.Protected>
+      {/* Ochrana osobních údajů a podmínky: dostupné vždy, i před registrací. */}
+      <Stack.Screen name="zasady" />
     </Stack>
   );
 }

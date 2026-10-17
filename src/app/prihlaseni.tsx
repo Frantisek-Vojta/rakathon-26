@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, type TextInputInstance } from 'react-native';
 
@@ -20,9 +21,12 @@ export default function SignInScreen() {
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState(getLastEmail);
   const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<'form' | 'demo' | null>(null);
   const passwordRef = useRef<TextInputInstance>(null);
+  const password2Ref = useRef<TextInputInstance>(null);
   const { isTablet } = useLayout();
 
   const isRegister = mode === 'register';
@@ -39,6 +43,14 @@ export default function SignInScreen() {
     }
     if (!password) {
       setError('Napište prosím heslo.');
+      return;
+    }
+    if (isRegister && password2 !== password) {
+      setError('Hesla se neshodují. Napište prosím do obou polí stejné heslo.');
+      return;
+    }
+    if (isRegister && !consent) {
+      setError('Pro vytvoření účtu potřebujeme váš souhlas s podmínkami a se zpracováním osobních údajů.');
       return;
     }
     setBusy('form');
@@ -130,10 +142,47 @@ export default function SignInScreen() {
               autoCorrect={false}
               autoComplete={isRegister ? 'new-password' : 'current-password'}
               textContentType={isRegister ? 'newPassword' : 'password'}
-              returnKeyType="go"
-              onSubmitEditing={submit}
+              returnKeyType={isRegister ? 'next' : 'go'}
+              onSubmitEditing={isRegister ? () => password2Ref.current?.focus() : submit}
               maxLength={72}
             />
+
+            {isRegister && (
+              <>
+                <TextField
+                  ref={password2Ref}
+                  label="Heslo znovu"
+                  value={password2}
+                  onChangeText={setPassword2}
+                  secret
+                  hint="Pro kontrolu, že je heslo napsané správně."
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="new-password"
+                  textContentType="newPassword"
+                  returnKeyType="go"
+                  onSubmitEditing={submit}
+                  maxLength={72}
+                />
+                <Pressable
+                  accessibilityRole="checkbox"
+                  aria-checked={consent}
+                  onPress={() => {
+                    setConsent((c) => !c);
+                    setError(null);
+                  }}
+                  style={({ pressed }) => [styles.consent, pressed && styles.pressed]}>
+                  <View style={[styles.checkbox, consent && styles.checkboxOn]}>
+                    {consent && <Ionicons name="checkmark" size={18} color={Colors.onPrimary} />}
+                  </View>
+                  <Text style={styles.consentText}>
+                    Souhlasím s podmínkami používání a se zpracováním osobních údajů, včetně citlivých údajů, které do
+                    vzpomínek napíšu.
+                  </Text>
+                </Pressable>
+                <LegalLinks />
+              </>
+            )}
 
             {error && (
               <View style={styles.errorBox} accessibilityLiveRegion="polite">
@@ -153,12 +202,33 @@ export default function SignInScreen() {
           <View style={styles.privacy}>
             <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} />
             <Muted style={styles.privacyText}>
-              Vaše vzpomínky vidíte jen vy. Nikdo jiný k nim přes aplikaci nemá přístup.
+              Vaše vzpomínky vidíte jen vy. Spojení i uložená data jsou šifrovaná.
             </Muted>
           </View>
+          {!isRegister && <LegalLinks />}
         </View>
       </View>
     </Screen>
+  );
+}
+
+/** Odkazy na ochranu osobních údajů a podmínky (otevřou se i bez přihlášení). */
+function LegalLinks() {
+  return (
+    <View style={styles.legalLinks}>
+      <Pressable
+        accessibilityRole="link"
+        onPress={() => router.push({ pathname: '/zasady', params: { zalozka: 'gdpr' } })}
+        style={({ pressed }) => [styles.legalLink, pressed && styles.pressed]}>
+        <Text style={styles.legalLinkText}>Ochrana osobních údajů (GDPR)</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="link"
+        onPress={() => router.push({ pathname: '/zasady', params: { zalozka: 'podminky' } })}
+        style={({ pressed }) => [styles.legalLink, pressed && styles.pressed]}>
+        <Text style={styles.legalLinkText}>Podmínky používání</Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -257,5 +327,53 @@ const styles = StyleSheet.create({
   privacyText: {
     flexShrink: 1,
     fontSize: 14,
+  },
+  pressed: {
+    opacity: 0.75,
+  },
+  consent: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    minHeight: 44,
+    paddingVertical: Spacing.xs,
+  },
+  checkbox: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: Colors.borderStrong,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkboxOn: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  consentText: {
+    flex: 1,
+    fontFamily: Fonts.body,
+    fontSize: 15,
+    lineHeight: 22,
+    color: Colors.text,
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    columnGap: Spacing.md,
+  },
+  legalLink: {
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  legalLinkText: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 14,
+    color: Colors.primaryText,
+    textDecorationLine: 'underline',
   },
 });
