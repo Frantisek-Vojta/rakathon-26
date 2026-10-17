@@ -98,6 +98,7 @@ function fieldsOf(letter: Letter): LetterFields {
  * /dopis/novy?otazka=…     nový dopis z inspirace (nejdřív výběr dítěte)
  * /dopis/novy?dite=ID&prilezitost=…   nový dopis k milníku z časové osy
  * /dopis/novy?dite=ID&druh=foto|hlas|video   fotka, hlasový nebo video vzkaz místo psaní
+ * /dopis/novy?nazev=…&prilezitost=Dar mimo aplikaci   zápis dárku mimo aplikaci (z Inspirace)
  * /dopis/ID                existující dopis (hotový se otevře ke čtení)
  */
 export default function LetterRoute() {
@@ -107,6 +108,7 @@ export default function LetterRoute() {
     otazka?: string;
     prilezitost?: string;
     druh?: string;
+    nazev?: string;
   }>();
   // Parametry si zapamatujeme při otevření. Po prvním uložení se v adrese
   // „novy“ změní na skutečné ID a obrazovka se kvůli tomu nesmí znovu načítat.
@@ -118,6 +120,7 @@ export default function LetterRoute() {
     // Jen příležitosti z nabídky (adresa jde ručně upravit).
     prilezitost: OCCASIONS.find((o) => o !== 'Kdykoli' && o === params.prilezitost) ?? null,
     druh: KINDS.find((k) => k === params.druh) ?? 'dopis',
+    nazev: params.nazev?.slice(0, 120) ?? '',
   }));
   const [childId, setChildId] = useState(start.dite);
   const isNew = start.id === 'novy';
@@ -143,6 +146,7 @@ export default function LetterRoute() {
       prompt={start.otazka}
       occasion={start.prilezitost}
       kind={start.druh}
+      title={start.nazev}
     />
   );
 }
@@ -155,12 +159,14 @@ function LetterLoader({
   prompt,
   occasion,
   kind,
+  title,
 }: {
   letterId: string | null;
   childId: string | null;
   prompt?: string;
   occasion: string | null;
   kind: MemoryKind;
+  title: string;
 }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -194,7 +200,7 @@ function LetterLoader({
             setLoaded({
               child,
               letter: null,
-              fields: local ? { ...EMPTY, ...local.fields, kind } : { ...EMPTY, kind, occasion },
+              fields: local ? { ...EMPTY, ...local.fields, kind } : { ...EMPTY, kind, occasion, title },
               restored: !!local,
             });
         }
@@ -205,7 +211,7 @@ function LetterLoader({
     return () => {
       active = false;
     };
-  }, [letterId, childId, occasion, kind, attempt]);
+  }, [letterId, childId, occasion, kind, title, attempt]);
 
   if (error || !loaded) {
     return (

@@ -22,6 +22,30 @@ try {
   check('Otázka z inspirace vede na výběr dítěte', await b.hasText('Pro koho bude vzkaz?'));
   check('Otázka je vidět u výběru', await b.hasText('Jak začal příběh vaší rodiny?'));
 
+  // Oblíbené otázky (srdíčko) přežijí obnovení stránky
+  await b.go('/inspirace');
+  const hearts = await b.page.$$('[role="button"][aria-label="Uložit do oblíbených"]');
+  await hearts[0].click();
+  check('Oblíbená otázka se ukáže v Moje oblíbené', await b.hasText('Moje oblíbené', 5000));
+  await b.sleep(1500);
+  await b.go('/inspirace', 3500);
+  check('Oblíbené zůstanou i po obnovení', await b.hasText('Moje oblíbené', 5000));
+  await (await b.page.waitForSelector('[role="button"][aria-label="Odebrat z oblíbených"]')).click();
+  check('Oblíbenou otázku jde odebrat', !(await b.hasText('Moje oblíbené', 2000)));
+
+  // Zápis dárku mimo aplikaci
+  await (await b.page.waitForSelector('[role="button"][aria-label="Zapsat dar: Krabice vzpomínek"]')).click();
+  check('Zápis daru začíná výběrem dítěte', await b.hasText('Pro koho bude vzkaz?'));
+  await b.click('Eliška');
+  check(
+    'Dar má předvyplněný název a příležitost',
+    (await b.hasText('Dar mimo aplikaci')) &&
+      (await b.page.evaluate(() => document.querySelector('input[aria-label="Název vzkazu"]')?.value === 'Krabice vzpomínek')),
+  );
+  await b.type('textarea[aria-label="Text dopisu"]', 'Krabice je v šatně nahoře, jsou v ní tvoje první botičky.');
+  await b.click('Uložit vzkaz');
+  check('Zapsaný dar se uloží', await b.hasText('Malý krok s velkým významem', 10000));
+
   await b.go('/smysl');
   check('Proč to má smysl', await b.hasText('Vzpomínky mají smysl'));
 
@@ -29,13 +53,13 @@ try {
   await b.go('/');
   await b.click('Jen si vše projít');
   check('Mapa vzpomínek se otevře', await b.hasText('Mapa vzpomínek'));
-  check('Souhrn pod mapou', await b.hasText('Zatím 7 hotových vzpomínek'));
+  check('Souhrn pod mapou', await b.hasText('Zatím 8 hotových vzpomínek'));
   const places = await b.page.evaluate(
     () => [...document.querySelectorAll('[role="button"]')].filter((e) => /\n(Eliška|Matěj|Aneta)$/.test(e.innerText.trim())).length,
   );
-  check('Na mapě je 7 hotových vzpomínek', places === 7, `${places} míst`);
-  await b.click('Ukolébavka na dobrou noc');
-  check('Místo na mapě otevře vzpomínku', await b.hasText('Upravit vzpomínku'));
+  check('Na mapě je 8 hotových vzpomínek', places === 8, `${places} míst`);
+  await b.click('Náš výlet k moři');
+  check('Místo na mapě otevře vzpomínku', await b.hasText('Upravit dopis'));
 
   await b.go('/deti');
   await b.click('Eliška');
@@ -48,7 +72,7 @@ try {
 
   await b.go('/spravce');
   check('Správce: přehled', await b.hasText('Co už je vytvořeno'));
-  check('Správce: souhrn', await b.hasText('3 děti · 7 hotových vzpomínek · 3 koncepty'));
+  check('Správce: souhrn', await b.hasText('3 děti · 8 hotových vzpomínek · 3 koncepty'));
   await b.shot('32-spravce');
   const radios = await b.page.$$('[role="radio"][aria-label="Koncepty"]');
   await radios[0].click();

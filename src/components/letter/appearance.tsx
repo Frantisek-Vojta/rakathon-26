@@ -81,7 +81,7 @@ export function LetterAppearance({ fields, onChange }: Props) {
                   aria-checked={selected}
                   onPress={() => onChange({ sticker: key })}
                   style={[styles.sticker, selected && styles.stickerSelected]}>
-                  <StickerIcon sticker={key} size={24} />
+                  <StickerIcon sticker={key} size={22} />
                 </Pressable>
               );
             })}

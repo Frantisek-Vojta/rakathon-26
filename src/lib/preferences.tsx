@@ -6,6 +6,8 @@
 import type { User } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
+import { ALL_PROMPTS, LIFE_STORIES } from '@/constants/inspiration';
+
 import { useAuth } from './auth';
 import { toMessage } from './errors';
 import { storage } from './storage';
@@ -21,6 +23,8 @@ export type Preferences = {
   support: Support;
   interests: Interest[];
   reminders: Reminders;
+  /** Oblíbené otázky z Inspirace (podklady: „Moje oblíbené“, „uložené inspirace“). */
+  saved: string[];
   /** Kdy se nastavení naposledy změnilo: platí vždy novější kopie (účet, nebo zařízení). */
   updatedAt: number;
 };
@@ -30,10 +34,12 @@ export const DEFAULT_PREFERENCES: Preferences = {
   support: 'jemne',
   interests: ['inspirace', 'oceneni', 'pribehy'],
   reminders: 'ne',
+  saved: [],
   updatedAt: 0,
 };
 
 const INTERESTS: Interest[] = ['inspirace', 'oceneni', 'citat', 'pribehy', 'pripominky'];
+const KNOWN_PROMPTS = new Set([...ALL_PROMPTS, ...LIFE_STORIES.map((s) => s.question)]);
 
 /** Metadata si uživatel může měnit sám, proto hodnoty vždy zkontrolujeme. */
 function sanitize(raw: unknown): Preferences {
@@ -45,6 +51,14 @@ function sanitize(raw: unknown): Preferences {
       ? INTERESTS.filter((i) => (value.interests as unknown[]).includes(i))
       : DEFAULT_PREFERENCES.interests,
     reminders: value.reminders === 'tydne' || value.reminders === 'casteji' ? value.reminders : 'ne',
+    // Jen otázky z nabídky, bez opakování (metadata jde upravit i mimo aplikaci).
+    saved: Array.isArray(value.saved)
+      ? [
+          ...new Set(
+            (value.saved as unknown[]).filter((q): q is string => typeof q === 'string' && KNOWN_PROMPTS.has(q)),
+          ),
+        ]
+      : [],
     updatedAt: typeof value.updatedAt === 'number' ? value.updatedAt : 0,
   };
 }
@@ -93,9 +107,13 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       const next = sanitize({ ...prefs, ...patch, updatedAt: Date.now() });
       setOptimistic({ uid, prefs: next });
       storage.setJSON(localKey(uid), next);
-      const { error } = await supabase.auth.updateUser({ data: { nastaveni: next } });
-      // Nastavení zůstává uložené v zařízení i když se nepovede uložit k účtu.
-      return error ? toMessage(error) : null;
+      // Nastavení zůstává uložené v zařízení i když se nepovede uložit k účtu (třeba bez internetu).
+      try {
+        const { error } = await supabase.auth.updateUser({ data: { nastaveni: next } });
+        return error ? toMessage(error) : null;
+      } catch (e) {
+        return toMessage(e as Error);
+      }
     },
     [uid, prefs],
   );

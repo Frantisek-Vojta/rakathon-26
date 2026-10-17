@@ -1,11 +1,11 @@
 // Nabídky, ze kterých si rodič vybírá. Hodnoty musí odpovídat kontrolám v databázi.
 import { Colors, Fonts } from './theme';
-import type MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import type Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 
 import type { ChildColor, LetterFont, Paper, Sticker } from '@/lib/data';
 
-type StickerIconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
+type StickerIconName = ComponentProps<typeof Ionicons>['name'];
 
 export const CHILD_COLORS: Record<ChildColor, { label: string; bg: string; fg: string }> = {
   rose: { label: 'Růžová', bg: Colors.primarySoft, fg: Colors.primary },
@@ -31,14 +31,15 @@ export const FONTS: Record<LetterFont, { label: string; family: string; size: nu
 };
 
 // Nálepky jsou ikony (ne emoji), aby vypadaly všude stejně a ladily s aplikací.
+// Klíče jsou dané databází, popisky odpovídají ikonám (medvidek = tlapka, duha = balónek).
 export const STICKERS: Record<Sticker, { label: string; icon: StickerIconName; color: string }> = {
   srdce: { label: 'Srdce', icon: 'heart', color: '#C2453D' },
   kvetina: { label: 'Květina', icon: 'flower', color: '#C4577D' },
   hvezda: { label: 'Hvězda', icon: 'star', color: '#B98419' },
-  medvidek: { label: 'Medvídek', icon: 'teddy-bear', color: '#8A5A35' },
-  slunce: { label: 'Slunce', icon: 'white-balance-sunny', color: '#C97516' },
-  duha: { label: 'Duha', icon: 'looks', color: '#6E5BA8' },
-  obalka: { label: 'Obálka', icon: 'email-heart-outline', color: '#94473F' },
+  medvidek: { label: 'Tlapka', icon: 'paw', color: '#8A5A35' },
+  slunce: { label: 'Slunce', icon: 'sunny', color: '#C97516' },
+  duha: { label: 'Balónek', icon: 'balloon', color: '#6E5BA8' },
+  obalka: { label: 'Obálka', icon: 'mail', color: '#94473F' },
 };
 
 // Příležitosti, ke kterým může vzkaz patřit. Jen štítek, žádné odpočty ani připomínky.
@@ -52,4 +53,5 @@ export const OCCASIONS = [
   'K maturitě',
   'Na svatbu',
   'Až budeš mít vlastní dítě',
+  'Dar mimo aplikaci',
 ] as const;

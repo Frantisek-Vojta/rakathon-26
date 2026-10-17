@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { STICKERS } from '@/constants/choices';
@@ -18,7 +18,7 @@ export function StickerIcon({
   if (!item) return null;
   return (
     <View aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={style}>
-      <MaterialCommunityIcons name={item.icon} size={size} color={item.color} />
+      <Ionicons name={item.icon} size={size} color={item.color} />
     </View>
   );
 }

@@ -14,9 +14,49 @@ function startLetter(question: string) {
   router.push({ pathname: '/dopis/[id]', params: { id: 'novy', otazka: question } });
 }
 
+/** Zápis dárku mimo aplikaci (podklady: „evidence fyzických darů“): rodina pak ví, že dar existuje a kde je. */
+function recordGift(title: string) {
+  router.push({
+    pathname: '/dopis/[id]',
+    params: {
+      id: 'novy',
+      nazev: title,
+      prilezitost: 'Dar mimo aplikaci',
+      otazka: 'Co v daru je, proč vznikl a kde ho dítě jednou najde?',
+    },
+  });
+}
+
+/** Otázka z inspirace: klepnutím začne nový vzkaz, srdíčkem se uloží mezi oblíbené. */
+function PromptRow({ prompt, saved, onToggle }: { prompt: string; saved: boolean; onToggle: () => void }) {
+  return (
+    <View style={styles.prompt}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityHint="Otevře nový vzkaz s touto otázkou"
+        onPress={() => startLetter(prompt)}
+        style={({ pressed }) => [styles.promptMain, pressed && styles.pressed]}>
+        <Text style={styles.promptText}>{prompt}</Text>
+        <Ionicons name="create-outline" size={20} color={Colors.primaryText} />
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={saved ? 'Odebrat z oblíbených' : 'Uložit do oblíbených'}
+        aria-pressed={saved}
+        onPress={onToggle}
+        style={({ pressed }) => [styles.heart, pressed && styles.pressed]}>
+        <Ionicons name={saved ? 'heart' : 'heart-outline'} size={22} color={Colors.primaryText} />
+      </Pressable>
+    </View>
+  );
+}
+
 export default function InspirationScreen() {
   const { isTablet } = useLayout();
-  const { stories } = usePreferences();
+  const { stories, prefs, update } = usePreferences();
+  const saved = prefs.saved;
+  const toggle = (prompt: string) =>
+    update({ saved: saved.includes(prompt) ? saved.filter((p) => p !== prompt) : [...saved, prompt] });
 
   const lifeStories = (
     <View style={[styles.block, styles.stories]}>
@@ -74,6 +114,18 @@ export default function InspirationScreen() {
         <Body style={styles.noteText}>Stačí jedna věta. Nemusí být dokonalá, hlavně ať je vaše.</Body>
       </View>
 
+      {saved.length > 0 && (
+        <View style={[styles.block, styles.favorites]}>
+          <View style={styles.groupHead}>
+            <Ionicons name="heart" size={22} color={Colors.primaryText} />
+            <Heading>Moje oblíbené</Heading>
+          </View>
+          {saved.map((prompt) => (
+            <PromptRow key={prompt} prompt={prompt} saved onToggle={() => toggle(prompt)} />
+          ))}
+        </View>
+      )}
+
       {stories && lifeStories}
 
       <View style={[styles.grid, isTablet && styles.gridWide]}>
@@ -84,15 +136,7 @@ export default function InspirationScreen() {
               <Heading>{group.title}</Heading>
             </View>
             {group.prompts.map((prompt) => (
-              <Pressable
-                key={prompt}
-                accessibilityRole="button"
-                accessibilityHint="Otevře nový vzkaz s touto otázkou"
-                onPress={() => startLetter(prompt)}
-                style={({ pressed }) => [styles.prompt, pressed && styles.pressed]}>
-                <Text style={styles.promptText}>{prompt}</Text>
-                <Ionicons name="create-outline" size={20} color={Colors.primaryText} />
-              </Pressable>
+              <PromptRow key={prompt} prompt={prompt} saved={saved.includes(prompt)} onToggle={() => toggle(prompt)} />
             ))}
           </View>
         ))}
@@ -106,7 +150,7 @@ export default function InspirationScreen() {
             <Heading style={styles.blockTitle}>Nemusí to být jen v aplikaci</Heading>
             <Muted>
               Vzpomínkové dary mohou vznikat i mimo digitální svět. Důležitý je záměr, společný čas a to, co chcete
-              svému dítěti předat.
+              svému dítěti předat. Když dar vytvoříte, zapište si ho: rodina bude vědět, že existuje a kde ho najde.
             </Muted>
           </View>
           <Illustration name="krabice" maxWidth={isTablet ? 220 : 260} />
@@ -120,6 +164,14 @@ export default function InspirationScreen() {
               <View style={styles.storyTexts}>
                 <Text style={styles.storyTitle}>{gift.title}</Text>
                 <Text style={styles.storyText}>{gift.text}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Zapsat dar: ${gift.title}`}
+                  onPress={() => recordGift(gift.title)}
+                  style={({ pressed }) => [styles.giftLink, pressed && styles.pressed]}>
+                  <Ionicons name="add-circle-outline" size={18} color={Colors.sageDark} />
+                  <Text style={styles.giftLinkText}>Zapsat dar</Text>
+                </Pressable>
               </View>
             </View>
           ))}
@@ -250,15 +302,44 @@ const styles = StyleSheet.create({
   },
   prompt: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
+    alignItems: 'stretch',
     backgroundColor: Colors.surface,
     borderRadius: Radius.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 14,
     minHeight: 56,
+  },
+  promptMain: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingLeft: Spacing.md,
+    paddingRight: Spacing.sm,
+    paddingVertical: 14,
+  },
+  heart: {
+    width: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderLeftWidth: 1,
+    borderLeftColor: Colors.border,
+  },
+  favorites: {
+    backgroundColor: Colors.surfaceSoft,
+    gap: Spacing.sm,
+  },
+  giftLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    minHeight: 44,
+  },
+  giftLinkText: {
+    fontFamily: Fonts.bodyBold,
+    fontSize: 15,
+    color: Colors.sageDark,
   },
   promptText: {
     flex: 1,
