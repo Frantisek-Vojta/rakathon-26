@@ -435,7 +435,7 @@ V nastavení Auth zapněte *Anonymous sign-ins* (demo) a *Confirm email* nechte 
 
 | Příkaz | Co ověřuje |
 |---|---|
-| `npm run test:security` | 28 kontrol zabezpečení databáze a úložiště: dva účty, „útoky“ jednoho na druhý (čtení, změna, mazání cizích dat, podvržení vlastníka, cizí dítě, cizí soubory), nepřihlášený přístup, zakázané typy souborů, kontroly hodnot, smazání účtu. Test po sobě uklidí |
+| `npm run test:security` | 27 kontrol zabezpečení databáze a úložiště: dva účty, „útoky“ jednoho na druhý (čtení, změna, mazání cizích dat, podvržení vlastníka, cizí dítě, cizí soubory), nepřihlášený přístup, zakázané typy souborů, kontroly hodnot, smazání účtu. Test po sobě uklidí |
 | `npm run test:e2e` | 130 kontrol v 7 sadách: přihlášení a localStorage, chráněné stránky, uvítací průvodce, děti, **všech 5 akceptačních kroků**, obnova textu po zavření, ukázková fotka / ukolébavka / video, nahrání hlasu (testovací mikrofon), fotka z galerie, **video a fotka z webkamery**, **diktování**, stažení souboru, **záloha ZIP**, časová osa, klidný režim, inspirace, oblíbené otázky, zápis daru, mapa vzpomínek, Správce, filtry, hledání |
 | `npm run test:ui` | UI/UX audit: všechny obrazovky v 6 velikostech (viz [kapitola 12](#12-uiux-přístupnost-a-responzivita)) |
 
